@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import './Login.css';
-import Card from '../components/Card/Card';
+// import './Login.css';
+import { Card, TitleText, SubtitleText } from '../components/Card/Card';
 
 export default function Login(props) {
 	const [ userName, setUsername ] = useState('');
@@ -8,13 +8,14 @@ export default function Login(props) {
 
 	return (
 		<Card>
-			<div className="container">
-				<h1>Login</h1>
-				<p>
+			<div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignContent: 'center' }}>
+				{/* <h1>Login</h1> */}
+				<TitleText>Login</TitleText>
+				<SubtitleText>
 					Clock-in with your username<br />Log-in with your username and password
-				</p>
+				</SubtitleText>
 			</div>
-			<div className="container2">
+			<div style={{ flexDirection: 'column', display: 'flex' }}>
 				<input className="inputForm" />
 				<input className="inputForm" />
 			</div>
