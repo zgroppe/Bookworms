@@ -10,7 +10,7 @@ export default function Login(props) {
 		<Card>
 			<div style={{ textAlign: 'left', display: 'flex', flexDirection: 'column', alignContent: 'center' }}>
 				{/* <h1>Login</h1> */}
-				<TitleText>Login</TitleText>
+				<TitleText>Login CHANGE</TitleText>
 				<SubtitleText>
 					Clock-in with your username<br />Log-in with your username and password
 				</SubtitleText>
