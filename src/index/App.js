@@ -8,24 +8,15 @@ export default function App() {
 		<div className='App'>
 			<Switch>
 				{/* This will make all screens as a route */}
+				<Route exact path='/' component={Login} />
 				{Screens.map(screen => {
-					if (screen.protected) {
-						return (
-							<ProtectedRoute
-								exact
-								path={`${screen.path}`}
-								component={screen.component}
-							/>
-						)
-					} else {
-						return (
-							<Route
-								exact
-								path={`${screen.path}`}
-								component={screen.component}
-							/>
-						)
-					}
+					return (
+						<ProtectedRoute
+							exact
+							path={`${screen.path}`}
+							component={screen.component}
+						/>
+					)
 				})}
 				<Route path='*' component={Login} />
 			</Switch>

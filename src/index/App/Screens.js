@@ -6,19 +6,16 @@ const Screens = [
 	{
 		name: 'Dashboard',
 		path: '/dashboard',
-		protected: true,
 		component: Dashboard,
 	},
 	{
 		name: 'Shift Swap',
 		path: '/shiftswap',
-		protected: true,
 		component: Shiftswap,
 	},
 	{
 		name: 'Logout',
 		path: '/',
-		protected: false,
 		component: Login,
 	},
 ]
