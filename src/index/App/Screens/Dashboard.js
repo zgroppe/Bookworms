@@ -1,11 +1,11 @@
 import React from 'react'
-import auth from '../../shared/Auth'
+import auth from '../Components/Auth'
 
-export const ProtectedScreen = props => {
+export default function Dashboard(props) {
 	return (
 		<div>
-			<h1>ProtectedScreen</h1>
-			<h3>This is the first of many protected screens :)</h3>
+			<h1>Dashboard</h1>
+			<h3>This is some dashboard content</h3>
 			<button
 				onClick={() => {
 					auth.logout(() => {
