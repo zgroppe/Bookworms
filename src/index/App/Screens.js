@@ -4,12 +4,6 @@ import Shiftswap from './Screens/Shiftswap'
 // All screens here will become a navbar item and a route
 const Screens = [
 	{
-		name: 'Login',
-		path: '/',
-		protected: false,
-		component: Login,
-	},
-	{
 		name: 'Dashboard',
 		path: '/dashboard',
 		protected: true,
@@ -20,6 +14,12 @@ const Screens = [
 		path: '/shiftswap',
 		protected: true,
 		component: Shiftswap,
+	},
+	{
+		name: 'Logout',
+		path: '/',
+		protected: false,
+		component: Login,
 	},
 ]
 export default Screens
