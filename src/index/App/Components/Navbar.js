@@ -6,10 +6,10 @@ export default function Navbar() {
 		<div
 			className='Navbar'
 			style={{
-				float: 'left',
-				width: '10%',
-				background: '#ccc',
-				padding: '20px',
+				display: 'flex',
+				height: '100vh',
+				width: '10vw',
+				padding: 0,
 			}}
 		>
 			<ul>
@@ -18,10 +18,11 @@ export default function Navbar() {
 					return (
 						<li>
 							<NavLink
+								className='tags'
 								exact={true}
 								activeStyle={{
 									fontWeight: 'bold',
-									color: 'blue',
+									backgroundColor: 'blue',
 								}}
 								to={`${screen.path}`}
 							>
@@ -31,6 +32,7 @@ export default function Navbar() {
 					)
 				})}
 			</ul>
+			<hr width='1' size='110vh' />
 		</div>
 	)
 }
