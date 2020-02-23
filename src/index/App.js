@@ -3,6 +3,7 @@ import { ProtectedRoute } from './App/Components/ProtectedRoute'
 import Login from './App/Screens/Login'
 import { Route, Switch } from 'react-router-dom'
 import Screens from './App/Screens'
+import './App/Styles/App.css'
 export default function App() {
 	return (
 		<div className='App'>

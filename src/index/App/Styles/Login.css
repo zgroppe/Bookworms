@@ -1,0 +1,33 @@
+@import url('https://fonts.googleapis.com/css?family=Amaranth');
+
+.container {
+	text-align: start;
+}
+h1 {
+	font-family: 'Amaranth';
+	font-size: 7vh;
+	margin: 0;
+	color: #3385ff;
+}
+div > p {
+	font-size: 2.5vh;
+	margin-top: 1%;
+}
+
+.container2 {
+	flex-direction: column;
+	display: flex;
+	align-items: center;
+}
+
+.inputForm {
+	background: transparent;
+	width: 75%;
+	border: none;
+	border-bottom: 1px solid #000000;
+}
+
+.inputForm:focus {
+	border: none;
+	border-bottom: 1px solid #3385ff;
+}
