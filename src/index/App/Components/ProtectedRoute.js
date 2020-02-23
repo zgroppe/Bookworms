@@ -13,9 +13,23 @@ export const ProtectedRoute = ({ component: Component, ...rest }) => {
 					return (
 						<div>
 							<Header />
-							<div style={{ flexDirection: 'row' }}>
+							<hr style={{ borderBlock: 0 }} />
+							<div
+								style={{
+									display: 'flex',
+									flexDirection: 'row',
+									// alignItems: 'center',
+									// justifyContent: 'center',
+								}}
+							>
 								<Navbar />
-								<Component {...props} />
+								<div
+									style={{
+										marginLeft: '10vw',
+									}}
+								>
+									<Component {...props} />
+								</div>
 							</div>
 						</div>
 					)

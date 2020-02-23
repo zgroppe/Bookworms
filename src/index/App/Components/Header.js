@@ -1,19 +1,47 @@
 import React from 'react'
-export default function Header(props) {
+import { MdPersonOutline, MdNotificationsNone } from 'react-icons/md'
+const LibraryLogo = require('../Images/LibraryLogo.png')
+
+export default function Header() {
 	return (
 		<div
 			style={{
+				display: 'flex',
 				flexDirection: 'row',
-				height: '3.5%',
-				width: '100%',
-				alignContent: 'center',
-				alignItems: 'center',
-				justifyItems: 'center',
+				height: '9vh',
+				width: '100vw',
+				textAlign: 'center',
+				padding: 0,
 			}}
 		>
-			<h1>This is the static header when a user is logged in.</h1>
-			<span>This should be updated to look like figma.</span>
-			<hr />
+			<div
+				style={{
+					flex: 1,
+					display: 'flex',
+					marginLeft: '2vw',
+				}}
+			>
+				<h1>Employee Dashboard</h1>
+			</div>
+			<div
+				style={{
+					flex: 1,
+					display: 'flex',
+					justifyContent: 'center',
+					alignItems: 'center',
+					marginRight: '2vw',
+				}}
+			>
+				<img
+					align='middle'
+					src={LibraryLogo}
+					alt='Library Logo'
+					style={{ height: '9vh' }}
+				/>
+				<MdPersonOutline style={{ fontSize: '9vh' }} />
+				<p>John Deer</p>
+				<MdNotificationsNone style={{ fontSize: '9vh' }} />
+			</div>
 		</div>
 	)
 }
