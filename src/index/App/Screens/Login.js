@@ -1,6 +1,6 @@
 import React from 'react'
 import auth from '../Components/Auth'
-
+import Screens from '../Screens'
 // This will be changed to david's login component when it is finished
 export default function Login(props) {
 	return (
@@ -9,7 +9,7 @@ export default function Login(props) {
 			<button
 				onClick={() => {
 					auth.login(() => {
-						props.history.push('/dashboard')
+						props.history.push(Screens[0].path)
 					})
 				}}
 			>
