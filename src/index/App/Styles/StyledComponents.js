@@ -1,4 +1,4 @@
-import styled from 'styled-components'
+import styled from 'styled-components';
 
 export const Card = styled.div`
 	background-color: white;
@@ -38,12 +38,13 @@ export const TextInput = styled.input`
 
 export const PrimaryButton = styled.button`
 	background: -webkit-linear-gradient(left, #1cd1a1, #235cb9);
-	margin: 1em;
+	margin: 1em;	
 	border-radius: 3px;
 	width: 10vw;
 	height: 2em;
 	color: white;
 	font-size: 2.5vh;
+	border: 0px;
 `
 
 export const Hyperlink = styled.a`
