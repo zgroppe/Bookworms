@@ -13,8 +13,8 @@ export default function Schedule(props) {
 	useEffect(() => {
 		//calling setMyEventsList to set hardcoded list
 		setMyEventsList([
-			{ title: 'Employee 1', start: new Date(2020, 1, 23, 10), end: new Date(2020, 1, 23, 18) },
-			{ title: 'Employee 3', start: new Date(2020, 1, 25, 10), end: new Date(2020, 1, 25, 16) }
+			{ title: 'Employee 1', start: new Date(2020, 1, 23, 10), end: new Date(2020, 1, 23, 18), color: '#fc0373' },
+			{ title: 'Employee 3', start: new Date(2020, 1, 25, 10), end: new Date(2020, 1, 25, 16), color: '#18fc03' }
 		]);
 	}, []);
 	const handleSelect = ({ start, end }) => {
@@ -23,6 +23,7 @@ export default function Schedule(props) {
 			setMyEventsList([ ...myEventsList, { title, start, end } ]);
 		}
 	};
+
 	return (
 		<div>
 			<h1>Schedule</h1>
@@ -37,6 +38,11 @@ export default function Schedule(props) {
 				onSelectEvent={(event) => alert(event.title)}
 				onSelectSlot={handleSelect}
 				style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+				eventPropGetter={(event) => ({
+					style: {
+						backgroundColor: event.color
+					}
+				})}
 			/>
 		</div>
 	);
