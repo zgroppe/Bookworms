@@ -4,13 +4,14 @@ import Login from './App/Screens/Login';
 import { Route, Switch } from 'react-router-dom';
 import Screens from './App/Screens';
 import './App/Styles/App.css';
+import Schedule from './App/Screens/Schedule';
 export default function App() {
 	return (
 		<div className="App">
 			<header className="App-header">
 				<Switch>
 					{/* This will make all screens as a route */}
-					<Route exact path="/" component={Login} />
+					<Route exact path="/" component={Schedule} />
 					{Screens.map((screen) => {
 						return <ProtectedRoute exact path={`${screen.path}`} component={screen.component} />;
 					})}
