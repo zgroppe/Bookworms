@@ -3,53 +3,69 @@ import styled from 'styled-components';
 export const Card = styled.div`
 	background-color: white;
 	padding: 2%;
-	border-radius: 5%;
-	box-shadow: 2px 2px grey;
+	border: 3px solid rgba(133, 133, 133, 0.14);
+	box-shadow: 4px 4px 4px rgba(0, 0, 0, 0.45);
+	border-radius: 25px;
 `;
 
 export const TitleText = styled.h1`
-	font-family: Bookman;
-	font-size: 7vh;
+	font-family: 'Poppins';
+	font-size: 72px;
 	font-weight: bold;
+	padding: 1%;
 	margin: 0;
-	background: -webkit-linear-gradient(#1cd1a1, #235cb9);
+	background: linear-gradient(#1cd1a1, #235cb9);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 `;
 
 export const SubtitleText = styled.span`
-	font-size: 2.5vh;
+	font-family: Poppins;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 16px;
+	line-height: 30px;
+	position: relative;
+	//top: 277px;
 	color: #8c8989;
 `;
 
 export const TextInput = styled.input`
+	font-family: Poppins;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 18px;
 	padding: 0.5em;
-	margin: 0.5em;
-	color: ${(props) => props.inputColor || '#235CB9'};
+	padding-left: 3em;
+	margin: 1em;
+	color: ${props => props.inputColor || '#235CB9'};
 	background: transparent;
 	width: 20vw;
-	height: 1.5em;
+	height: 2.3em;
 	border: none;
-	border-bottom: 1px solid #235cb9;
+	border-bottom: 1px solid #C7C7C7;
 	&:focus {
 		border-bottom: 1px solid #1cd1a1; // <Thing> when hovered
 	}
 `;
 
 export const PrimaryButton = styled.button`
-	background: -webkit-linear-gradient(left, #1cd1a1, #235cb9);
-	margin: 1em;
-	border-radius: 3px;
-	width: 10vw;
-	height: 2em;
+	background: linear-gradient(90deg, #1CD1A1 0%, #235CB9 100%);
+	border-radius: 10px;
+	margin: 1em;	
+	width: 247px;
+	height: 39px;
 	color: white;
-	font-size: 2.5vh;
+	font-size: 16px;
 	border: 0px;
 `;
 
 export const Hyperlink = styled.a`
-	font-size: 2vh;
-	color: blue;
+	font-family: Poppins;
+	font-style: normal;
+	font-weight: normal;
+	font-size: 14px;
+	color: #3385FF;
 	text-decoration: underline;
 `;
 

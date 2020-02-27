@@ -1,11 +1,10 @@
-@import url('https://fonts.googleapis.com/css?family=Amaranth');
-
+@import url('https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap');
 .container {
 	text-align: start;
 }
 h1 {
-	font-family: 'Amaranth';
-	font-size: 7vh;
+	font-family: 'Poppins';
+	font-style: bold;
 	margin: 0;
 	color: #3385ff;
 }
@@ -23,7 +22,7 @@ div > p {
 .inputForm {
 	background: transparent;
 	width: 75%;
-	border: none;
+	border: none;	
 	border-bottom: 1px solid #000000;
 }
 
@@ -31,3 +30,4 @@ div > p {
 	border: none;
 	border-bottom: 1px solid #3385ff;
 }
+

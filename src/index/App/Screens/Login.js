@@ -17,7 +17,8 @@ import {
 export default function Login(props) {
 	const [userName, setUsername] = useState('')
 	const [password, setPassword] = useState('')
-
+  const icon1 = require('../Images/loginman.PNG')
+  const icon2 = require('../Images/loginlock.PNG')
 	return (
 		<Card>
 			<div
@@ -26,7 +27,7 @@ export default function Login(props) {
 					display: 'flex',
 					flexDirection: 'column',
 					alignContent: 'center',
-					width: '35vw',
+					width: "700px",
 				}}
 			>
 				<TitleText>Login</TitleText>
@@ -36,6 +37,34 @@ export default function Login(props) {
 					Log-in with your username and password
 				</SubtitleText>
 			</div>
+      <div 
+      style={{
+        position: 'relative',
+        width: '5px',
+        height: '5px'
+      }}
+      >
+      <img 
+        src={icon1} 
+        alt="username icon" 
+        style={{position: 'absolute', width: '35px',
+        height: '35px', top: 66, left: 160}}
+        />
+        </div>
+        <div 
+      style={{
+        position: 'relative',
+        width: '5px',
+        height: '5px'
+      }}
+      >
+      <img 
+        src={icon2} 
+        alt="lock icon" 
+        style={{position: 'absolute', width: '30px',
+        height: '30px', top: 145, left: 163}}
+        />
+        </div>
 			<div
 				style={{
 					flexDirection: 'column',
@@ -65,7 +94,7 @@ export default function Login(props) {
 					}}
 				>
 					<Hyperlink href='https://styled-components.com/'>
-						forgot password
+						forgot password?
 					</Hyperlink>
 				</div>
 				<PrimaryButton
