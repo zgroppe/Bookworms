@@ -5,10 +5,11 @@ import 'react-big-calendar/lib/css/react-big-calendar.css';
 import '../Styles/Schedule.css';
 import { Swatch, Color } from '../Styles/StyledComponents';
 import { HuePicker } from 'react-color';
-
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 moment.locale('en');
 const localizer = momentLocalizer(moment);
-
+const DraggableCalendar = withDragAndDrop(Calendar)
 export default function Schedule(props) {
 	const [ myEventsList, setMyEventsList ] = useState([]);
 	const [ colorPicked, setColorPicked ] = useState('red');
@@ -37,6 +38,20 @@ export default function Schedule(props) {
 		return <p style={{ color: 'yellow' }}>{event.title}</p>;
 	};
 
+	const moveEvent = ({event,start,end})=>{	
+		let {title,color} = event;
+		let tempArr = myEventsList.filter(item => item !== event);
+		tempArr.push( { title, start, end, color })
+		setMyEventsList(tempArr);
+	}
+	const resizeEvent = ( {event,start,end} )=>{
+		let index = myEventsList.indexOf(event)
+		let {title,color} = event;
+		let tempArr = [...myEventsList]
+		tempArr[index] = {title, color, start, end}
+		setMyEventsList(tempArr);
+	}
+
 	return (
 		<div>
 			<h1>Schedule</h1>
@@ -47,7 +62,7 @@ export default function Schedule(props) {
 				{displayColorPicker && <HuePicker color={colorPicked} onChange={handleColorChangeComplete} />}
 			</Swatch>
 
-			<Calendar
+			<DraggableCalendar
 				selectable
 				localizer={localizer}
 				events={myEventsList}
@@ -69,6 +84,9 @@ export default function Schedule(props) {
 				components={{
 					event: Event
 				}}
+				draggableAccessor={event => true}
+				onEventDrop={moveEvent}
+				onEventResize={resizeEvent}
 			/>
 		</div>
 	);
