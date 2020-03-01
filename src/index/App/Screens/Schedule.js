@@ -52,11 +52,23 @@ export default function Schedule(props) {
 		setMyEventsList(tempArr);
 	}
 
+	const handleDelete = ({event}) =>
+	{
+		const check = window.confirm('\nDelete this event');
+		if(check)
+		{
+			let deleteSpot = myEventsList.indexOf(event)
+			let tempArray = [...myEventsList]
+			tempArray.splice(deleteSpot, 1);
+			setMyEventsList(tempArray);
+		}
+	}
+
 	return (
 		<div>
 			<h1>Schedule</h1>
 			<h3 style={{ color: colorPicked }}>This is some schedule content</h3>
-
+			
 			<Swatch onClick={() => setDisplayColorPicker(!displayColorPicker)}>
 				<Color color={colorPicked.hex} />
 				{displayColorPicker && <HuePicker color={colorPicked} onChange={handleColorChangeComplete} />}
@@ -69,7 +81,7 @@ export default function Schedule(props) {
 				views={[ 'month', 'week' ]}
 				defaultView={Views.WEEK}
 				defaultDate={new Date(2020, 1, 25)}
-				onSelectEvent={(event) => alert(event.title)}
+				onSelectEvent={handleDelete}
 				onSelectSlot={handleSelect}
 				style={{ height: '80vh', width: '80vw', margin: '10vw' }}
 				eventPropGetter={(event) => ({
