@@ -14,7 +14,7 @@ export default function Schedule(props) {
 	const [ myEventsList, setMyEventsList ] = useState([]);
 	const [ colorPicked, setColorPicked ] = useState('red');
 	const [ displayColorPicker, setDisplayColorPicker ] = useState(false);
-
+	
 	//useEffect => what to do after the component is rendered
 	useEffect(() => {
 		//calling setMyEventsList to set hardcoded list
@@ -22,6 +22,7 @@ export default function Schedule(props) {
 			{ title: 'Employee 1', start: new Date(2020, 1, 23, 10), end: new Date(2020, 1, 23, 18), color: '#fc0373' },
 			{ title: 'Employee 3', start: new Date(2020, 1, 25, 10), end: new Date(2020, 1, 25, 16), color: '#18fc03' }
 		]);
+
 	}, []);
 
 	const handleSelect = ({ start, end }) => {
@@ -54,7 +55,7 @@ export default function Schedule(props) {
 
 	const handleDelete = ({event}) =>
 	{
-		const check = window.confirm('\nDelete this event');
+		const check = window.confirm('\nDelete this event: Ok - YES, Cancel - NO');
 		if(check)
 		{
 			let deleteSpot = myEventsList.indexOf(event)
