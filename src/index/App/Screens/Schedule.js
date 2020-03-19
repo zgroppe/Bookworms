@@ -169,6 +169,7 @@ export default function Schedule(props) {
 				<DatePicker
 					selected={statename}
 					onSelect={(date) => functionName(date)} //when day is clicked
+					minDate={statename === blackoutEnd && blackoutStart}
 					//   onChange={this.handleChange} //only when value has changed
 				/>
 			);
