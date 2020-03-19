@@ -170,6 +170,7 @@ export default function Schedule(props) {
 					selected={statename}
 					onSelect={(date) => functionName(date)} //when day is clicked
 					minDate={statename === blackoutEnd && blackoutStart}
+					maxDate={statename === blackoutStart && blackoutEnd}
 					//   onChange={this.handleChange} //only when value has changed
 				/>
 			);
