@@ -4,3 +4,15 @@
 .rbc-time-view .rbc-header {
 	border-bottom: none;
 }
+/* .rbc-time-gutter {
+	border: none;
+}
+.rbc-time-column {
+	border: none;
+}
+.rbc-time-content {
+	border: none;
+} */
+.rbc-time-view {
+	border: none;
+}
