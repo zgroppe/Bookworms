@@ -9,19 +9,20 @@ import { Swatch, Color } from '../Styles/StyledComponents';
 import { HuePicker } from 'react-color';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
+import { MdDirectionsWalk } from 'react-icons/md';
 moment.locale('en');
 const localizer = momentLocalizer(moment);
 const DraggableCalendar = withDragAndDrop(Calendar);
 export default function Schedule(props) {
-	const [ myEventsList, setMyEventsList ] = useState([]);
-	const [ colorPicked, setColorPicked ] = useState('red');
-	const [ displayColorPicker, setDisplayColorPicker ] = useState(false);
-	const [ blackoutStart, setBlackoutStart ] = useState('');
-	const [ blackoutEnd, setBlackoutEnd ] = useState('');
+	const [myEventsList, setMyEventsList] = useState([]);
+	const [colorPicked, setColorPicked] = useState('red');
+	const [displayColorPicker, setDisplayColorPicker] = useState(false);
+	const [blackoutStart, setBlackoutStart] = useState('');
+	const [blackoutEnd, setBlackoutEnd] = useState('');
 
-	var blackOutYear = [ 2020, 2020 ];
-	var blackOutMonth = [ 1, 1 ];
-	var blackOutDay = [ 27, 28 ];
+	var blackOutYear = [2020, 2020];
+	var blackOutMonth = [1, 1];
+	var blackOutDay = [27, 28];
 
 	//useEffect => what to do after the component is rendered
 	useEffect(() => {
@@ -33,6 +34,8 @@ export default function Schedule(props) {
 	}, []);
 
 	const handleSelect = ({ start, end }) => {
+		console.log(myEventsList);
+
 		const title = window.prompt('New Event name');
 		if (title) {
 			//Adjusted portion for blackout days
@@ -52,7 +55,7 @@ export default function Schedule(props) {
 			}
 
 			if (count === 0) {
-				setMyEventsList([ ...myEventsList, { title, start, end, color: colorPicked && colorPicked.hex } ]);
+				setMyEventsList([...myEventsList, { title, start, end, color: colorPicked && colorPicked.hex }]);
 			} else {
 				alert('Event not able to be set during this time.');
 			}
@@ -99,7 +102,7 @@ export default function Schedule(props) {
 	const resizeEvent = ({ event, start, end }) => {
 		let index = myEventsList.indexOf(event);
 		let { title, color } = event;
-		let tempArr = [ ...myEventsList ];
+		let tempArr = [...myEventsList];
 		tempArr[index] = { title, color, start, end };
 		setMyEventsList(tempArr);
 	};
@@ -108,7 +111,7 @@ export default function Schedule(props) {
 		const check = window.confirm('\nDelete this event: Ok - YES, Cancel - NO');
 		if (check) {
 			let deleteSpot = myEventsList.indexOf(event);
-			let tempArray = [ ...myEventsList ];
+			let tempArray = [...myEventsList];
 			tempArray.splice(deleteSpot, 1);
 			setMyEventsList(tempArray);
 		}
@@ -116,27 +119,73 @@ export default function Schedule(props) {
 
 	//Handles the coloring of blackout days
 	const handleBlackoutDate = (date) => {
-		var x;
-		for (x in blackOutYear) {
-			if (
-				date.getFullYear() === blackOutYear[x] &&
-				date.getMonth() === blackOutMonth[x] &&
-				date.getDate() === blackOutDay[x]
-			)
-				return {
-					className: 'special-day',
-					style: {
-						border:
-							'solid 3px ' +
-							(date.getFullYear() === blackOutYear[x] &&
-							date.getMonth() === blackOutMonth[x] &&
-							date.getDate() === blackOutDay[x]
-								? '#000'
-								: '#000'),
-						backgroundColor: '#000'
-					}
-				};
+		let blackoutStartDate = new Date(blackoutStart)
+		let blackoutStartDate2 = new Date(blackoutEnd)
+		Date.prototype.addDays = function (days) {
+			var date = new Date(this.valueOf());
+			date.setDate(date.getDate() + days);
+			return date;
 		}
+		function getDates(startDate, stopDate) {
+			var dateArray = new Array();
+			var currentDate = startDate;
+			while (currentDate <= stopDate) {
+				dateArray.push(new Date(currentDate));
+				currentDate = currentDate.addDays(1);
+			}
+			return dateArray;
+		}
+
+		let arr = getDates(blackoutStartDate, blackoutStartDate2)
+		arr.forEach((x) => {
+			if (date.getDate() == x.getDate()) {
+				console.log(date.getDate(), x.getDate())
+				return {
+					style: {
+						backgroundColor: 'yellow'
+					}
+				}
+			}
+		}
+		)
+
+
+		// for (let x in arr) {
+		// 	let newX = new Date(x)
+		// 	if (date.toString() === x) {
+		// 		console.log('success');
+
+
+		// 		return {
+		// 			style: {
+		// 				backgroundColor: 'red'
+		// 			}
+		// 		}
+		// 	}
+		// }
+
+
+
+		// for (x in blackOutYear) {
+		// 	if (
+		// 		date.getFullYear() === blackOutYear[x] &&
+		// 		date.getMonth() === blackOutMonth[x] &&
+		// 		date.getDate() === blackOutDay[x]
+		// 	)
+		// 		return {
+		// 			className: 'special-day',
+		// 			style: {
+		// 				border:
+		// 					'solid 3px ' +
+		// 					(date.getFullYear() === blackOutYear[x] &&
+		// 						date.getMonth() === blackOutMonth[x] &&
+		// 						date.getDate() === blackOutDay[x]
+		// 						? '#000'
+		// 						: '#000'),
+		// 				backgroundColor: '#000'
+		// 			}
+		// 		};
+		// }
 	};
 
 	//This is the function I am using to control the addition of new blackout days
@@ -171,20 +220,21 @@ export default function Schedule(props) {
 					onSelect={(date) => functionName(date)} //when day is clicked
 					minDate={statename === blackoutEnd && blackoutStart}
 					maxDate={statename === blackoutStart && blackoutEnd}
-					//   onChange={this.handleChange} //only when value has changed
+				//   onChange={this.handleChange} //only when value has changed
 				/>
 			);
 		};
 		return (
-			<div>
-				<div>
+			<div style={{ display: 'flex', alignItems: 'center', flexDirection: 'column', justifyContent: 'center', }}>
+				<div style={{ display: 'flex' }}>
 					<p>start</p>
 					{renderDatePicker(blackoutStart, setBlackoutStart)}
 				</div>
-				<div>
+				<div style={{ display: 'flex' }}>
 					<p>end</p>
 					{renderDatePicker(blackoutEnd, setBlackoutEnd)}
 				</div>
+				<p>{blackoutStart && typeof blackoutStart}</p>
 			</div>
 		);
 	};
@@ -221,13 +271,26 @@ export default function Schedule(props) {
 				selectable
 				localizer={localizer}
 				events={myEventsList}
-				views={[ 'month', 'week' ]}
+				views={['month', 'week']}
 				defaultView={Views.WEEK}
 				defaultDate={new Date(2020, 1, 25)}
 				onSelectEvent={handleDelete}
 				onSelectSlot={handleSelect}
 				style={{ height: '80vh', width: '80vw', margin: '10vw' }}
 				dayPropGetter={handleBlackoutDate}
+				// dayPropGetter={(event) => {
+				// 	let day = event.getDate()
+				// 	let blackout = blackoutStart.getDate()
+				// 	return 
+				// 		{
+
+				// 			style: {
+				// 				backgroundColor: day == blackout && 'red',
+				// 				alignSelf: 'center',
+				// 				alignContent: 'center'
+				// 			}
+				// 		})
+				// }}
 				//slotPropGetter={handleBlackoutTime}
 				eventPropGetter={(event) => ({
 					style: {
@@ -245,20 +308,20 @@ export default function Schedule(props) {
 						alignItems: 'center'
 					}
 				})}
-				dayPropGetter={() => ({
-					style: {
-						// backgroundColor: 'green',
-						alignItems: 'flex-start'
-						// alignSelf: 'flex-start'
-					}
-				})}
+				// dayPropGetter={() => ({
+				// 	style: {
+				// 		// backgroundColor: 'green',
+				// 		alignItems: 'flex-start'
+				// 		// alignSelf: 'flex-start'
+				// 	}
+				// })}
 				// titleAccessor={function(e) {
 				// 	console.log(e);
 				// 	return e.title;
 				// }}
-				components={{
-					event: Event
-				}}
+				// components={{
+				// 	event: Event
+				// }}
 				draggableAccessor={(event) => true}
 				onEventDrop={moveEvent}
 				onEventResize={resizeEvent}
