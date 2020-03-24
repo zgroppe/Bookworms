@@ -14,11 +14,12 @@ moment.locale('en');
 const localizer = momentLocalizer(moment);
 const DraggableCalendar = withDragAndDrop(Calendar);
 export default function Schedule(props) {
-	const [myEventsList, setMyEventsList] = useState([]);
-	const [colorPicked, setColorPicked] = useState('red');
-	const [displayColorPicker, setDisplayColorPicker] = useState(false);
-	const [blackoutStart, setBlackoutStart] = useState('');
-	const [blackoutEnd, setBlackoutEnd] = useState('');
+	const [ myEventsList, setMyEventsList ] = useState([]);
+	const [ myPreferencesList, setMyPreferencesList] = useState([]);
+	const [ colorPicked, setColorPicked ] = useState('red');
+	const [ displayColorPicker, setDisplayColorPicker ] = useState(false);
+	const [ blackoutStart, setBlackoutStart ] = useState('');
+	const [ blackoutEnd, setBlackoutEnd ] = useState('');
 
 	var blackOutYear = [2020, 2020];
 	var blackOutMonth = [1, 1];
@@ -238,6 +239,11 @@ export default function Schedule(props) {
 			</div>
 		);
 	};
+
+	let formats = {
+		dayFormat: (date, culture, localizer) => localizer.format(date, 'dddd', culture),
+	}
+
 	return (
 		<div>
 			<h1>Schedule</h1>
@@ -308,13 +314,59 @@ export default function Schedule(props) {
 						alignItems: 'center'
 					}
 				})}
-				// dayPropGetter={() => ({
+				// dayPropGetter={(event) => ({
 				// 	style: {
 				// 		// backgroundColor: 'green',
 				// 		alignItems: 'flex-start'
 				// 		// alignSelf: 'flex-start'
 				// 	}
 				// })}
+				// titleAccessor={function(e) {
+				// 	console.log(e);
+				// 	return e.title;
+				// }}
+				components={{
+					event: Event
+				}}
+				draggableAccessor={(event) => true}
+				onEventDrop={moveEvent}
+				onEventResize={resizeEvent}
+			/>
+
+
+			<DraggableCalendar //Preferences calendar
+				selectable
+				localizer={localizer}
+				toolbar={false}
+				formats={formats}
+				events={myPreferencesList}
+				defaultView={Views.WEEK}
+				onSelectEvent={handleDelete}
+				onSelectSlot={handleSelect}
+				style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+				eventPropGetter={(event) => ({
+					style: {
+						backgroundColor: event.color,
+						alignSelf: 'center',
+						alignContent: 'center'
+					}
+				})}
+				slotPropGetter={() => ({
+					style: {
+						// backgroundColor: 'red',
+						// borderColor: 'red'
+						border: 'none',
+						// display: 'flex',
+						alignItems: 'center'
+					}
+				})}
+				dayPropGetter={() => ({
+					style: {
+						// backgroundColor: 'green',
+						alignItems: 'flex-start'
+						// alignSelf: 'flex-start'
+					}
+				})}
 				// titleAccessor={function(e) {
 				// 	console.log(e);
 				// 	return e.title;
