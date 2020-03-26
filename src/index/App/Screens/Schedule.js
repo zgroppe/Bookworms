@@ -10,7 +10,10 @@ import { HuePicker } from 'react-color';
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop';
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css';
 import { MdDirectionsWalk } from 'react-icons/md';
+import Dropdown from 'react-dropdown';
+import 'react-dropdown/style.css';
 moment.locale('en');
+const options = [{value:-100,label:"In-Class",color: "darkred"}, {value:-1,label:"Unpreferred",color:"red"}, {value:0,label:"Neutral",color: "grey"}, {value:1,label:"Preferred",color: "green"}]
 const localizer = momentLocalizer(moment);
 const DraggableCalendar = withDragAndDrop(Calendar);
 export default function Schedule(props) {
@@ -20,6 +23,7 @@ export default function Schedule(props) {
 	const [ displayColorPicker, setDisplayColorPicker ] = useState(false);
 	const [ blackoutStart, setBlackoutStart ] = useState('');
 	const [ blackoutEnd, setBlackoutEnd ] = useState('');
+	const [ dropdownValue, setDropdownValue] = useState(options[1]);
 
 	var blackOutYear = [2020, 2020];
 	var blackOutMonth = [1, 1];
@@ -62,6 +66,17 @@ export default function Schedule(props) {
 			}
 		}
 	};
+
+	const handleSelectPreference = ({ start, end }) => {
+		
+		let color = "green"
+
+		if(dropdownValue.value == -1) color = "red"
+		else if(dropdownValue.value == 0) color = "grey"
+		else if(dropdownValue.value == -100) color = "darkred"
+		
+		setMyPreferencesList([...myPreferencesList, { title: dropdownValue.label, start, end, color}]);
+	}
 
 	const handleColorChangeComplete = (color, event) =>
 		setColorPicked(color, () => setDisplayColorPicker(!displayColorPicker));
@@ -122,11 +137,13 @@ export default function Schedule(props) {
 	const handleBlackoutDate = (date) => {
 		let blackoutStartDate = new Date(blackoutStart)
 		let blackoutStartDate2 = new Date(blackoutEnd)
+
 		Date.prototype.addDays = function (days) {
 			var date = new Date(this.valueOf());
 			date.setDate(date.getDate() + days);
 			return date;
 		}
+
 		function getDates(startDate, stopDate) {
 			var dateArray = new Array();
 			var currentDate = startDate;
@@ -138,80 +155,18 @@ export default function Schedule(props) {
 		}
 
 		let arr = getDates(blackoutStartDate, blackoutStartDate2)
-		arr.forEach((x) => {
-			if (date.getDate() == x.getDate()) {
-				console.log(date.getDate(), x.getDate())
+
+		for(let x in arr) {
+			if (date.getDate() === arr[x].getDate() && date.getMonth() === arr[x].getMonth() && date.getFullYear() === arr[x].getFullYear()) {
+
 				return {
 					style: {
-						backgroundColor: 'yellow'
+						backgroundColor: '#000'
 					}
 				}
 			}
 		}
-		)
-
-
-		// for (let x in arr) {
-		// 	let newX = new Date(x)
-		// 	if (date.toString() === x) {
-		// 		console.log('success');
-
-
-		// 		return {
-		// 			style: {
-		// 				backgroundColor: 'red'
-		// 			}
-		// 		}
-		// 	}
-		// }
-
-
-
-		// for (x in blackOutYear) {
-		// 	if (
-		// 		date.getFullYear() === blackOutYear[x] &&
-		// 		date.getMonth() === blackOutMonth[x] &&
-		// 		date.getDate() === blackOutDay[x]
-		// 	)
-		// 		return {
-		// 			className: 'special-day',
-		// 			style: {
-		// 				border:
-		// 					'solid 3px ' +
-		// 					(date.getFullYear() === blackOutYear[x] &&
-		// 						date.getMonth() === blackOutMonth[x] &&
-		// 						date.getDate() === blackOutDay[x]
-		// 						? '#000'
-		// 						: '#000'),
-		// 				backgroundColor: '#000'
-		// 			}
-		// 		};
-		// }
 	};
-
-	//This is the function I am using to control the addition of new blackout days
-	const confirmBlackOutDate = () => {
-		blackOutDay.push(document.getElementById('boDay').value);
-		blackOutMonth.push(document.getElementById('boMonth').value - 1);
-		blackOutYear.push(document.getElementById('boYear').value);
-
-		console.log(blackOutYear[2]);
-		console.log(blackOutMonth[2]);
-		console.log(blackOutDay[2]);
-	};
-
-	/*
-	const handleBlackoutTime = date => {
-		if ((date.getHours() === 1 && date.getMinutes() === 30) || date.getHours() === 2 || date.getHours() === 3 || date.getHours() === 4 || date.getHours() === 5 || date.getHours() === 6 || (date.getHours() === 7 && date.getMinutes() === 30))
-    		return {
-      			className: 'special-time',
-				style: {
-					border: 'solid 3px ' + ((date.getHours() === 1 && date.getMinutes() === 30) || date.getHours() === 2 || date.getHours() === 3 || date.getHours() === 4 || date.getHours() === 5 || date.getHours() === 6 || (date.getHours() === 7 && date.getMinutes() === 30) ? '#f00' : '#fff'),
-				},
-    		}
-  		else return {}
-	}
-	*/
 
 	const renderBlackout = () => {
 		const renderDatePicker = (statename, functionName) => {
@@ -244,6 +199,31 @@ export default function Schedule(props) {
 		dayFormat: (date, culture, localizer) => localizer.format(date, 'dddd', culture),
 	}
 
+	const movePreference = ({ event, start, end }) => {
+		let { title, color } = event;
+		let tempArr = myPreferencesList.filter((item) => item !== event);
+		tempArr.push({ title, start, end, color });
+		setMyPreferencesList(tempArr);
+	};
+
+	const resizePreference = ({ event, start, end }) => {
+		let index = myPreferencesList.indexOf(event);
+		let { title, color } = event;
+		let tempArr = [...myPreferencesList];
+		tempArr[index] = { title, color, start, end };
+		setMyPreferencesList(tempArr);
+	};
+
+	const handleDeletePreference = ({ event }) => {
+		const check = window.confirm('\nDelete this event: Ok - YES, Cancel - NO');
+		if (check) {
+			let deleteSpot = myPreferencesList.indexOf(event);
+			let tempArray = [...myPreferencesList];
+			tempArray.splice(deleteSpot, 1);
+			setMyPreferencesList(tempArray);
+		}
+	};
+
 	return (
 		<div>
 			<h1>Schedule</h1>
@@ -254,24 +234,6 @@ export default function Schedule(props) {
 				{displayColorPicker && <HuePicker color={colorPicked} onChange={handleColorChangeComplete} />}
 			</Swatch>
 			{renderBlackout()}
-
-			{/* <p>Blackout Day In-Progress Build</p>
-
-			<label for="boDay">Day:</label>
-			<input type="number" id="boDay" name="boDay" />
-			<br />
-
-			<label for="boMonth">Month:</label>
-			<input type="number" id="boMonth" name="boMonth" />
-			<br />
-
-			<label for="boYear">Year:</label>
-			<input type="number" id="boYear" name="boYear" />
-			<br />
-
-			<button onClick={() => confirmBlackOutDate()} type="button">
-				Confirm Blackout Day!
-			</button> */}
 
 			<DraggableCalendar
 				selectable
@@ -284,20 +246,6 @@ export default function Schedule(props) {
 				onSelectSlot={handleSelect}
 				style={{ height: '80vh', width: '80vw', margin: '10vw' }}
 				dayPropGetter={handleBlackoutDate}
-				// dayPropGetter={(event) => {
-				// 	let day = event.getDate()
-				// 	let blackout = blackoutStart.getDate()
-				// 	return 
-				// 		{
-
-				// 			style: {
-				// 				backgroundColor: day == blackout && 'red',
-				// 				alignSelf: 'center',
-				// 				alignContent: 'center'
-				// 			}
-				// 		})
-				// }}
-				//slotPropGetter={handleBlackoutTime}
 				eventPropGetter={(event) => ({
 					style: {
 						backgroundColor: event.color,
@@ -314,13 +262,6 @@ export default function Schedule(props) {
 						alignItems: 'center'
 					}
 				})}
-				// dayPropGetter={(event) => ({
-				// 	style: {
-				// 		// backgroundColor: 'green',
-				// 		alignItems: 'flex-start'
-				// 		// alignSelf: 'flex-start'
-				// 	}
-				// })}
 				// titleAccessor={function(e) {
 				// 	console.log(e);
 				// 	return e.title;
@@ -333,6 +274,15 @@ export default function Schedule(props) {
 				onEventResize={resizeEvent}
 			/>
 
+			<p>
+				Preferences
+			</p>
+			
+			<Dropdown options={options} onChange={(x) => setDropdownValue(x)} value={dropdownValue} placeholder="Select an option" />
+
+			{/* <p>
+				{dropdownValue && dropdownValue.color}
+			</p> */}
 
 			<DraggableCalendar //Preferences calendar
 				selectable
@@ -341,8 +291,8 @@ export default function Schedule(props) {
 				formats={formats}
 				events={myPreferencesList}
 				defaultView={Views.WEEK}
-				onSelectEvent={handleDelete}
-				onSelectSlot={handleSelect}
+				onSelectEvent={handleDeletePreference}
+				onSelectSlot={handleSelectPreference}
 				style={{ height: '80vh', width: '80vw', margin: '10vw' }}
 				eventPropGetter={(event) => ({
 					style: {
@@ -375,8 +325,8 @@ export default function Schedule(props) {
 				// 	event: Event
 				// }}
 				draggableAccessor={(event) => true}
-				onEventDrop={moveEvent}
-				onEventResize={resizeEvent}
+				onEventDrop={movePreference}
+				onEventResize={resizePreference}
 			/>
 		</div>
 	);
