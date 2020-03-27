@@ -67,17 +67,6 @@ export default function Schedule(props) {
 		}
 	};
 
-	const handleSelectPreference = ({ start, end }) => {
-		
-		let color = "green"
-
-		if(dropdownValue.value == -1) color = "red"
-		else if(dropdownValue.value == 0) color = "grey"
-		else if(dropdownValue.value == -100) color = "darkred"
-		
-		setMyPreferencesList([...myPreferencesList, { title: dropdownValue.label, start, end, color}]);
-	}
-
 	const handleColorChangeComplete = (color, event) =>
 		setColorPicked(color, () => setDisplayColorPicker(!displayColorPicker));
 
@@ -123,7 +112,7 @@ export default function Schedule(props) {
 		setMyEventsList(tempArr);
 	};
 
-	const handleDelete = ({ event }) => {
+	const handleDelete = (event) => {
 		const check = window.confirm('\nDelete this event: Ok - YES, Cancel - NO');
 		if (check) {
 			let deleteSpot = myEventsList.indexOf(event);
@@ -195,9 +184,21 @@ export default function Schedule(props) {
 		);
 	};
 
+	//Employee Preference Calendar Functions
 	let formats = {
 		dayFormat: (date, culture, localizer) => localizer.format(date, 'dddd', culture),
 	}
+
+	const handleSelectPreference = ({ start, end }) => {
+		
+		let color = "green"
+
+		if(dropdownValue.value == -1) color = "red"
+		else if(dropdownValue.value == 0) color = "grey"
+		else if(dropdownValue.value == -100) color = "darkred"
+		
+		setMyPreferencesList([...myPreferencesList, { title: dropdownValue.label, start, end, color}]);
+	};
 
 	const movePreference = ({ event, start, end }) => {
 		let { title, color } = event;
@@ -214,13 +215,41 @@ export default function Schedule(props) {
 		setMyPreferencesList(tempArr);
 	};
 
-	const handleDeletePreference = ({ event }) => {
+	const handleDeletePreference = (event) => {
 		const check = window.confirm('\nDelete this event: Ok - YES, Cancel - NO');
 		if (check) {
 			let deleteSpot = myPreferencesList.indexOf(event);
 			let tempArray = [...myPreferencesList];
 			tempArray.splice(deleteSpot, 1);
 			setMyPreferencesList(tempArray);
+		}
+	};
+
+	const copyPreference = (event) => {
+		
+	};
+
+	//Employee Calendar Functions
+	const handleDropShift = (event) => {
+		const check = window.confirm('\nDrop this shift: Ok - YES, Cancel - NO');
+		if (check) {
+			let badDropAttempted = false
+			if((event.start.getDate() >= blackoutStart.getDate() && event.start.getDate() <= blackoutEnd.getDate()) &&
+			   (event.start.getMonth() == blackoutStart.getMonth() && event.start.getMonth() == blackoutEnd.getMonth()) &&
+			   (event.start.getFullYear() == blackoutStart.getFullYear() && event.start.getFullYear() == blackoutEnd.getFullYear())
+			)
+			{
+				badDropAttempted = true
+			}
+			
+			if(!badDropAttempted)
+			{
+				let deleteSpot = myPreferencesList.indexOf(event);
+				let tempArray = [...myPreferencesList];
+				tempArray.splice(deleteSpot, 1);
+				setMyPreferencesList(tempArray);
+			}
+				//Other shift drop stuff
 		}
 	};
 
