@@ -184,6 +184,21 @@ export default function Schedule(props) {
 		);
 	};
 
+	//Auto Population Progress
+	// const handleAutoPopulation = () => {
+		
+	// 	//Events should hopefully also have employee names, tenure, and potentially other preference info attached somehow, either in the title of the preference, or something else
+	// 	myPreferencesList.forEach((x) => {
+	// 		if(x.title == "Preferred" || x.title == "Unpreferred" || x.title == "Neutral")
+	// 		{
+	// 			setMyEventsList([...myEventsList, { title: x.title, start: x.start, end: x.end, color: x.color }]);
+	// 		}
+	// 	})
+
+		
+
+	// }
+
 	//Employee Preference Calendar Functions
 	let formats = {
 		dayFormat: (date, culture, localizer) => localizer.format(date, 'dddd', culture),
@@ -200,11 +215,20 @@ export default function Schedule(props) {
 		setMyPreferencesList([...myPreferencesList, { title: dropdownValue.label, start, end, color}]);
 	};
 
+	//Includes copying events to different locations
 	const movePreference = ({ event, start, end }) => {
 		let { title, color } = event;
-		let tempArr = myPreferencesList.filter((item) => item !== event);
-		tempArr.push({ title, start, end, color });
-		setMyPreferencesList(tempArr);
+
+		const check = window.confirm('\nCopy this event to new day?: Ok - YES, Cancel - NO');
+		if (check) {
+			setMyPreferencesList([...myPreferencesList, { title, start, end, color}]);
+		}
+		else
+		{
+			let tempArr = myPreferencesList.filter((item) => item !== event);
+			tempArr.push({ title, start, end, color });
+			setMyPreferencesList(tempArr);
+		}
 	};
 
 	const resizePreference = ({ event, start, end }) => {
@@ -223,10 +247,6 @@ export default function Schedule(props) {
 			tempArray.splice(deleteSpot, 1);
 			setMyPreferencesList(tempArray);
 		}
-	};
-
-	const copyPreference = (event) => {
-		
 	};
 
 	//Employee Calendar Functions
