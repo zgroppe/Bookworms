@@ -29,7 +29,7 @@ export default function Account(props) {
     const { loading, error, data, refetch, networkStatus } = useQuery(
         GetUserByID,
         {
-            variables: { id: '5e795c57a7e84353d4d1d47b' },
+            variables: { id: '5e7d306860f6d4001ef5cdb6' },
             notifyOnNetworkStatusChange: true
         }
     )
@@ -65,11 +65,14 @@ export default function Account(props) {
                 onChange={e => updateEmail(e.target.value)}
             />
             <PrimaryButton
-                onClick={() => {
-                    auth.login(() => {
-                        props.history.push(Screens[0].path)
+                onClick={e =>
+                    update({
+                        variables: {
+                            firebaseID: FirebaseID,
+                            email: updatedEmail
+                        }
                     })
-                }}
+                }
             >
                 Update Email
             </PrimaryButton>
@@ -85,7 +88,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            id: '5e795c57a7e84353d4d1d47b',
+                            firebaseID: FirebaseID,
                             first: updatedFName
                         }
                     })
@@ -100,11 +103,14 @@ export default function Account(props) {
                 onChange={e => updateLName(e.target.value)}
             />
             <PrimaryButton
-                onClick={() => {
-                    auth.login(() => {
-                        props.history.push(Screens[0].path)
+                onClick={e =>
+                    update({
+                        variables: {
+                            firebaseID: FirebaseID,
+                            last: updatedLName
+                        }
                     })
-                }}
+                }
             >
                 Update Last Name
             </PrimaryButton>
@@ -136,14 +142,29 @@ export default function Account(props) {
                 onChange={e => updateSColor(e.target.value)}
             />
             <PrimaryButton
-                onClick={() => {
-                    auth.login(() => {
-                        props.history.push(Screens[0].path)
+                onClick={e =>
+                    update({
+                        variables: {
+                            firebaseID: FirebaseID,
+                            preferences: {
+                            title: updatedDays,
+                            start: updatedSHour,
+                            end: updatedEHour,
+                            color: updatedSColor
+                            }
+                        }
                     })
-                }}
+                }
             >
                 Update Hour Preferences
+            </PrimaryButton>
+
+            <PrimaryButton
+
+            >
+                GA Clock-in
             </PrimaryButton>
         </div>
     )
 }
+    
