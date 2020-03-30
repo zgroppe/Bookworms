@@ -68,7 +68,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            firebaseID: FirebaseID,
+                            id: '5e7d306860f6d4001ef5cdb6',
                             email: updatedEmail
                         }
                     })
@@ -88,7 +88,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            firebaseID: FirebaseID,
+                            id: '5e7d306860f6d4001ef5cdb6',
                             first: updatedFName
                         }
                     })
@@ -106,7 +106,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            firebaseID: FirebaseID,
+                            id: '5e7d306860f6d4001ef5cdb6',
                             last: updatedLName
                         }
                     })
