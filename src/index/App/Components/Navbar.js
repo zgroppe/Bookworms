@@ -1,15 +1,21 @@
 import React from 'react'
 import { NavLink } from 'react-router-dom'
 import Screens from '../Screens'
+import {
+	Navlink
+} from './../Styles/StyledComponents'
 export default function Navbar() {
 	return (
 		<div
 			className='Navbar'
 			style={{
+				fontfamily: 'Poppins',
+				fontstyle: 'normal',
+				fontweight: 'normal',
 				display: 'flex',
-				height: '100vh',
+				height: '130vh',
 				width: '10vw',
-				padding: 0,
+				backgroundColor:'#FFF9FE'
 			}}
 		>
 			<ul>
@@ -17,17 +23,18 @@ export default function Navbar() {
 				{Screens.map(screen => {
 					return (
 						<li>
-							<NavLink
+							<NavLink 
 								className='tags'
 								exact={true}
-								activeStyle={{
-									fontWeight: 'bold',
-									backgroundColor: 'blue',
-								}}
-								to={`${screen.path}`}
+								style={{}}
+								activeStyle ={{}} 
+								to={`${screen.path}`}	
 							>
+							<Navlink>
 								{screen.name}
+							</Navlink>
 							</NavLink>
+							
 						</li>
 					)
 				})}
