@@ -72,7 +72,7 @@ export const Hyperlink = styled.a`
 export const Swatch = styled.div`
 	padding: 5px;
 	background: #fff;
-	borderRadius: 1px;
+	border-radius: 1px;
 	boxShadow: '0 0 0 1px rgba(0,0,0,.1)';
 	display: inline-block;
 	cursor: pointer;
@@ -81,7 +81,19 @@ export const Swatch = styled.div`
 export const Color = styled.div`
 	width: 36px;
 	height: 14px;
-	borderRadius: 2px;
+	border-radius: 2px;
 	margin: 2px;
 	background: ${(props) => (props.color ? props.color : 'black')};
+`;
+export const Navlink = styled.button`
+	background: linear-gradient(179.63deg, #1CD1A1 -13.56%, #281AC8 158.3%);
+	width: 350px;
+	height: 50px;
+	color: white;
+	font-family: Poppins;
+	font-size: 18px;
+	border-radius: 90px;
+	position: absolute;	
+	left: -100px;
+
 `;
