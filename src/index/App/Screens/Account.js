@@ -1,20 +1,65 @@
-import React, { useState } from 'react'
+import { useMutation, useQuery } from '@apollo/react-hooks'
+import moment from 'moment'
+import React, { useState, useEffect } from 'react'
+import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
+import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
+import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import 'react-datepicker/dist/react-datepicker.css'
+import Dropdown from 'react-dropdown'
+import 'react-dropdown/style.css'
+import { UpdateUser } from '../API/Mutations/User'
+import { GetUserByID } from '../API/Queries/User'
 import '../Styles/Login.css'
-import auth from '../Components/Auth'
-import Screens from '../Screens'
+import '../Styles/Schedule.css'
 import {
-    Card,
-    Hyperlink,
     PrimaryButton,
-    SubtitleText,
     TextInput,
+    SubtitleText,
     TitleText
 } from './../Styles/StyledComponents'
 
-import { useQuery, useMutation } from '@apollo/react-hooks'
-import { gql } from 'apollo-boost'
-import { GetUserByID } from '../API/Queries/User'
-import { UpdateUser } from '../API/Mutations/User'
+moment.locale('en')
+const localizer = momentLocalizer(moment)
+const options = [
+    { value: -100, label: 'In-Class', color: 'darkred' },
+    { value: -1, label: 'Unpreferred', color: 'red' },
+    { value: 0, label: 'Neutral', color: 'grey' },
+    { value: 1, label: 'Preferred', color: 'green' }
+]
+const DraggableCalendar = withDragAndDrop(Calendar)
+const DAYS = [
+    {
+        value: 0,
+        label: 'Sunday'
+    },
+    {
+        value: 1,
+        label: 'Monday'
+    },
+    {
+        value: 2,
+        label: 'Tuesday'
+    },
+    {
+        value: 3,
+        label: 'Wednesday'
+    },
+    {
+        value: 4,
+        label: 'Thursday'
+    },
+    {
+        value: 5,
+        label: 'Friday'
+    },
+    {
+        value: 6,
+        label: 'Saturday'
+    }
+]
+
+
 export default function Account(props) {
     const [updatedEmail, updateEmail] = useState('')
     const [updatedFName, updateFName] = useState('')
@@ -24,6 +69,10 @@ export default function Account(props) {
     const [updatedEHour, updateEHour] = useState('')
     const [updatedSColor, updateSColor] = useState('')
     const [FirebaseID, ValidateFirebaseID] = useState('')
+    const [myPreferencesList, setMyPreferencesList] = useState([])
+    const [dropdownValue, setDropdownValue] = useState(options[1])
+    const [copyFrom, setCopyFrom] = useState('Select')
+    const [copyTo, setCopyTo] = useState('Select')
 
     const [update, mutationData] = useMutation(UpdateUser)
     const { loading, error, data, refetch, networkStatus } = useQuery(
@@ -34,9 +83,219 @@ export default function Account(props) {
         }
     )
 
+    const reFormatPreferenceList = (prefArray) => {
+        let temp = []
+
+        prefArray.forEach(({ title, start, end, color }) => {
+            let startDate = new Date(start)
+            let endDate = new Date(end)
+            temp.push({ title, start: startDate, end: endDate, color })
+        })
+        setMyPreferencesList(temp)
+        console.log('done');
+
+    }
+    useEffect(() => {
+        const onCompleted = (data) => { reFormatPreferenceList(data.getUserByID.preferences) };
+        if (onCompleted && !loading && !error) onCompleted(data)
+    }, [loading, data, error]);
+
+
+
     if (loading) return <p>Loading...</p>
     if (error) return <p>Error :( {JSON.stringify(error)}</p>
     if (networkStatus === 4) return <p>"Refetching!"</p>
+    // if (data && oneTime) reFormatPreferenceList(data.getUserByID.preferences)
+
+    const renderPreferenceSchedule = () => {
+        let formats = {
+            dayFormat: (date, culture, localizer) =>
+                localizer.format(date, 'dddd', culture)
+        }
+        const handleSelectPreference = ({ start, end }) => {
+            let color = 'green'
+
+            if (dropdownValue.value == -1) color = 'red'
+            else if (dropdownValue.value == 0) color = 'grey'
+            else if (dropdownValue.value == -100) color = 'darkred'
+
+            setMyPreferencesList([
+                ...myPreferencesList,
+                { title: dropdownValue.label, start, end, color }
+            ])
+        }
+
+        //Includes copying events to different locations
+        const movePreference = ({ event, start, end }) => {
+            let { title, color } = event
+
+            const check = window.confirm(
+                '\nCopy this event to new day?: Ok - YES, Cancel - NO'
+            )
+            if (check) {
+                setMyPreferencesList([
+                    ...myPreferencesList,
+                    { title, start, end, color }
+                ])
+            } else {
+                let tempArr = myPreferencesList.filter(item => item !== event)
+                tempArr.push({ title, start, end, color })
+                setMyPreferencesList(tempArr)
+            }
+        }
+
+        const resizePreference = ({ event, start, end }) => {
+            let index = myPreferencesList.indexOf(event)
+            let { title, color } = event
+            let tempArr = [...myPreferencesList]
+            tempArr[index] = { title, color, start, end }
+            setMyPreferencesList(tempArr)
+        }
+
+        const handleDeletePreference = event => {
+            const check = window.confirm(
+                '\nDelete this event: Ok - YES, Cancel - NO'
+            )
+            if (check) {
+                let deleteSpot = myPreferencesList.indexOf(event)
+                let tempArray = [...myPreferencesList]
+                tempArray.splice(deleteSpot, 1)
+                setMyPreferencesList(tempArray)
+            }
+        }
+
+
+        const renderCopyPreference = () => {
+            const handlePreferenceCopy = () => {
+                let temp = [...myPreferencesList]
+                if (
+                    copyFrom !== 'Select' ||
+                    copyTo !== 'Select' ||
+                    copyTo.value === copyFrom.value
+                ) {
+                    myPreferencesList.forEach(
+                        ({ start, title, end, color }) => {
+                            if (start.getDay() === copyFrom.value) {
+                                let newStart = new Date(
+                                    `March ${29 +
+                                    copyTo.value}, 2020 ${start.getHours()}:${start.getMinutes()}:${start.getSeconds()}`
+                                )
+                                let newEnd = new Date(
+                                    `March ${29 +
+                                    copyTo.value}, 2020 ${end.getHours()}:${end.getMinutes()}:${end.getSeconds()}`
+                                )
+                                temp.push({
+                                    title: title,
+                                    start: newStart,
+                                    end: newEnd,
+                                    color: color
+                                })
+                            }
+                        }
+                    )
+                    setMyPreferencesList(temp)
+                }
+            }
+            return (
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <TitleText>Preferences</TitleText>
+                    <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', width: '80%' }}>
+                        <Dropdown
+                            options={options}
+                            onChange={x => setDropdownValue(x)}
+                            value={dropdownValue}
+                            placeholder='Select an option'
+                        />
+
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <SubtitleText>From</SubtitleText>
+                            <Dropdown
+                                options={DAYS}
+                                onChange={x => setCopyFrom(x)}
+                                value={copyFrom}
+                                placeholder='Select an option'
+                            />
+                        </div>
+
+                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                            <SubtitleText>To</SubtitleText>
+                            <Dropdown
+                                options={DAYS}
+                                onChange={x => setCopyTo(x)}
+                                value={copyTo}
+                                placeholder='Select an option'
+                            />
+                        </div>
+                    </div>
+
+                    <PrimaryButton onClick={() => handlePreferenceCopy()}>
+                        Copy
+                    </PrimaryButton>
+
+                </div>
+            )
+        }
+        return (
+            <div>
+                {renderCopyPreference()}
+                <PrimaryButton onClick={e =>
+                    update({
+                        variables: {
+                            id: '5e7d306860f6d4001ef5cdb6',
+                            preferences: myPreferencesList
+                        }
+                    })
+                }>
+                    log
+                    </PrimaryButton>
+                <h1>{data.getUserByID.firstName}</h1>
+                <DraggableCalendar //Preferences calendar
+                    selectable
+                    localizer={localizer}
+                    toolbar={false}
+                    formats={formats}
+                    events={myPreferencesList}
+                    view={Views.WEEK}
+                    defaultDate={new Date(2020, 2, 29)}
+                    onSelectEvent={handleDeletePreference}
+                    onSelectSlot={handleSelectPreference}
+                    style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+                    eventPropGetter={event => ({
+                        style: {
+                            backgroundColor: event.color,
+                            alignSelf: 'center',
+                            alignContent: 'center'
+                        }
+                    })}
+                    slotPropGetter={() => ({
+                        //left pane, time
+                        style: {
+                            border: 'none',
+                            alignItems: 'center'
+                        }
+                    })}
+                    dayPropGetter={() => ({
+                        style: {
+                            alignItems: 'flex-start'
+                        }
+                    })}
+                    // titleAccessor={function(e) {
+                    // 	console.log(e);
+                    // 	return e.title;
+                    // }}
+                    // components={{
+                    // 	event: Event
+                    // }}
+                    draggableAccessor={event => true}
+                    onEventDrop={movePreference}
+                    onEventResize={resizePreference}
+                />
+            </div>
+        )
+    }
+
+
+
 
     return (
         <div>
@@ -162,6 +421,7 @@ export default function Account(props) {
             </PrimaryButton>
 
             <PrimaryButton>GA Clock-in</PrimaryButton>
+            {renderPreferenceSchedule()}
         </div>
     )
 }
