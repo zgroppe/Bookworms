@@ -18,7 +18,7 @@ import {
     SubtitleText,
     TitleText
 } from './../Styles/StyledComponents'
-
+import ProgressBar from 'react-bootstrap/ProgressBar'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
 const options = [
@@ -58,7 +58,7 @@ const DAYS = [
         label: 'Saturday'
     }
 ]
-
+let totalPreferredTime
 
 export default function Account(props) {
     const [updatedEmail, updateEmail] = useState('')
@@ -92,8 +92,6 @@ export default function Account(props) {
             temp.push({ title, start: startDate, end: endDate, color, value })
         })
         setMyPreferencesList(temp)
-        console.log('done');
-
     }
     useEffect(() => {
         const onCompleted = (data) => { reFormatPreferenceList(data.getUserByID.preferences) };
@@ -167,13 +165,9 @@ export default function Account(props) {
 
         const renderCopyPreference = () => {
             const handlePreferenceCopy = () => {
-                console.log('copy');
-
                 let temp = [...myPreferencesList]
                 let startingDate;
                 let endingDate;
-
-
                 //3,4,5,6
                 if (copyTo.value > 2) {
                     startingDate = `April ${copyTo.value - 2}`
@@ -216,9 +210,9 @@ export default function Account(props) {
             return (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <TitleText>Preferences</TitleText>
-                    <PrimaryButton onClick={() => console.log(myPreferencesList)}>
+                    {/* <PrimaryButton onClick={() => console.log(myPreferencesList)}>
                         log state
-                    </PrimaryButton>
+                    </PrimaryButton> */}
                     <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', width: '80%' }}>
                         <Dropdown
                             options={options}
@@ -255,11 +249,23 @@ export default function Account(props) {
                 </div>
             )
         }
+        const getTotalPreferredHours = () => {
+            totalPreferredTime = 0
+            myPreferencesList.forEach(({ value, start, end }) => {
+                if (value === "1") {
+                    let startDate = new Date(start)
+                    let endDate = new Date(end)
+                    let timeDifference = (endDate.getHours() + endDate.getMinutes() / 60) - (startDate.getHours() + startDate.getMinutes() / 60)
+                    totalPreferredTime += timeDifference
+                }
+            })
+            return totalPreferredTime
+        }
         return (
             <div>
                 {renderCopyPreference()}
                 <PrimaryButton onClick={e =>
-                    update({
+                    totalPreferredTime >= 30 && update({
                         variables: {
                             id: '5e7d306860f6d4001ef5cdb6',
                             preferences: myPreferencesList
@@ -268,7 +274,11 @@ export default function Account(props) {
                 }>
                     Submit To Database
                     </PrimaryButton>
-                <h1>{data.getUserByID.firstName}</h1>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                    <h1>{getTotalPreferredHours()}</h1>
+                    <ProgressBar style={{ width: '50%' }} animated now={getTotalPreferredHours() / 3 * 10} />
+
+                </div>
                 <DraggableCalendar //Preferences calendar
                     selectable
                     localizer={localizer}
