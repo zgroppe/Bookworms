@@ -86,10 +86,10 @@ export default function Account(props) {
     const reFormatPreferenceList = (prefArray) => {
         let temp = []
 
-        prefArray.forEach(({ title, start, end, color }) => {
+        prefArray.forEach(({ title, start, end, color, value }) => {
             let startDate = new Date(start)
             let endDate = new Date(end)
-            temp.push({ title, start: startDate, end: endDate, color })
+            temp.push({ title, start: startDate, end: endDate, color, value })
         })
         setMyPreferencesList(temp)
         console.log('done');
@@ -121,13 +121,13 @@ export default function Account(props) {
 
             setMyPreferencesList([
                 ...myPreferencesList,
-                { title: dropdownValue.label, start, end, color }
+                { title: dropdownValue.label, start, end, color, value: dropdownValue.value.toString() }
             ])
         }
 
         //Includes copying events to different locations
         const movePreference = ({ event, start, end }) => {
-            let { title, color } = event
+            let { title, color, value } = event
 
             const check = window.confirm(
                 '\nCopy this event to new day?: Ok - YES, Cancel - NO'
@@ -135,20 +135,20 @@ export default function Account(props) {
             if (check) {
                 setMyPreferencesList([
                     ...myPreferencesList,
-                    { title, start, end, color }
+                    { title, start, end, color, value }
                 ])
             } else {
                 let tempArr = myPreferencesList.filter(item => item !== event)
-                tempArr.push({ title, start, end, color })
+                tempArr.push({ title, start, end, color, value })
                 setMyPreferencesList(tempArr)
             }
         }
 
         const resizePreference = ({ event, start, end }) => {
             let index = myPreferencesList.indexOf(event)
-            let { title, color } = event
+            let { title, color, value } = event
             let tempArr = [...myPreferencesList]
-            tempArr[index] = { title, color, start, end }
+            tempArr[index] = { title, color, start, end, value }
             setMyPreferencesList(tempArr)
         }
 
@@ -167,38 +167,58 @@ export default function Account(props) {
 
         const renderCopyPreference = () => {
             const handlePreferenceCopy = () => {
+                console.log('copy');
+
                 let temp = [...myPreferencesList]
+                let startingDate;
+                let endingDate;
+
+
+                //3,4,5,6
+                if (copyTo.value > 2) {
+                    startingDate = `April ${copyTo.value - 2}`
+                    endingDate = `April ${copyTo.value - 2}`
+                }
+                else {
+                    startingDate = `March ${29 + copyTo.value}`
+                    endingDate = `March ${29 + copyTo.value}`
+                }
+
                 if (
                     copyFrom !== 'Select' ||
                     copyTo !== 'Select' ||
-                    copyTo.value === copyFrom.value
+                    copyTo.value !== copyFrom.value
                 ) {
                     myPreferencesList.forEach(
-                        ({ start, title, end, color }) => {
+                        ({ start, title, end, color, value }) => {
                             if (start.getDay() === copyFrom.value) {
                                 let newStart = new Date(
-                                    `March ${29 +
-                                    copyTo.value}, 2020 ${start.getHours()}:${start.getMinutes()}:${start.getSeconds()}`
+                                    `${startingDate}, 2020 ${start.getHours()}:${start.getMinutes()}:${start.getSeconds()}`
                                 )
                                 let newEnd = new Date(
-                                    `March ${29 +
-                                    copyTo.value}, 2020 ${end.getHours()}:${end.getMinutes()}:${end.getSeconds()}`
+                                    `${endingDate}, 2020 ${end.getHours()}:${end.getMinutes()}:${end.getSeconds()}`
                                 )
                                 temp.push({
                                     title: title,
                                     start: newStart,
                                     end: newEnd,
-                                    color: color
+                                    color: color,
+                                    value: value
                                 })
                             }
                         }
                     )
-                    setMyPreferencesList(temp)
+
                 }
+                setMyPreferencesList(temp)
+
             }
             return (
                 <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
                     <TitleText>Preferences</TitleText>
+                    <PrimaryButton onClick={() => console.log(myPreferencesList)}>
+                        log state
+                    </PrimaryButton>
                     <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', width: '80%' }}>
                         <Dropdown
                             options={options}
@@ -246,7 +266,7 @@ export default function Account(props) {
                         }
                     })
                 }>
-                    log
+                    Submit To Database
                     </PrimaryButton>
                 <h1>{data.getUserByID.firstName}</h1>
                 <DraggableCalendar //Preferences calendar
