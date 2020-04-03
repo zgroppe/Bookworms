@@ -7,3 +7,10 @@ export const GetUserByID = gql`
         }
     }
 `
+export const GetAllUsers = gql`
+    query {
+        getUsers {
+            ${UserData}
+        }
+    }
+`

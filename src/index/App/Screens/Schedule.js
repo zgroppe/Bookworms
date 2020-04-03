@@ -19,6 +19,7 @@ import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
 import { useQuery } from '@apollo/react-hooks'
 import { GetUserByID } from './../API/Queries/User'
+import AutoPopulate from './../Functions/AutoPopulation'
 
 moment.locale('en')
 const localizer = momentLocalizer(moment)
@@ -214,6 +215,49 @@ export default function Schedule(props) {
                 selectable
                 localizer={localizer}
                 events={myEventsList}
+                views={['month', 'week']}
+                defaultView={Views.WEEK}
+                defaultDate={new Date(2020, 1, 25)}
+                onSelectEvent={handleDelete}
+                onSelectSlot={handleSelect}
+                style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+                dayPropGetter={handleBlackoutDate}
+                eventPropGetter={event => ({
+                    style: {
+                        backgroundColor: event.color,
+                        alignSelf: 'center',
+                        alignContent: 'center'
+                    }
+                })}
+                slotPropGetter={() => ({
+                    style: {
+                        // backgroundColor: 'red',
+                        // borderColor: 'red'
+                        border: 'none',
+                        // display: 'flex',
+                        alignItems: 'center'
+                    }
+                })}
+                // titleAccessor={function(e) {
+                // 	console.log(e);
+                // 	return e.title;
+                // }}
+                components={{
+                    event: Event
+                }}
+                draggableAccessor={event => true}
+                onEventDrop={moveEvent}
+                onEventResize={resizeEvent}
+            />
+
+            <PrimaryButton onClick={() => AutoPopulate}>
+                        Auto Populate
+            </PrimaryButton>
+
+            <DraggableCalendar
+                selectable
+                localizer={localizer}
+                events={[]}
                 views={['month', 'week']}
                 defaultView={Views.WEEK}
                 defaultDate={new Date(2020, 1, 25)}

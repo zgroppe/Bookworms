@@ -74,7 +74,7 @@ export default function Account(props) {
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
 
-    const userID = '5e84ed25646154001efe8e85'
+    const userID = '5e851e3bef8a44001ea91426'
 
     const [update, mutationData] = useMutation(UpdateUser)
     const { loading, error, data, refetch, networkStatus } = useQuery(
@@ -93,8 +93,14 @@ export default function Account(props) {
             let endDate = new Date(end)
             temp.push({ title, start: startDate, end: endDate, color, value })
         })
+
+        temp.sort(function(a, b){  return new Date(a.start) - new Date(b.start); });
+
+        console.log(temp)
+
         setMyPreferencesList(temp)
     }
+
     useEffect(() => {
         const onCompleted = data => {
             reFormatPreferenceList(data.getUserByID.preferences)
@@ -108,6 +114,7 @@ export default function Account(props) {
     // if (data && oneTime) reFormatPreferenceList(data.getUserByID.preferences)
 
     const renderPreferenceSchedule = () => {
+
         let formats = {
             dayFormat: (date, culture, localizer) =>
                 localizer.format(date, 'dddd', culture)
@@ -289,7 +296,7 @@ export default function Account(props) {
                         update({
                             variables: {
                                 id: userID,
-                                preferences: myPreferencesList
+                                preferences: myPreferencesList.sort(function(a, b){  return new Date(a.start) - new Date(b.start); })
                             }
                         })
                     }
@@ -303,7 +310,7 @@ export default function Account(props) {
                         alignItems: 'center'
                     }}
                 >
-                    <h1>{getTotalPreferredHours()}</h1>
+                    <h1>{getTotalPreferredHours() >= 30 ? "SUCCESS" : getTotalPreferredHours()}</h1>
                     <ProgressBar
                         style={{ width: '50%' }}
                         animated
