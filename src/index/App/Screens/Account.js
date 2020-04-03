@@ -74,16 +74,18 @@ export default function Account(props) {
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
 
+    const userID = '5e84ed25646154001efe8e85'
+
     const [update, mutationData] = useMutation(UpdateUser)
     const { loading, error, data, refetch, networkStatus } = useQuery(
         GetUserByID,
         {
-            variables: { id: '5e7d306860f6d4001ef5cdb6' },
+            variables: { id: userID },
             notifyOnNetworkStatusChange: true
         }
     )
 
-    const reFormatPreferenceList = (prefArray) => {
+    const reFormatPreferenceList = prefArray => {
         let temp = []
 
         prefArray.forEach(({ title, start, end, color, value }) => {
@@ -94,11 +96,11 @@ export default function Account(props) {
         setMyPreferencesList(temp)
     }
     useEffect(() => {
-        const onCompleted = (data) => { reFormatPreferenceList(data.getUserByID.preferences) };
+        const onCompleted = data => {
+            reFormatPreferenceList(data.getUserByID.preferences)
+        }
         if (onCompleted && !loading && !error) onCompleted(data)
-    }, [loading, data, error]);
-
-
+    }, [loading, data, error])
 
     if (loading) return <p>Loading...</p>
     if (error) return <p>Error :( {JSON.stringify(error)}</p>
@@ -119,7 +121,13 @@ export default function Account(props) {
 
             setMyPreferencesList([
                 ...myPreferencesList,
-                { title: dropdownValue.label, start, end, color, value: dropdownValue.value.toString() }
+                {
+                    title: dropdownValue.label,
+                    start,
+                    end,
+                    color,
+                    value: dropdownValue.value.toString()
+                }
             ])
         }
 
@@ -162,18 +170,16 @@ export default function Account(props) {
             }
         }
 
-
         const renderCopyPreference = () => {
             const handlePreferenceCopy = () => {
                 let temp = [...myPreferencesList]
-                let startingDate;
-                let endingDate;
+                let startingDate
+                let endingDate
                 //3,4,5,6
                 if (copyTo.value > 2) {
                     startingDate = `April ${copyTo.value - 2}`
                     endingDate = `April ${copyTo.value - 2}`
-                }
-                else {
+                } else {
                     startingDate = `March ${29 + copyTo.value}`
                     endingDate = `March ${29 + copyTo.value}`
                 }
@@ -202,18 +208,29 @@ export default function Account(props) {
                             }
                         }
                     )
-
                 }
                 setMyPreferencesList(temp)
-
             }
             return (
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}
+                >
                     <TitleText>Preferences</TitleText>
                     {/* <PrimaryButton onClick={() => console.log(myPreferencesList)}>
                         log state
                     </PrimaryButton> */}
-                    <div style={{ display: 'flex', justifyContent: 'space-evenly', alignItems: 'center', width: '80%' }}>
+                    <div
+                        style={{
+                            display: 'flex',
+                            justifyContent: 'space-evenly',
+                            alignItems: 'center',
+                            width: '80%'
+                        }}
+                    >
                         <Dropdown
                             options={options}
                             onChange={x => setDropdownValue(x)}
@@ -245,17 +262,19 @@ export default function Account(props) {
                     <PrimaryButton onClick={() => handlePreferenceCopy()}>
                         Copy
                     </PrimaryButton>
-
                 </div>
             )
         }
         const getTotalPreferredHours = () => {
             totalPreferredTime = 0
             myPreferencesList.forEach(({ value, start, end }) => {
-                if (value === "1") {
+                if (value === '1') {
                     let startDate = new Date(start)
                     let endDate = new Date(end)
-                    let timeDifference = (endDate.getHours() + endDate.getMinutes() / 60) - (startDate.getHours() + startDate.getMinutes() / 60)
+                    let timeDifference =
+                        endDate.getHours() +
+                        endDate.getMinutes() / 60 -
+                        (startDate.getHours() + startDate.getMinutes() / 60)
                     totalPreferredTime += timeDifference
                 }
             })
@@ -264,20 +283,32 @@ export default function Account(props) {
         return (
             <div>
                 {renderCopyPreference()}
-                <PrimaryButton onClick={e =>
-                    totalPreferredTime >= 30 && update({
-                        variables: {
-                            id: '5e7d306860f6d4001ef5cdb6',
-                            preferences: myPreferencesList
-                        }
-                    })
-                }>
+                <PrimaryButton
+                    onClick={e =>
+                        totalPreferredTime >= 30 &&
+                        update({
+                            variables: {
+                                id: userID,
+                                preferences: myPreferencesList
+                            }
+                        })
+                    }
+                >
                     Submit To Database
-                    </PrimaryButton>
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+                </PrimaryButton>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}
+                >
                     <h1>{getTotalPreferredHours()}</h1>
-                    <ProgressBar style={{ width: '50%' }} animated now={getTotalPreferredHours() / 3 * 10} />
-
+                    <ProgressBar
+                        style={{ width: '50%' }}
+                        animated
+                        now={(getTotalPreferredHours() / 3) * 10}
+                    />
                 </div>
                 <DraggableCalendar //Preferences calendar
                     selectable
@@ -324,9 +355,6 @@ export default function Account(props) {
         )
     }
 
-
-
-
     return (
         <div>
             <h1>Account</h1>
@@ -357,7 +385,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            id: '5e7d306860f6d4001ef5cdb6',
+                            id: userID,
                             email: updatedEmail
                         }
                     })
@@ -377,7 +405,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            id: '5e7d306860f6d4001ef5cdb6',
+                            id: userID,
                             first: updatedFName
                         }
                     })
@@ -395,7 +423,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            id: '5e7d306860f6d4001ef5cdb6',
+                            id: userID,
                             last: updatedLName
                         }
                     })
@@ -434,7 +462,7 @@ export default function Account(props) {
                 onClick={e =>
                     update({
                         variables: {
-                            id: '5e7d306860f6d4001ef5cdb6',
+                            id: userID,
                             preferences: [
                                 {
                                     title: updatedDays,
