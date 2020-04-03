@@ -21,3 +21,11 @@ export const UpdateUser = gql`
             
     }
 `
+
+export const GetAllUsers = gql`
+    query {
+        getUsers {
+            ${UserData}
+        }
+    }
+`
