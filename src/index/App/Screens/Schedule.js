@@ -31,6 +31,7 @@ export default function Schedule(props) {
     const [displayColorPicker, setDisplayColorPicker] = useState(false)
     const [blackoutStart, setBlackoutStart] = useState('')
     const [blackoutEnd, setBlackoutEnd] = useState('')
+    const [AutoPopulationSchedule, setAutoPopulationSchedule] = useState([])
 
 
     //useEffect => what to do after the component is rendered
@@ -193,6 +194,14 @@ export default function Schedule(props) {
     //     }
     // }
 
+    // const reformatAutoPop = (arr) => {
+    //     let newArr = []
+    //     arr.forEach(({ assigned, shiftTime }) => {
+    //         let newObj = { title: assigned.emp, start: new Date(2020, 2, 29, shiftTime, 0, 0), end: new Date(2020, 2, 29, shiftTime + 1, 0, 0) }
+    //         newArr.push(newObj)
+    //     })
+    //     setAutoPopulationSchedule(newArr)
+    // }
     return (
         <div>
             <h1>Schedule</h1>
@@ -250,17 +259,17 @@ export default function Schedule(props) {
                 onEventResize={resizeEvent}
             />
 
-            <PrimaryButton onClick={() => AutoPopulate}>
-                        Auto Populate
-            </PrimaryButton>
+            {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
+            <AutoPopulate todo={(fromChild) => setAutoPopulationSchedule(fromChild)} />
+
 
             <DraggableCalendar
                 selectable
                 localizer={localizer}
-                events={[]}
+                events={AutoPopulationSchedule}
                 views={['month', 'week']}
                 defaultView={Views.WEEK}
-                defaultDate={new Date(2020, 1, 25)}
+                defaultDate={new Date(2020, 2, 29)}
                 onSelectEvent={handleDelete}
                 onSelectSlot={handleSelect}
                 style={{ height: '80vh', width: '80vw', margin: '10vw' }}
