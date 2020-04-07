@@ -43,10 +43,11 @@ export const TextInput = styled.input`
 	width: 20vw;
 	height: 2.3em;
 	border: none;
-	border-bottom: 1px solid #C7C7C7;
+	border-bottom: 1px solid;
 	&:focus {
 		border-bottom: 1px solid #1cd1a1; // <Thing> when hovered
-	}
+	};
+	border-color:${props => props.borderColor || '#C7C7C7'};
 `;
 
 export const PrimaryButton = styled.button`
