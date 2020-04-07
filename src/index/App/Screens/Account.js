@@ -64,6 +64,7 @@ export default function Account(props) {
     const [updatedEmail, updateEmail] = useState('')
     const [updatedFName, updateFName] = useState('')
     const [updatedLName, updateLName] = useState('')
+    const [userInfo, setUserInfo] = useState({ email: '', firstName: '', lastName: '' })
     const [updatedDays, updateDays] = useState('')
     const [updatedSHour, updateSHour] = useState('')
     const [updatedEHour, updateEHour] = useState('')
@@ -94,7 +95,7 @@ export default function Account(props) {
             temp.push({ title, start: startDate, end: endDate, color, value })
         })
 
-        temp.sort(function(a, b){  return new Date(a.start) - new Date(b.start); });
+        temp.sort(function (a, b) { return new Date(a.start) - new Date(b.start); });
 
         console.log(temp)
 
@@ -104,6 +105,7 @@ export default function Account(props) {
     useEffect(() => {
         const onCompleted = data => {
             reFormatPreferenceList(data.getUserByID.preferences)
+            setUserInfo(data.getUserByID)
         }
         if (onCompleted && !loading && !error) onCompleted(data)
     }, [loading, data, error])
@@ -227,9 +229,9 @@ export default function Account(props) {
                     }}
                 >
                     <TitleText>Preferences</TitleText>
-                    {/* <PrimaryButton onClick={() => console.log(myPreferencesList)}>
+                    <PrimaryButton onClick={() => console.log(myPreferencesList)}>
                         log state
-                    </PrimaryButton> */}
+                    </PrimaryButton>
                     <div
                         style={{
                             display: 'flex',
@@ -244,7 +246,6 @@ export default function Account(props) {
                             value={dropdownValue}
                             placeholder='Select an option'
                         />
-
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <SubtitleText>From</SubtitleText>
                             <Dropdown
@@ -254,7 +255,6 @@ export default function Account(props) {
                                 placeholder='Select an option'
                             />
                         </div>
-
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <SubtitleText>To</SubtitleText>
                             <Dropdown
@@ -296,7 +296,7 @@ export default function Account(props) {
                         update({
                             variables: {
                                 id: userID,
-                                preferences: myPreferencesList.sort(function(a, b){  return new Date(a.start) - new Date(b.start); })
+                                preferences: myPreferencesList.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
                             }
                         })
                     }
@@ -361,7 +361,36 @@ export default function Account(props) {
             </div>
         )
     }
+    const renderRow = (state, placeholder, ) => {
+        const onChange = (value) => {
+            let temp = { ...userInfo };
+            temp[state] = value
+            setUserInfo(temp)
+        }
+        return (
+            <TextInput
+                placeholder={placeholder}
+                type='text'
+                value={userInfo[state]}
+                borderColor={userInfo[state] === '' && 'red'}
+                onChange={e => onChange(e.target.value)}
+            />
 
+        )
+    }
+    const validation = ({ email, firstName, lastName }) => {
+        if (email === '' || firstName === '' || lastName === '') console.log('asad')
+        else {
+            update({
+                variables: {
+                    id: userID,
+                    first: firstName,
+                    last: lastName,
+                    email: email
+                }
+            })
+        }
+    }
     return (
         <div>
             <h1>Account</h1>
@@ -372,120 +401,25 @@ export default function Account(props) {
             </h3>
 
             <button onClick={() => refetch()}>Click me!</button>
+            <TitleText>Information</TitleText>
+            {renderRow('email', 'Email')}
+            {renderRow('firstName', 'First Name')}
+            {renderRow('lastName', 'Last Name')}
+            <PrimaryButton onClick={() => validation(userInfo)} >Save</PrimaryButton>
 
-            <h4>Provide your FirebaseID here</h4>
-            <TextInput
-                placeholder='FirebaseID'
-                type='text'
-                value={FirebaseID}
-                onChange={e => ValidateFirebaseID(e.target.value)}
-            />
+            {/* <PrimaryButton
+                    onClick={e =>
+                        totalPreferredTime >= 30 &&
+                        update({
+                            variables: {
+                                id: userID,
+                                preferences: myPreferencesList.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
+                            }
+                        })
+                    }
+                > */}
 
-            <h4>Update your email here</h4>
-            <TextInput
-                placeholder='Email'
-                type='text'
-                value={updatedEmail}
-                onChange={e => updateEmail(e.target.value)}
-            />
-            <PrimaryButton
-                onClick={e =>
-                    update({
-                        variables: {
-                            id: userID,
-                            email: updatedEmail
-                        }
-                    })
-                }
-            >
-                Update Email
-            </PrimaryButton>
 
-            <h4>Update your First and Last Name here</h4>
-            <TextInput
-                placeholder='First Name'
-                type='text'
-                value={updatedFName}
-                onChange={e => updateFName(e.target.value)}
-            />
-            <PrimaryButton
-                onClick={e =>
-                    update({
-                        variables: {
-                            id: userID,
-                            first: updatedFName
-                        }
-                    })
-                }
-            >
-                Update First Name
-            </PrimaryButton>
-            <TextInput
-                placeholder='Last Name'
-                type='text'
-                value={updatedLName}
-                onChange={e => updateLName(e.target.value)}
-            />
-            <PrimaryButton
-                onClick={e =>
-                    update({
-                        variables: {
-                            id: userID,
-                            last: updatedLName
-                        }
-                    })
-                }
-            >
-                Update Last Name
-            </PrimaryButton>
-
-            <h4>Update your shift preferences here</h4>
-            <TextInput
-                placeholder='Days'
-                type='text'
-                value={updatedDays}
-                onChange={e => updateDays(e.target.value)}
-            />
-            <TextInput
-                placeholder='Starting Hour'
-                type='text'
-                value={updatedSHour}
-                onChange={e => updateSHour(e.target.value)}
-            />
-
-            <TextInput
-                placeholder='Ending Hour'
-                type='text'
-                value={updatedEHour}
-                onChange={e => updateEHour(e.target.value)}
-            />
-            <TextInput
-                placeholder='Color on calendar'
-                type='text'
-                value={updatedSColor}
-                onChange={e => updateSColor(e.target.value)}
-            />
-            <PrimaryButton
-                onClick={e =>
-                    update({
-                        variables: {
-                            id: userID,
-                            preferences: [
-                                {
-                                    title: updatedDays,
-                                    start: updatedSHour,
-                                    end: updatedEHour,
-                                    color: updatedSColor
-                                }
-                            ]
-                        }
-                    })
-                }
-            >
-                Update Hour Preferences
-            </PrimaryButton>
-
-            <PrimaryButton>GA Clock-in</PrimaryButton>
             {renderPreferenceSchedule()}
         </div>
     )
