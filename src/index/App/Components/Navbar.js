@@ -12,7 +12,7 @@ export default function Navbar() {
 				fontfamily: 'Poppins',
 				fontstyle: 'normal',
 				fontweight: 'normal',
-				display: 'flex',
+				display: 'block',
 				height: '130vh',
 				width: '10vw',
 				backgroundColor:'#FFF9FE'

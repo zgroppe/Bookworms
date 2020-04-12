@@ -59,6 +59,7 @@ export const PrimaryButton = styled.button`
 	color: white;
 	font-size: 16px;
 	border: 0px;
+	text-align:center;
 `;
 
 export const Hyperlink = styled.a`

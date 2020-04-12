@@ -16,7 +16,8 @@ import {
     PrimaryButton,
     TextInput,
     SubtitleText,
-    TitleText
+    TitleText,
+    Card
 } from './../Styles/StyledComponents'
 import ProgressBar from 'react-bootstrap/ProgressBar'
 moment.locale('en')
@@ -221,26 +222,32 @@ export default function Account(props) {
                 setMyPreferencesList(temp)
             }
             return (
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center'
-                    }}
-                >
-                    <TitleText>Preferences</TitleText>
-                    <PrimaryButton onClick={() => console.log(myPreferencesList)}>
-                        log state
+                
+                <div>
+                    <TitleText style={{
+                    fontSize: '48px',
+                    textAlign:'left'
+                      
+                }}>Preferences</TitleText>
+                    <PrimaryButton  style={{
+                        align:'left'
+                      
+                }} onClick={() => console.log(myPreferencesList)}>
+                        Log State
                     </PrimaryButton>
-                    <div
+                    <PrimaryButton style={{
+                            align:'left'
+                        }} onClick={() => handlePreferenceCopy()}>
+                            Copy
+                        </PrimaryButton>
+                        <div
                         style={{
                             display: 'flex',
-                            justifyContent: 'space-evenly',
-                            alignItems: 'center',
-                            width: '80%'
+                            justifyContent: 'space-evenly',  
                         }}
                     >
-                        <Dropdown
+                        
+                        <Dropdown 
                             options={options}
                             onChange={x => setDropdownValue(x)}
                             value={dropdownValue}
@@ -266,10 +273,9 @@ export default function Account(props) {
                         </div>
                     </div>
 
-                    <PrimaryButton onClick={() => handlePreferenceCopy()}>
-                        Copy
-                    </PrimaryButton>
+                    
                 </div>
+                
             )
         }
         const getTotalPreferredHours = () => {
@@ -288,9 +294,14 @@ export default function Account(props) {
             return totalPreferredTime
         }
         return (
+            
             <div>
                 {renderCopyPreference()}
-                <PrimaryButton
+                <PrimaryButton style={{
+                    //clear:'left',
+                    align:'left'
+                      
+                }}
                     onClick={e =>
                         totalPreferredTime >= 30 &&
                         update({
@@ -317,6 +328,7 @@ export default function Account(props) {
                         now={(getTotalPreferredHours() / 3) * 10}
                     />
                 </div>
+                
                 <DraggableCalendar //Preferences calendar
                     selectable
                     localizer={localizer}
@@ -327,7 +339,7 @@ export default function Account(props) {
                     defaultDate={new Date(2020, 2, 29)}
                     onSelectEvent={handleDeletePreference}
                     onSelectSlot={handleSelectPreference}
-                    style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+                    style={{ align:'center', height: '80vh', width: '1450px' }}
                     eventPropGetter={event => ({
                         style: {
                             backgroundColor: event.color,
@@ -358,7 +370,9 @@ export default function Account(props) {
                     onEventDrop={movePreference}
                     onEventResize={resizePreference}
                 />
+      
             </div>
+            
         )
     }
     const renderRow = (state, placeholder, ) => {
@@ -392,20 +406,50 @@ export default function Account(props) {
         }
     }
     return (
+        <Card style={{
+            width:'1500px'
+        }}>
         <div>
-            <h1>Account</h1>
-            <h1>{data.getUserByID.firstName}</h1>
-            <h3>
+            <TitleText style={{
+                    textAlign: 'left',
+                    position:'flex',
+                    fontSize:'48px',
+                    //clear:'left'
+                }}
+                >Account </TitleText>
+                <h1 style={{
+                    textAlign: 'left',
+                    position:'flex',
+                    //clear:'left'
+                }}
+                > {data.getUserByID.firstName}</h1>
+            <h3 style={{
+                    textAlign: 'start',
+                    fontSize: '18px'  
+                }}>
                 Here you can update your account information. Please provide
-                your FirebaseID in the box below before submitting any changes
+                your FirebaseID in the box below before submitting any changes.
             </h3>
-
-            <button onClick={() => refetch()}>Click me!</button>
-            <TitleText>Information</TitleText>
+           
+            <PrimaryButton style={{
+                    float:'left'
+                      
+                }} onClick={() => refetch()}>
+                 Click me!</PrimaryButton>
+               
+            <TitleText style={{
+                    fontSize: '48px',
+                    clear:'left',
+                    textAlign:'left'
+                      
+                }}>Information</TitleText>
             {renderRow('email', 'Email')}
             {renderRow('firstName', 'First Name')}
             {renderRow('lastName', 'Last Name')}
-            <PrimaryButton onClick={() => validation(userInfo)} >Save</PrimaryButton>
+            <PrimaryButton style={{
+                    display:'block'
+                      
+                }}onClick={() => validation(userInfo)} >Save</PrimaryButton>
 
             {/* <PrimaryButton
                     onClick={e =>
@@ -422,5 +466,6 @@ export default function Account(props) {
 
             {renderPreferenceSchedule()}
         </div>
+        </Card>
     )
 }

@@ -1,8 +1,10 @@
 import React from 'react'
+import Screens from '../Screens'
 import {
 	TitleText,
 	SubtitleText
 } from './../Styles/StyledComponents'
+import Account from '../Screens/Account';
 const LibraryLogo = require('../Images/LibraryLogo.png')
 const Usericon = require('../Images/profileicon.PNG')
 const Bell = require('../Images/bell.PNG')
@@ -29,17 +31,20 @@ export default function Header() {
 					
 				}}
 			>
+			
 				<img
 					align='middle'
 					src={LibraryLogo}
 					alt='Library Logo'
-					style={{ height: '193px' }}
+					style={{ height: '193px' }}	
 				/>
+			
 				<img 
        			src={Usericon} 
         		alt="user icon" 
         		style={{alignItems: 'center', width: '70px',
-        		height: '70px', marginRight:'5px'}}
+				height: '70px', marginRight:'5px'}}
+				//onClick={() => Screens[4].path}
         		/>
 				<SubtitleText> John Deer </SubtitleText>
 				<img 
