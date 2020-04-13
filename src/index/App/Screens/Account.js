@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import moment from 'moment'
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
@@ -12,6 +12,7 @@ import { UpdateUser } from '../API/Mutations/User'
 import { GetUserByID } from '../API/Queries/User'
 import '../Styles/Login.css'
 import '../Styles/Schedule.css'
+import   ClockIn  from '../API/Geolocation/ClockIn'
 import {
     PrimaryButton,
     TextInput,
@@ -20,6 +21,7 @@ import {
     Card
 } from './../Styles/StyledComponents'
 import ProgressBar from 'react-bootstrap/ProgressBar'
+import { geolocated, geoPropTypes } from 'react-geolocated'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
 const options = [
@@ -28,6 +30,7 @@ const options = [
     { value: 0, label: 'Neutral', color: 'grey' },
     { value: 1, label: 'Preferred', color: 'green' }
 ]
+
 const DraggableCalendar = withDragAndDrop(Calendar)
 const DAYS = [
     {
@@ -71,12 +74,35 @@ export default function Account(props) {
     const [updatedEHour, updateEHour] = useState('')
     const [updatedSColor, updateSColor] = useState('')
     const [FirebaseID, ValidateFirebaseID] = useState('')
+    const [updatedUserType, updateUserType] = useState('')
     const [myPreferencesList, setMyPreferencesList] = useState([])
     const [dropdownValue, setDropdownValue] = useState(options[1])
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
+    /*
+    {
+        coords: {
+            latitude,
+            longitude,
+            altitude,
+            accuracy,
+            altitudeAccuracy,
+            heading,
+            speed
+        }
+        isGeolocationAvailable, // boolean flag indicating that the browser supports the Geolocation API
+        isGeolocationEnabled, // boolean flag indicating that the user has allowed the use of the Geolocation API
+        positionError // object with the error returned from the Geolocation API call
+    }
+    */
 
-    const userID = '5e851e3bef8a44001ea91426'
+
+   const innerRef = useRef();
+   const getLocation = () => {
+       innerRef.current && innerRef.current.getLocation();
+   };
+
+    const userID = '5e84e996646154001efe8e80'
 
     const [update, mutationData] = useMutation(UpdateUser)
     const { loading, error, data, refetch, networkStatus } = useQuery(
@@ -465,6 +491,25 @@ export default function Account(props) {
 
 
             {renderPreferenceSchedule()}
+
+           
+        
+           
+        <article style={{ textAlign: "center" }}>
+            {/* eslint-disable-next-line no-console*/}
+            
+            <ClockIn onError={error => console.log(error)} ref={innerRef} />
+            <button
+                className="pure-button pure-button-primary"
+                onClick={getLocation}
+                type="button"
+            >
+                Get location
+            </button>
+        </article>
+   
+
+
         </div>
         </Card>
     )
