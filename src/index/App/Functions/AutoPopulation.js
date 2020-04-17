@@ -65,14 +65,14 @@ export default function AutoPopulation(props) {
                         let minute = parseInt(time.split(':')[1])
                         //console.log('Hour:', hour);
                         let filteredEmployees = dayArray.filter(({ startDate, endDate, value }) => {
-                                return (startDate.getHours() <= hour && endDate.getHours() > hour + 1 && value !== -100 && Number.isInteger(value))
+                                return (startDate.getHours() <= hour && endDate.getHours() >= hour + 1 && value !== -100 && Number.isInteger(value))
                         })
                         //this is the available employee in the 'hour' and SOMEHOW ITS SORTED THANKS JAVASCRIPT
                         //console.log('First Filter:\n', filteredEmployees)
 
                         //filter the available employee with the highest value only
                         let max = -1
-                        console.log('FE', filteredEmployees);
+                        //console.log('FE', filteredEmployees);
 
                         if (filteredEmployees.length === 0) {
                                 dayResult.push({ shiftTime: { hour, minute }, assigned: [] })
@@ -90,43 +90,29 @@ export default function AutoPopulation(props) {
                                         let random
 
                                         if (max >= 0) {
-                                                console.log('HEREBRO MAX >=0');
+                                                //console.log('HEREBRO MAX >=0');
                                                 filteredEmployees = filteredEmployees.filter(({ value }) => {
                                                         return max === 1 ? value === 0 : value === -1
                                                 })
+                                                console.log('FE', filteredEmployees);
                                         }
 
-
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        //INFINITE LOOPS BE AWARE
-                                        while (highValueFilteredEmployees.length < slot) {
-                                                console.log('HEREBRO');
-
-
+                                        while (highValueFilteredEmployees.length < slot && filteredEmployees.length !== 0) {
+                                                //console.log('HEREBRO', highValueFilteredEmployees.length)
+                                                //console.log(slot)
+                                                //console.log(filteredEmployees.length)
 
                                                 random = Math.floor(Math.random() * filteredEmployees.length)
 
                                                 if (!taken.includes(random)) {
-                                                        console.log('HEREBRO PUSHING');
+                                                        //console.log('HEREBRO PUSHING');
                                                         highValueFilteredEmployees.push(filteredEmployees[random])
-                                                        filteredEmployees.splice()
+                                                        filteredEmployees.splice(random, 1)
                                                         taken.push(random)
                                                 }
 
                                         }
-                                        console.log('FINISHBRO');
+                                        //console.log('FINISHBRO');
 
                                 }
 
@@ -171,10 +157,10 @@ export default function AutoPopulation(props) {
                                         }
 
 
-
+                                        console.log(prevEmployees)
 
                                         highValueFilteredEmployees.forEach((item, highValIndex) => {
-                                                if (prevEmployees.includes(item.empID)) {
+                                                if (prevEmployees.includes(item.empID) && dayResultObj.assigned.length < slot) {
                                                         dayResultObj.assigned.push(item)
                                                         highValueFilteredEmployees.splice(highValIndex, 1)
                                                 }
@@ -182,8 +168,10 @@ export default function AutoPopulation(props) {
 
                                         highValueFilteredEmployees.forEach((item, highValIndex) => {
                                                 //push the best available time
-                                                while (dayResultObj.assigned.length < slot)
+                                                if (dayResultObj.assigned.length < slot){
                                                         dayResultObj.assigned.push(item)
+                                                }
+
                                         })
 
                                         // console.log('INDEX1', index)
@@ -271,8 +259,9 @@ export default function AutoPopulation(props) {
 
 
                 })
+
                 //console.log('Day:', indexArray, 'Big list \n', dayResult);
-                console.log(weeklyMax)
+                //console.log(weeklyMax)
                 //simplify the sundayArray result
                 let dayFinalResult = []
                 let pass = false
@@ -291,43 +280,138 @@ export default function AutoPopulation(props) {
                         certainMonth = 3
                 }
 
-                dayResult.forEach((item, index) => {
-                        if (index === dayResult.length - 1) {
-                                // newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, 0, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime + 1, 0, 0) }
+                let save = []
+
+                dayResult.forEach(({assigned, shiftTime}, index) => {
+                        
+                        assigned.forEach((employee) => {
+                                
+                                // if(index === 0)
+                                // {
+                                //         save.push({ title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, 0, 0)})
+                                // }
+                                // else if(dayResult[])
+
+                                let noLongerScheduled = false
+                                let iter = 1
+                                let theirStartHour
+                                let theirStartMinute
+                                let theirEndHour
+                                let theirEndMinute
+                                while(!noLongerScheduled)
+                                {
+                                        if(index + iter <= dayResult.length - 1 && dayResult[index + iter].assigned.includes(employee)) 
+                                        {
+                                                console.log('Keep looking')
+                                                if(iter === 1)
+                                                {
+                                                        theirStartHour = shiftTime.hour
+                                                        theirStartMinute = shiftTime.minute
+                                                }
+                                        }
+                                        else
+                                        {
+                                                noLongerScheduled = true
+                                                theirEndHour = shiftTime.hour + iter
+                                                theirEndMinute = shiftTime.minute
+                                        }
+                                        iter++
+                                }
+
+                                newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0), color: 'red' }
+                                dayFinalResult.push(newObj)
+
+
+
+                                //console.log(assigned)
+                                // newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, 0, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0) }
                                 // dayFinalResult.push(newObj)
-                                if (!pass) {
-                                        newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, item.shiftTime.hour, item.shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
-                                        dayFinalResult.push(newObj)
-                                }
-                                else {
-                                        newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
-                                        dayFinalResult.push(newObj)
-                                        pass = false
-                                }
-                        }
-                        else if (item.assigned.empID !== dayResult[index + 1].assigned.empID) {
+        
+                        //         if (index === dayResult.length - 1) {
+                        //                 if (!pass) {
+                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'red' }
+                        //                         dayFinalResult.push(newObj)
+                        //                 }
+                        //                 else {
+                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'green' }
+                        //                         dayFinalResult.push(newObj)
+                        //                         pass = false
+                        //                 }
+                        //         }
 
-                                if (!pass) {
-                                        newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, item.shiftTime.hour, item.shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
-                                        dayFinalResult.push(newObj)
-                                }
-                                else {
-                                        newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
-                                        dayFinalResult.push(newObj)
-                                        pass = false
-                                }
+                        //         else if (dayResult[index + 1].assigned.includes(employee)) {
+        
+                        //                 //make it one block
+                        //                 hoursSaved = shiftTime.hour
+                        //                 minutesSaved = shiftTime.minute
+                        //                 pass = true
+                        //                 console.log('Made it to the pass change!!!!!!!!!!!!')
+                        //         }
 
-                        }
-                        else if ((index !== 0 && item.assigned.empID !== dayResult[index - 1].assigned.empID) || (index === 0 && item.assigned.empID === dayResult[index + 1].assigned.empID)) {
+                        //         //Stops block
+                        //         else if (!dayResult[index + 1].assigned.includes(employee)) {
+        
+                        //                 if (!pass) {
+                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'yellow' }
+                        //                         dayFinalResult.push(newObj)
+                        //                 }
+                        //                 else {
+                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'purple' }
+                        //                         dayFinalResult.push(newObj)
+                        //                         pass = false
+                        //                 }
+        
+                        //         }
 
-                                //make it one block
-                                hoursSaved = item.shiftTime.hour
-                                minutesSaved = item.shiftTime.minute
-                                pass = true
-                        }
+                        //         // //Used to save block start times
+                        //         // else if ((index !== 0 && dayResult[index - 1].assigned.includes(employee.empID)) || (index === 0 && dayResult[index + 1].assigned.includes(employee.empID))) {
+        
+                        //         //         //make it one block
+                        //         //         hoursSaved = shiftTime.hour
+                        //         //         minutesSaved = shiftTime.minute
+                        //         //         pass = true
+                        //         // }
+                        })
+
+                        // if (index === dayResult.length - 1) {
+                        //         // newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, 0, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime + 1, 0, 0) }
+                        //         // dayFinalResult.push(newObj)
+                        //         if (!pass) {
+                        //                 newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, item.shiftTime.hour, item.shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
+                        //                 dayFinalResult.push(newObj)
+                        //         }
+                        //         else {
+                        //                 newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
+                        //                 dayFinalResult.push(newObj)
+                        //                 pass = false
+                        //         }
+                        // }
+                        // else if (item.assigned.empID !== dayResult[index + 1].assigned.empID) {
+
+                        //         if (!pass) {
+                        //                 newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, item.shiftTime.hour, item.shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
+                        //                 dayFinalResult.push(newObj)
+                        //         }
+                        //         else {
+                        //                 newObj = { title: item.assigned.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, item.shiftTime.hour + 1, 0, 0) }
+                        //                 dayFinalResult.push(newObj)
+                        //                 pass = false
+                        //         }
+
+                        // }
+                        // else if ((index !== 0 && item.assigned.empID !== dayResult[index - 1].assigned.empID) || (index === 0 && item.assigned.empID === dayResult[index + 1].assigned.empID)) {
+
+                        //         //make it one block
+                        //         hoursSaved = item.shiftTime.hour
+                        //         minutesSaved = item.shiftTime.minute
+                        //         pass = true
+                        // }
                 })
                 //console.log('Day:', indexArray, 'Condensed list \n', dayFinalResult)
-                console.log('If you have ANY questions, ask David. Probably his fault. ;) HAHAHAHAHAHAHA')
+                //console.log('If you have ANY questions, ask David. Probably his fault. ;) HAHAHAHAHAHAHA')
+                
+
+
                 return dayFinalResult
         }
 
