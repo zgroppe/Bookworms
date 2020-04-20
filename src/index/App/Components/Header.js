@@ -8,6 +8,7 @@ import Account from '../Screens/Account';
 const LibraryLogo = require('../Images/LibraryLogo.png')
 const Usericon = require('../Images/profileicon.PNG')
 const Bell = require('../Images/bell.PNG')
+const logo=require('../Images/IndaysLogo.png')
 export default function Header() {
 	return (
 		<div
@@ -34,8 +35,8 @@ export default function Header() {
 			
 				<img
 					align='middle'
-					src={LibraryLogo}
-					alt='Library Logo'
+					src={logo}
+					alt='logo'
 					style={{ height: '193px' }}	
 				/>
 			

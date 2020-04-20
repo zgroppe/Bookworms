@@ -14,7 +14,7 @@ export const TitleText = styled.h1`
 	font-weight: bold;
 	padding: 1%;
 	margin: 0;
-	background: linear-gradient(#1cd1a1, #235cb9);
+	background: linear-gradient(#FF7A7A, #510808);
 	-webkit-background-clip: text;
 	-webkit-text-fill-color: transparent;
 `;
@@ -51,7 +51,7 @@ export const TextInput = styled.input`
 `;
 
 export const PrimaryButton = styled.button`
-	background: linear-gradient(90deg, #1CD1A1 0%, #235CB9 100%);
+	background: linear-gradient(180deg, #303030 0%, #060303 100%);
 	border-radius: 10px;
 	margin: 1em;	
 	width: 247px;
@@ -88,7 +88,7 @@ export const Color = styled.div`
 	background: ${(props) => (props.color ? props.color : 'black')};
 `;
 export const Navlink = styled.button`
-	background: linear-gradient(179.63deg, #1CD1A1 -13.56%, #281AC8 158.3%);
+	background: linear-gradient(179.63deg, #FF7A7A -13.56%, #510808 158.3%);
 	width: 350px;
 	height: 50px;
 	color: white;

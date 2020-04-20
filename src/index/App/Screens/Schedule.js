@@ -203,6 +203,9 @@ export default function Schedule(props) {
     //     setAutoPopulationSchedule(newArr)
     // }
     return (
+        <Card style={{
+            width:'1500px'
+        }}>
         <div>
             <h1>Schedule</h1>
             <h3 style={{ color: colorPicked }}>
@@ -229,7 +232,7 @@ export default function Schedule(props) {
                 defaultDate={new Date(2020, 1, 25)}
                 onSelectEvent={handleDelete}
                 onSelectSlot={handleSelect}
-                style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+                style={{ height: '80vh', width: '1450px'}}
                 dayPropGetter={handleBlackoutDate}
                 eventPropGetter={event => ({
                     style: {
@@ -272,7 +275,7 @@ export default function Schedule(props) {
                 defaultDate={new Date(2020, 2, 29)}
                 onSelectEvent={handleDelete}
                 onSelectSlot={handleSelect}
-                style={{ height: '80vh', width: '80vw', margin: '10vw' }}
+                style={{ height: '80vh', width: '1450px' }}
                 dayPropGetter={handleBlackoutDate}
                 eventPropGetter={event => ({
                     style: {
@@ -303,5 +306,6 @@ export default function Schedule(props) {
             />
 
         </div>
+        </Card>
     )
 }
