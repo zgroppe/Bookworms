@@ -8,7 +8,27 @@ const formatDegrees = (degrees, isLongitude) =>
         (((degrees < 0 ? (degrees = -degrees) : degrees) % 1) * 60)}' ${0 |
         (((degrees * 60) % 1) * 60)}" ${getDirection(degrees, isLongitude)}`;
 
+        let TestLat = 29.0000000
+        let TestLong = -98.0000000
+        let LatTopBound = 27.714021
+        let LatBotBound = 27.713137
+        let LongTopBound = 97.325228
+        let LongBotBound = 97.324256
+        
+const checkLocation = (Latitude, Longitude) =>
+{
+    if (Latitude > TestLat && Longitude < TestLong)
+    {
+        window.alert("Clock In Accepted")
+    }
+        else
+        {
+            window.alert("Clock In not Accepted")
+        }
+        
+}
 const ClockIn = props => (
+
     <div
         style={{
             fontSize: "large",
@@ -17,29 +37,32 @@ const ClockIn = props => (
         }}
     >
         {!props.isGeolocationAvailable ? (
-            <div>Your browser does not support Geolocation.</div>
+            <div>Your Current browser does not seem to support Geolocation.</div>
         ) : !props.isGeolocationEnabled ? (
-            <div>Geolocation is not enabled.</div>
+            <div>Geolocation has not enabled on this browser.</div>
         ) : props.coords ? (
+            
             <div>
-                You are at{" "}
+
+                You are currently at{" "}
                 <span className="coordinate">
                     {formatDegrees(props.coords.latitude, false)}
+                    {console.log(props.coords.latitude)}
+                    {console.log(props.coords.longitude)}
                 </span>
                 ,{" "}
                 <span className="coordinate">
                     {formatDegrees(props.coords.longitude, true)}
+                    {checkLocation(props.coords.latitude, props.coords.longitude)}
                 </span>
-                {props.coords.altitude ? (
-                    <span>
-                        , approximately {props.coords.altitude} meters above sea
-                        level
-                    </span>
-                ) : null}
+                   
+                
                 .
             </div>
+
+        
         ) : (
-            <div>Getting the location data&hellip;</div>
+            <div>Currently Getting location data&hellip;</div>
         )}
         {!!props.positionError && (
             <div>
@@ -50,6 +73,7 @@ const ClockIn = props => (
         )}
     </div>
 );
+
 
 ClockIn.propTypes = { ...ClockIn.propTypes, ...geoPropTypes };
 
