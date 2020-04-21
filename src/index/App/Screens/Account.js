@@ -12,7 +12,7 @@ import { UpdateUser } from '../API/Mutations/User'
 import { GetUserByID } from '../API/Queries/User'
 import '../Styles/Login.css'
 import '../Styles/Schedule.css'
-import   ClockIn  from '../API/Geolocation/ClockIn'
+import ClockIn from '../API/Geolocation/ClockIn'
 import {
     PrimaryButton,
     TextInput,
@@ -20,6 +20,7 @@ import {
     TitleText,
     Card
 } from './../Styles/StyledComponents'
+import ProgressBar from 'react-bootstrap/ProgressBar'
 import { geolocated, geoPropTypes } from 'react-geolocated'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
@@ -96,10 +97,10 @@ export default function Account(props) {
     */
 
 
-   const innerRef = useRef();
-   const getLocation = () => {
-       innerRef.current && innerRef.current.getLocation();
-   };
+    const innerRef = useRef();
+    const getLocation = () => {
+        innerRef.current && innerRef.current.getLocation();
+    };
 
     const userID = '5e84e996646154001efe8e80'
 
@@ -247,32 +248,32 @@ export default function Account(props) {
                 setMyPreferencesList(temp)
             }
             return (
-                
+
                 <div>
                     <TitleText style={{
-                    fontSize: '48px',
-                    textAlign:'left'
-                      
-                }}>Preferences</TitleText>
-                    <PrimaryButton  style={{
-                        align:'left'
-                      
-                }} onClick={() => console.log(myPreferencesList)}>
+                        fontSize: '48px',
+                        textAlign: 'left'
+
+                    }}>Preferences</TitleText>
+                    <PrimaryButton style={{
+                        align: 'left'
+
+                    }} onClick={() => console.log(myPreferencesList)}>
                         Log State
                     </PrimaryButton>
                     <PrimaryButton style={{
-                            align:'left'
-                        }} onClick={() => handlePreferenceCopy()}>
-                            Copy
+                        align: 'left'
+                    }} onClick={() => handlePreferenceCopy()}>
+                        Copy
                         </PrimaryButton>
-                        <div
+                    <div
                         style={{
                             display: 'flex',
-                            justifyContent: 'space-evenly',  
+                            justifyContent: 'space-evenly',
                         }}
                     >
-                        
-                        <Dropdown 
+
+                        <Dropdown
                             options={options}
                             onChange={x => setDropdownValue(x)}
                             value={dropdownValue}
@@ -298,9 +299,9 @@ export default function Account(props) {
                         </div>
                     </div>
 
-                    
+
                 </div>
-                
+
             )
         }
         const getTotalPreferredHours = () => {
@@ -319,13 +320,13 @@ export default function Account(props) {
             return totalPreferredTime
         }
         return (
-            
+
             <div>
                 {renderCopyPreference()}
                 <PrimaryButton style={{
                     //clear:'left',
-                    align:'left'
-                      
+                    align: 'left'
+
                 }}
                     onClick={e =>
                         totalPreferredTime >= 30 &&
@@ -346,10 +347,15 @@ export default function Account(props) {
                         alignItems: 'center'
                     }}
                 >
+
                     <h1>{getTotalPreferredHours() >= 30 ? "SUCCESS" : getTotalPreferredHours()}</h1>
-                    
+                    <ProgressBar
+                        style={{ width: '50%' }}
+                        animated
+                        now={(getTotalPreferredHours() / 3) * 10}
+                    />
                 </div>
-                
+
                 <DraggableCalendar //Preferences calendar
                     selectable
                     localizer={localizer}
@@ -360,7 +366,7 @@ export default function Account(props) {
                     defaultDate={new Date(2020, 2, 29)}
                     onSelectEvent={handleDeletePreference}
                     onSelectSlot={handleSelectPreference}
-                    style={{ align:'center', height: '80vh', width: '1450px' }}
+                    style={{ align: 'center', height: '80vh', width: '1450px' }}
                     eventPropGetter={event => ({
                         style: {
                             backgroundColor: event.color,
@@ -391,9 +397,9 @@ export default function Account(props) {
                     onEventDrop={movePreference}
                     onEventResize={resizePreference}
                 />
-      
+
             </div>
-            
+
         )
     }
     const renderRow = (state, placeholder, ) => {
@@ -428,51 +434,51 @@ export default function Account(props) {
     }
     return (
         <Card style={{
-            width:'1500px'
+            width: '1500px'
         }}>
-        <div>
-            <TitleText style={{
+            <div>
+                <TitleText style={{
                     textAlign: 'left',
-                    position:'flex',
-                    fontSize:'48px',
+                    position: 'flex',
+                    fontSize: '48px',
                     //clear:'left'
                 }}
                 >Account </TitleText>
                 <h1 style={{
                     textAlign: 'left',
-                    position:'flex',
+                    position: 'flex',
                     //clear:'left'
                 }}
                 > {data.getUserByID.firstName}</h1>
-            <h3 style={{
+                <h3 style={{
                     textAlign: 'start',
-                    fontSize: '18px'  
+                    fontSize: '18px'
                 }}>
-                Here you can update your account information. Please provide
-                your FirebaseID in the box below before submitting any changes.
+                    Here you can update your account information. Please provide
+                    your FirebaseID in the box below before submitting any changes.
             </h3>
-           
-            <PrimaryButton style={{
-                    float:'left'
-                      
-                }} onClick={() => refetch()}>
-                 Click me!</PrimaryButton>
-               
-            <TitleText style={{
-                    fontSize: '48px',
-                    clear:'left',
-                    textAlign:'left'
-                      
-                }}>Information</TitleText>
-            {renderRow('email', 'Email')}
-            {renderRow('firstName', 'First Name')}
-            {renderRow('lastName', 'Last Name')}
-            <PrimaryButton style={{
-                    display:'block'
-                      
-                }}onClick={() => validation(userInfo)} >Save</PrimaryButton>
 
-            {/* <PrimaryButton
+                <PrimaryButton style={{
+                    float: 'left'
+
+                }} onClick={() => refetch()}>
+                    Click me!</PrimaryButton>
+
+                <TitleText style={{
+                    fontSize: '48px',
+                    clear: 'left',
+                    textAlign: 'left'
+
+                }}>Information</TitleText>
+                {renderRow('email', 'Email')}
+                {renderRow('firstName', 'First Name')}
+                {renderRow('lastName', 'Last Name')}
+                <PrimaryButton style={{
+                    display: 'block'
+
+                }} onClick={() => validation(userInfo)} >Save</PrimaryButton>
+
+                {/* <PrimaryButton
                     onClick={e =>
                         totalPreferredTime >= 30 &&
                         update({
@@ -485,27 +491,27 @@ export default function Account(props) {
                 > */}
 
 
-            {renderPreferenceSchedule()}
+                {renderPreferenceSchedule()}
 
-           
-        
-           
-        <article style={{ textAlign: "center" }}>
-            {/* eslint-disable-next-line no-console*/}
-            
-            <ClockIn onError={error => console.log(error)} ref={innerRef} />
-            <button
-                className="pure-button pure-button-primary"
-                onClick={getLocation}
-                type="button"
-            >
-                Get location
+
+
+
+                <article style={{ textAlign: "center" }}>
+                    {/* eslint-disable-next-line no-console*/}
+
+                    <ClockIn onError={error => console.log(error)} ref={innerRef} />
+                    <button
+                        className="pure-button pure-button-primary"
+                        onClick={getLocation}
+                        type="button"
+                    >
+                        Get location
             </button>
-        </article>
-   
+                </article>
 
 
-        </div>
+
+            </div>
         </Card>
     )
 }

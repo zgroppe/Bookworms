@@ -34,16 +34,37 @@ const DAILYMAX = 7
 //inBetween Class && Neutral - 1
 
 let weeklyMax = {}
+let dailyMax = {}
+
 
 export default function AutoPopulation(props) {
 
         const day = (itemList, indexArray) => {
+
+                const canWork = (id) => {
+                        console.log('canwork');
+
+                        if (dailyMax[id] < DAILYMAX && weeklyMax[id] < WEEKLYMAX) {
+                                dailyMax[id]++
+                                weeklyMax[id]++
+                                return true
+                        }
+                        else return false
+                }
+
                 console.log('----------DAY-----------', indexArray)
+                console.log('DATA', data);
+
                 let usersArr = data.getUsers
                 let dayArray = []
 
                 //GETTING USERS' PREFERENCES ON THAT DAY 0-6
                 usersArr.forEach(({ _id, preferences, firstName }) => {
+
+                        dailyMax[_id] = 0
+                        if (!(_id in weeklyMax)) weeklyMax[_id] = 0
+
+
                         preferences.forEach(({ start, end, value }) => {
                                 let startDate = new Date(start)
                                 let endDate = new Date(end)
@@ -114,29 +135,28 @@ export default function AutoPopulation(props) {
                                         }
                                         //console.log('FINISHBRO');
 
+
+
                                 }
-
-
-                                // filteredEmployees = filteredEmployees.filter(({ value }) => value === max)
-
-                                //console.log('Second Filter:\n', filteredEmployees)
-
 
                                 let dayResultObj = { shiftTime: { hour, minute }, assigned: [] }
                                 if (highValueFilteredEmployees === 0) {
-                                        // dayResultObj.assigned.push('NOTHING HERE')
                                         dayResult.push('NOTHING HERE')
                                 }
                                 else if (highValueFilteredEmployees.length <= slot) {
                                         //  startSaved >= DAILYMAX
 
                                         highValueFilteredEmployees.forEach((item) => {
-                                                dayResultObj.assigned.push(item)
+                                                if (canWork(item.empID)) {
+                                                        dayResultObj.assigned.push(item)
+                                                }
+
                                         })
                                         dayResult.push(dayResultObj)
                                 }
 
                                 else if (highValueFilteredEmployees.length > slot) {
+
                                         let prevEmployees = []
                                         // if (dayResult[index - 1].assigned.empID === item.empID && startSaved < DAILYMAX && weeklyMax[item.empID] < WEEKLYMAX) {
                                         //                                 ////console.log('MATCH BEFORE for this hour:', hour, 'pushing', item.emp);
@@ -156,11 +176,12 @@ export default function AutoPopulation(props) {
                                                 })
                                         }
 
-
-                                        console.log(prevEmployees)
+                                        // console.log(prevEmployees)
 
                                         highValueFilteredEmployees.forEach((item, highValIndex) => {
-                                                if (prevEmployees.includes(item.empID) && dayResultObj.assigned.length < slot) {
+
+
+                                                if (prevEmployees.includes(item.empID) && dayResultObj.assigned.length < slot && canWork(item.empID)) {
                                                         dayResultObj.assigned.push(item)
                                                         highValueFilteredEmployees.splice(highValIndex, 1)
                                                 }
@@ -168,7 +189,8 @@ export default function AutoPopulation(props) {
 
                                         highValueFilteredEmployees.forEach((item, highValIndex) => {
                                                 //push the best available time
-                                                if (dayResultObj.assigned.length < slot){
+
+                                                if (dayResultObj.assigned.length < slot && canWork(item.empID)) {
                                                         dayResultObj.assigned.push(item)
                                                 }
 
@@ -181,6 +203,7 @@ export default function AutoPopulation(props) {
                                 }
 
                                 console.log('DAY RESULT', dayResultObj)
+                                console.log('DAILYMAX', dailyMax)
                         }
 
 
@@ -282,10 +305,10 @@ export default function AutoPopulation(props) {
 
                 let save = []
 
-                dayResult.forEach(({assigned, shiftTime}, index) => {
-                        
+                dayResult.forEach(({ assigned, shiftTime }, index) => {
+
                         assigned.forEach((employee) => {
-                                
+
                                 // if(index === 0)
                                 // {
                                 //         save.push({ title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, 0, 0)})
@@ -298,79 +321,105 @@ export default function AutoPopulation(props) {
                                 let theirStartMinute
                                 let theirEndHour
                                 let theirEndMinute
-                                while(!noLongerScheduled)
-                                {
-                                        if(index + iter <= dayResult.length - 1 && dayResult[index + iter].assigned.includes(employee)) 
-                                        {
-                                                console.log('Keep looking')
-                                                if(iter === 1)
-                                                {
-                                                        theirStartHour = shiftTime.hour
-                                                        theirStartMinute = shiftTime.minute
+
+
+                                //if they are not scheduled the prev hour
+                                if (index === 0) {
+                                        while (!noLongerScheduled) {
+
+                                                if (index + iter <= dayResult.length - 1 && dayResult[index + iter].assigned.includes(employee)) {
+                                                        console.log('Keep looking')
+                                                        if (iter === 1) {
+                                                                theirStartHour = shiftTime.hour
+                                                                theirStartMinute = shiftTime.minute
+                                                        }
                                                 }
+                                                else {
+                                                        noLongerScheduled = true
+                                                        theirEndHour = shiftTime.hour + iter
+                                                        theirEndMinute = shiftTime.minute
+                                                }
+                                                iter++
                                         }
-                                        else
-                                        {
-                                                noLongerScheduled = true
-                                                theirEndHour = shiftTime.hour + iter
-                                                theirEndMinute = shiftTime.minute
+
+                                        //SET THE EVENT
+                                        newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                        dayFinalResult.push(newObj)
+                                }
+                                else if (!dayResult[index - 1].assigned.includes(employee)) {
+                                        while (!noLongerScheduled) {
+
+                                                if (index + iter <= dayResult.length - 1 && dayResult[index + iter].assigned.includes(employee)) {
+                                                        console.log('Keep looking')
+                                                        if (iter === 1) {
+                                                                theirStartHour = shiftTime.hour
+                                                                theirStartMinute = shiftTime.minute
+                                                        }
+                                                }
+                                                else {
+                                                        noLongerScheduled = true
+                                                        theirEndHour = shiftTime.hour + iter
+                                                        theirEndMinute = shiftTime.minute
+                                                }
+                                                iter++
                                         }
-                                        iter++
+
+                                        //SET THE EVENT
+                                        newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                        dayFinalResult.push(newObj)
                                 }
 
-                                newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0), color: 'red' }
-                                dayFinalResult.push(newObj)
 
 
 
                                 //console.log(assigned)
                                 // newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, 0, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0) }
                                 // dayFinalResult.push(newObj)
-        
-                        //         if (index === dayResult.length - 1) {
-                        //                 if (!pass) {
-                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'red' }
-                        //                         dayFinalResult.push(newObj)
-                        //                 }
-                        //                 else {
-                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'green' }
-                        //                         dayFinalResult.push(newObj)
-                        //                         pass = false
-                        //                 }
-                        //         }
 
-                        //         else if (dayResult[index + 1].assigned.includes(employee)) {
-        
-                        //                 //make it one block
-                        //                 hoursSaved = shiftTime.hour
-                        //                 minutesSaved = shiftTime.minute
-                        //                 pass = true
-                        //                 console.log('Made it to the pass change!!!!!!!!!!!!')
-                        //         }
+                                //         if (index === dayResult.length - 1) {
+                                //                 if (!pass) {
+                                //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'red' }
+                                //                         dayFinalResult.push(newObj)
+                                //                 }
+                                //                 else {
+                                //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'green' }
+                                //                         dayFinalResult.push(newObj)
+                                //                         pass = false
+                                //                 }
+                                //         }
 
-                        //         //Stops block
-                        //         else if (!dayResult[index + 1].assigned.includes(employee)) {
-        
-                        //                 if (!pass) {
-                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'yellow' }
-                        //                         dayFinalResult.push(newObj)
-                        //                 }
-                        //                 else {
-                        //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'purple' }
-                        //                         dayFinalResult.push(newObj)
-                        //                         pass = false
-                        //                 }
-        
-                        //         }
+                                //         else if (dayResult[index + 1].assigned.includes(employee)) {
 
-                        //         // //Used to save block start times
-                        //         // else if ((index !== 0 && dayResult[index - 1].assigned.includes(employee.empID)) || (index === 0 && dayResult[index + 1].assigned.includes(employee.empID))) {
-        
-                        //         //         //make it one block
-                        //         //         hoursSaved = shiftTime.hour
-                        //         //         minutesSaved = shiftTime.minute
-                        //         //         pass = true
-                        //         // }
+                                //                 //make it one block
+                                //                 hoursSaved = shiftTime.hour
+                                //                 minutesSaved = shiftTime.minute
+                                //                 pass = true
+                                //                 console.log('Made it to the pass change!!!!!!!!!!!!')
+                                //         }
+
+                                //         //Stops block
+                                //         else if (!dayResult[index + 1].assigned.includes(employee)) {
+
+                                //                 if (!pass) {
+                                //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'yellow' }
+                                //                         dayFinalResult.push(newObj)
+                                //                 }
+                                //                 else {
+                                //                         newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, hoursSaved, minutesSaved, 0), end: new Date(2020, certainMonth, certainDay, shiftTime.hour + 1, 0, 0), color: 'purple' }
+                                //                         dayFinalResult.push(newObj)
+                                //                         pass = false
+                                //                 }
+
+                                //         }
+
+                                //         // //Used to save block start times
+                                //         // else if ((index !== 0 && dayResult[index - 1].assigned.includes(employee.empID)) || (index === 0 && dayResult[index + 1].assigned.includes(employee.empID))) {
+
+                                //         //         //make it one block
+                                //         //         hoursSaved = shiftTime.hour
+                                //         //         minutesSaved = shiftTime.minute
+                                //         //         pass = true
+                                //         // }
                         })
 
                         // if (index === dayResult.length - 1) {
@@ -409,7 +458,7 @@ export default function AutoPopulation(props) {
                 })
                 //console.log('Day:', indexArray, 'Condensed list \n', dayFinalResult)
                 //console.log('If you have ANY questions, ask David. Probably his fault. ;) HAHAHAHAHAHAHA')
-                
+
 
 
                 return dayFinalResult
@@ -428,7 +477,7 @@ export default function AutoPopulation(props) {
                 SCHEDULE.forEach((item, index) => {
                         weekResult = weekResult.concat(day(item, index))
                 })
-
+                console.log('WEEKLY ', weeklyMax)
                 return weekResult
         }
 
