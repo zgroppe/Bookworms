@@ -19,7 +19,10 @@ export default function Login(props) {
 	const [password, setPassword] = useState('')
   const icon1 = require('../Images/loginman.PNG')
   const icon2 = require('../Images/loginlock.PNG')
+  const logo=require('../Images/IndaysLogo.png')
+	
 	return (
+			
 		<Card>
 			<div
 				style={{
@@ -30,8 +33,15 @@ export default function Login(props) {
 					width: "700px",
 				}}
 			>
+			
 				<TitleText>Login</TitleText>
-				<SubtitleText>
+				<img 
+        src={logo} 
+        alt="indays logo" 
+        style={{position:'absolute',right:'600px',top:'175px',width: '200px', height: '150px', 
+	}}
+        />
+		<SubtitleText>
 					Clock-in with your username
 					<br />
 					Log-in with your username and password
@@ -93,7 +103,7 @@ export default function Login(props) {
 						justifyContent: 'flex-end',
 					}}
 				>
-					<Hyperlink href='https://styled-components.com/'>
+					<Hyperlink href=''>
 						forgot password?
 					</Hyperlink>
 				</div>
@@ -108,5 +118,7 @@ export default function Login(props) {
 				</PrimaryButton>
 			</div>
 		</Card>
+		
 	)
+	
 }
