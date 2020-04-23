@@ -14,3 +14,11 @@ export const GetAllUsers = gql`
         }
     }
 `
+
+export const getAllUsersId = gql`
+query {
+    getUsers {
+        _id
+    }
+}
+`
