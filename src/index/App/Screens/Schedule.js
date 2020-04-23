@@ -17,9 +17,11 @@ import { Swatch, Color } from '../Styles/StyledComponents'
 import { HuePicker } from 'react-color'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
-import { useQuery } from '@apollo/react-hooks'
-import { GetUserByID } from './../API/Queries/User'
+import { UpdateUser } from '../API/Mutations/User'
+import { useQuery, useMutation } from '@apollo/react-hooks'
+import { GetUserByID, GetAllUsersId } from './../API/Queries/User'
 import AutoPopulate from './../Functions/AutoPopulation'
+
 
 moment.locale('en')
 const localizer = momentLocalizer(moment)
@@ -32,7 +34,6 @@ export default function Schedule(props) {
     const [blackoutStart, setBlackoutStart] = useState('')
     const [blackoutEnd, setBlackoutEnd] = useState('')
     const [AutoPopulationSchedule, setAutoPopulationSchedule] = useState([])
-
 
     //useEffect => what to do after the component is rendered
     useEffect(() => {
@@ -155,16 +156,43 @@ export default function Schedule(props) {
         )
     }
 
+    const userID = '5e8541f66872e7001ec57752'
+    const userFN = 'taylor'
+    const [update, mutationData] = useMutation(UpdateUser)
+
     const { loading, error, data: userData, refetch, networkStatus } = useQuery(
         GetUserByID,
         {
-            variables: { id: '5e795c57a7e84353d4d1d47b' },
+            variables: { id: userID },
             notifyOnNetworkStatusChange: true
-        }
+        } 
     )
+
+    const{ loading: loading2, error: error2, data: multipleUserData, refetch: refetch2, networkStatus: netStat2} = useQuery(GetAllUsersId)
+
+    //const { loading, error, data:userIds, refetch, networkStatus } = useQuery(getAllUsersId)
+
     if (loading) return <p>Loading...</p>
     if (error) return <p>Error :( {JSON.stringify(error)}</p>
     if (networkStatus === 4) return <p>Refetching...</p>
+    
+    const filterAutoPop = () => {
+        let idsArray = multipleUserData.getUsers.map(({_id}) => _id)
+        let filtered
+        idsArray.forEach((x) => {
+            filtered = AutoPopulationSchedule.filter(({id}) => id === x)
+            console.log(filtered)
+            // update({
+            //     variables: {
+            //         id: x,
+            //         shifts: filtered
+            //     }
+            // })
+        })
+    }
+    
+    // AutoPopulationSchedule.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
+    // console.log('Sorted AutoPop', AutoPopulationSchedule)
 
     //FOR EMPLOYEE
     // const handleDropShift = event => {
@@ -265,6 +293,29 @@ export default function Schedule(props) {
             {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
             <AutoPopulate todo={(fromChild) => setAutoPopulationSchedule(fromChild)} />
 
+            <div>
+                <PrimaryButton style={{
+                    //clear:'left',
+                    align: 'left'
+
+                }}
+                    onClick={e =>
+                        filterAutoPop()
+                    }
+                >
+                
+                Submit Shifts To Database
+                </PrimaryButton>
+
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center'
+                    }}
+                >
+                </div>
+            </div>
 
             <DraggableCalendar
                 selectable

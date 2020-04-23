@@ -15,7 +15,7 @@ export const GetAllUsers = gql`
     }
 `
 
-export const getAllUsersId = gql`
+export const GetAllUsersId = gql`
 query {
     getUsers {
         _id

@@ -306,7 +306,7 @@ export default function AutoPopulation(props) {
                 let save = []
 
                 dayResult.forEach(({ assigned, shiftTime }, index) => {
-
+                        console.log('HOUR', shiftTime.hour, 'MINUTE', shiftTime.minute)
                         assigned.forEach((employee) => {
 
                                 // if(index === 0)
@@ -317,10 +317,11 @@ export default function AutoPopulation(props) {
 
                                 let noLongerScheduled = false
                                 let iter = 1
-                                let theirStartHour
+                                let theirStartHour = 0
                                 let theirStartMinute
                                 let theirEndHour
                                 let theirEndMinute
+                                let stillGoing = false
 
 
                                 //if they are not scheduled the prev hour
@@ -333,6 +334,7 @@ export default function AutoPopulation(props) {
                                                                 theirStartHour = shiftTime.hour
                                                                 theirStartMinute = shiftTime.minute
                                                         }
+                                                        stillGoing = true
                                                 }
                                                 else {
                                                         noLongerScheduled = true
@@ -341,9 +343,18 @@ export default function AutoPopulation(props) {
                                                 }
                                                 iter++
                                         }
-
                                         //SET THE EVENT
-                                        newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                        if(stillGoing) {
+                                                newObj = { id: employee.empID, title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                                console.log('Start Hour:', theirStartHour, 'Start Minute:', theirStartMinute)
+                                                console.log('New OBJ', newObj)
+                                        }
+                                        else {
+                                                newObj = { id: employee.empID, title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                                console.log('Start Hour:', shiftTime.hour, 'Start Minute:', shiftTime.minute)
+                                                console.log('New OBJ', newObj)
+                                        }
+
                                         dayFinalResult.push(newObj)
                                 }
                                 else if (!dayResult[index - 1].assigned.includes(employee)) {
@@ -355,6 +366,7 @@ export default function AutoPopulation(props) {
                                                                 theirStartHour = shiftTime.hour
                                                                 theirStartMinute = shiftTime.minute
                                                         }
+                                                        stillGoing = true
                                                 }
                                                 else {
                                                         noLongerScheduled = true
@@ -363,9 +375,19 @@ export default function AutoPopulation(props) {
                                                 }
                                                 iter++
                                         }
-
+                                        
                                         //SET THE EVENT
-                                        newObj = { title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                        if(stillGoing) {
+                                                newObj = { id: employee.empID, title: employee.emp, start: new Date(2020, certainMonth, certainDay, theirStartHour, theirStartMinute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                                console.log('Start Hour:', theirStartHour, 'Start Minute:', theirStartMinute)
+                                                console.log('New OBJ', newObj)
+                                        }
+                                        else {
+                                                newObj = { id: employee.empID, title: employee.emp, start: new Date(2020, certainMonth, certainDay, shiftTime.hour, shiftTime.minute, 0), end: new Date(2020, certainMonth, certainDay, theirEndHour, 0, 0) }
+                                                console.log('Start Hour:', shiftTime.hour, 'Start Minute:', shiftTime.minute)
+                                                console.log('New OBJ', newObj)
+                                        }
+                                        
                                         dayFinalResult.push(newObj)
                                 }
 
@@ -460,7 +482,6 @@ export default function AutoPopulation(props) {
                 //console.log('If you have ANY questions, ask David. Probably his fault. ;) HAHAHAHAHAHAHA')
 
 
-
                 return dayFinalResult
         }
 
@@ -478,6 +499,7 @@ export default function AutoPopulation(props) {
                         weekResult = weekResult.concat(day(item, index))
                 })
                 console.log('WEEKLY ', weeklyMax)
+                console.log('WEEKLY ASSIGNED', weekResult)
                 return weekResult
         }
 
