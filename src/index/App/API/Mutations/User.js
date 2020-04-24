@@ -22,10 +22,22 @@ export const UpdateUser = gql`
     }
 `
 
-export const GetAllUsers = gql`
-    query {
-        getUsers {
-            ${UserData}
-        }
+export const CreateUser = gql`
+    mutation createUser(
+        $firebaseID: String!
+        $first: String!
+        $last: String!
+        $userType: String!
+        $email: String!
+
+    ) {
+        createUser(
+            firebaseID: $firebaseID
+            firstName: $first
+            lastName: $last
+            userType: $userType
+            email: $email
+        ) { ${UserData} }
+            
     }
 `

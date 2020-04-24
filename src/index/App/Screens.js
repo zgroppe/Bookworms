@@ -4,7 +4,7 @@ import Shiftswap from './Screens/Shiftswap'
 import Statistics from './Screens/Statistics'
 import Schedule from './Screens/Schedule'
 import Account from './Screens/Account'
-import Settings from './Screens/Settings'
+import Admin from './Screens/Admin'
 // All screens here will become a navbar item and a route
 const Screens = [
 	{
@@ -33,9 +33,9 @@ const Screens = [
 		component: Account,
 	},
 	{
-		name: 'Settings',
-		path: '/settings',
-		component: Settings,
+		name: 'Admin',
+		path: '/Admin',
+		component: Admin,
 	},
 	{
 		name: 'Logout',
