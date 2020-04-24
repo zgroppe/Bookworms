@@ -79,6 +79,8 @@ export default function Account(props) {
     const [dropdownValue, setDropdownValue] = useState(options[1])
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
+    const [latitude, setLat] = useState('')
+    const [longitude, setLong] = useState('')
     /*
     {
         coords: {
@@ -99,7 +101,14 @@ export default function Account(props) {
 
     const innerRef = useRef();
     const getLocation = () => {
-        innerRef.current && innerRef.current.getLocation();
+        navigator.geolocation.getCurrentPosition(function (position) {
+            setLat(position.coords.latitude)
+            setLong(position.coords.longitude)
+            console.log("Latitude is :", position.coords.latitude);
+            console.log("Longitude is :", position.coords.longitude);
+        });
+
+        // innerRef.current && innerRef.current.getLocation();
     };
 
     const userID = '5e8541f66872e7001ec57752'
@@ -495,20 +504,16 @@ export default function Account(props) {
 
 
 
-
-                <article style={{ textAlign: "center" }}>
-                    {/* eslint-disable-next-line no-console*/}
-
-                    <ClockIn onError={error => console.log(error)} ref={innerRef} />
-                    <button
-                        className="pure-button pure-button-primary"
-                        onClick={getLocation}
-                        type="button"
-                    >
-                        Get location
-            </button>
-                </article>
-
+                {/* <ClockIn />
+                <button
+                    className="pure-button pure-button-primary"
+                    onClick={() => getLocation()}
+                    type="button"
+                >
+                    Get location
+                    </button> */}
+                <SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText>
+                <PrimaryButton onClick={() => getLocation()}>Get Location</PrimaryButton>
 
 
             </div>
