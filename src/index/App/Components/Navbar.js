@@ -13,9 +13,9 @@ export default function Navbar() {
 				fontstyle: 'normal',
 				fontweight: 'normal',
 				display: 'block',
-				height: '130vh',
+				height: '150vh',				
 				width: '10vw',
-				backgroundColor:'#FFF9FE'
+				
 			}}
 		>
 			<ul>

@@ -20,7 +20,7 @@ import {
     TitleText,
     Card
 } from './../Styles/StyledComponents'
-import ProgressBar from 'react-bootstrap/ProgressBar'
+//import ProgressBar from 'react-bootstrap/ProgressBar'
 import { geolocated, geoPropTypes } from 'react-geolocated'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
@@ -357,12 +357,7 @@ export default function Account(props) {
                     }}
                 >
 
-                    <h1>{getTotalPreferredHours() >= 30 ? "SUCCESS" : getTotalPreferredHours()}</h1>
-                    <ProgressBar
-                        style={{ width: '50%' }}
-                        animated
-                        now={(getTotalPreferredHours() / 3) * 10}
-                    />
+                   
                 </div>
 
                 <DraggableCalendar //Preferences calendar

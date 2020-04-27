@@ -17,16 +17,17 @@ export default function Header() {
 				flexDirection: 'row',
 				height: '190px',
 				width: '100vw',
-				textAlign: 'center',
-				backgroundColor:'white'
+				textAlign: 'left',
+				
 			}}
 		>	
-			<TitleText style={{ marginTop:'50px' }}>Employee Dashboard</TitleText>		
+			<TitleText style={{height: '190vh',
+				width: '90vw', marginTop:'5vh'}}>Employee Dashboard</TitleText>		
 			<div
-				style={{//for library logo
+				style={{
 					flex: 1,
 					display: 'flex',
-					justifyContent: 'center',
+					justifyContent: 'space-evenly',
 					alignItems: 'center',
 					marginRight: '2vw',
 					
@@ -43,16 +44,18 @@ export default function Header() {
 				<img 
        			src={Usericon} 
         		alt="user icon" 
-        		style={{alignItems: 'center', width: '70px',
-				height: '70px', marginRight:'5px'}}
+				style={{ 
+				width: '4vw',
+				height: '6vh', marginRight:'5px'}}
 				//onClick={() => Screens[4].path}
         		/>
 				<SubtitleText> John Deer </SubtitleText>
 				<img 
        			src={Bell} 
         		alt="notification bell" 
-        		style={{alignItems: 'center', width: '40px',
-        		height: '52px', marginLeft:'20px'}}
+				style={{ 
+				width: '3vw',
+        		height: '5vh', marginLeft:'20px'}}
         		/>
 			</div>
 		</div>

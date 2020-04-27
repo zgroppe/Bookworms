@@ -6,6 +6,7 @@ import auth from '../Components/Auth'
 import Screens from '../Screens'
 import {
 	Card,
+	CardTitle,
 	Hyperlink,
 	PrimaryButton,
 	SubtitleText,
@@ -20,27 +21,30 @@ export default function Login(props) {
   const icon1 = require('../Images/loginman.PNG')
   const icon2 = require('../Images/loginlock.PNG')
   const logo=require('../Images/IndaysLogo.png')
+  const back=require('../Images/stockbackground.jpg')	
+  
 	
-	return (
+	const makeCard = () => {
+  	return (
 			
 		<Card>
+		
 			<div
 				style={{
 					textAlign: 'left',
 					display: 'flex',
+					justifyContent:'space-between',
 					flexDirection: 'column',
-					alignContent: 'center',
 					width: "700px",
+					
 				}}
 			>
+				
 			
-				<TitleText>Login</TitleText>
-				<img 
-        src={logo} 
-        alt="indays logo" 
-        style={{position:'absolute',right:'600px',top:'175px',width: '200px', height: '150px', 
-	}}
-        />
+			<TitleText> Login</TitleText>
+				
+				
+        		
 		<SubtitleText>
 					Clock-in with your username
 					<br />
@@ -58,7 +62,7 @@ export default function Login(props) {
         src={icon1} 
         alt="username icon" 
         style={{position: 'absolute', width: '35px',
-        height: '35px', top: 66, left: 160}}
+        height: '35px', top: 66, left: 140}}
         />
         </div>
         <div 
@@ -72,7 +76,7 @@ export default function Login(props) {
         src={icon2} 
         alt="lock icon" 
         style={{position: 'absolute', width: '30px',
-        height: '30px', top: 145, left: 163}}
+        height: '30px', top: 145, left: 143}}
         />
         </div>
 			<div
@@ -116,9 +120,33 @@ export default function Login(props) {
 				>
 					Login
 				</PrimaryButton>
-			</div>
+				</div>
+				
+			
 		</Card>
 		
+	)
+	}
+	return(
+		
+			<div style={{
+			display: 'flex',
+			flexDirection:'row',
+			background:<img src={back}/>
+		}}>
+		
+		<img 
+        src={logo} 
+        alt="indays logo" 
+        style={{
+			marginRight:'200px',marginTop:'75px',
+			width: '500px', height: '350px',	
+		}}
+			/>
+		{makeCard()}
+		
+		
+		</div>
 	)
 	
 }
