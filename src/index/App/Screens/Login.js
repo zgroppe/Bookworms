@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 
 import auth from '../Components/Auth'
 import Screens from '../Screens'
+import { geolocated, geoPropTypes } from 'react-geolocated'
 import {
 	Card,
 	Hyperlink,
@@ -17,9 +18,33 @@ import {
 export default function Login(props) {
 	const [userName, setUsername] = useState('')
 	const [password, setPassword] = useState('')
+	const [latitude, setLat] = useState('')
+    const [longitude, setLong] = useState('')
   const icon1 = require('../Images/loginman.PNG')
   const icon2 = require('../Images/loginlock.PNG')
   const logo=require('../Images/IndaysLogo.png')
+
+    //const innerRef = useRef();
+    const getLocation = () => {
+        function CheckBrowser (position) {
+            setLat(position.coords.latitude)
+            setLong(position.coords.longitude)
+            console.log("Latitude is :", position.coords.latitude);
+            console.log("Longitude is :", position.coords.longitude);
+            console.log("Geo Sucess");
+        }
+        
+        function ERROR ()
+        {
+            console.log("Geo Failure");
+        }
+
+        if(!navigator.geolocation)
+            console.log("Geolocation not supported by browser");
+        else
+            navigator.geolocation.getCurrentPosition(CheckBrowser, ERROR)
+    };
+
 	
 	return (
 			
@@ -116,6 +141,10 @@ export default function Login(props) {
 				>
 					Login
 				</PrimaryButton>
+
+				<SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText>
+                <PrimaryButton onClick={() => getLocation()}>Get Location</PrimaryButton>
+
 			</div>
 		</Card>
 		
