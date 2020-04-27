@@ -79,8 +79,8 @@ export default function Account(props) {
     const [dropdownValue, setDropdownValue] = useState(options[1])
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
-    const [latitude, setLat] = useState('')
-    const [longitude, setLong] = useState('')
+    //const [latitude, setLat] = useState('')
+    //const [longitude, setLong] = useState('')
     /*
     {
         coords: {
@@ -99,17 +99,29 @@ export default function Account(props) {
     */
 
 
-    const innerRef = useRef();
-    const getLocation = () => {
-        navigator.geolocation.getCurrentPosition(function (position) {
-            setLat(position.coords.latitude)
-            setLong(position.coords.longitude)
-            console.log("Latitude is :", position.coords.latitude);
-            console.log("Longitude is :", position.coords.longitude);
-        });
+    // const innerRef = useRef();
+    // const getLocation = () => {
+    //     function CheckBrowser (position) {
+    //         setLat(position.coords.latitude)
+    //         setLong(position.coords.longitude)
+    //         console.log("Latitude is :", position.coords.latitude);
+    //         console.log("Longitude is :", position.coords.longitude);
+    //         console.log("Geo Sucess");
+    //     }
+        
+    //     function ERROR ()
+    //     {
+    //         console.log("Geo Failure");
+    //     }
 
-        // innerRef.current && innerRef.current.getLocation();
-    };
+    //     if(!navigator.geolocation)
+    //         console.log("Geolocation not supported by browser");
+    //     else
+    //         navigator.geolocation.getCurrentPosition(CheckBrowser, ERROR)
+
+    //     // innerRef.current && innerRef.current.getLocation();
+    // };
+
 
     const userID = '5e8541f66872e7001ec57752'
 
@@ -507,10 +519,12 @@ export default function Account(props) {
                 >
                     Get location
                     </button> */}
-                <SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText>
-                <PrimaryButton onClick={() => getLocation()}>Get Location</PrimaryButton>
-
-
+                
+               
+            {/* <SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText>
+            <PrimaryButton onClick={() => getLocation()}>Get Location</PrimaryButton> */}
+             
+         
             </div>
         </Card>
     )
