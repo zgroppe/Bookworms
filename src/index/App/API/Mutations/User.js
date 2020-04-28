@@ -41,3 +41,14 @@ export const CreateUser = gql`
             
     }
 `
+
+export const DeleteUser = gql`
+    mutation deleteUser(
+        $id: String!
+    ) {
+        deleteUser(
+            id: $id
+        )
+            
+    }
+`
