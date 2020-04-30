@@ -48,6 +48,7 @@ export default function Admin(props) {
     const [email, setEmail] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
+    const [userType, setUserType] = useState('')
     const [deleteID, setDeleteID] = useState('')
     const [weeklyMax, setWeeklyMax] = useState(0)
     const [dailyMax, setDailyMax] = useState(0)
@@ -67,14 +68,14 @@ export default function Admin(props) {
 
     const renderSubmitButton = () => {
         const validation = () => {
-            if (firebaseID !== '' && email !== '' && firstName !== '' && lastName !== '') {
+            if (firebaseID !== '' && email !== '' && firstName !== '' && lastName !== '' && userType !== '') {
                 update({
                     variables: {
                         firebaseID: firebaseID,
                         first: firstName,
                         last: lastName,
                         email: email,
-                        userType: 'Employee'
+                        userType: userType
                     }
                 })
 
@@ -142,6 +143,7 @@ export default function Admin(props) {
             {renderRow(email, setEmail, 'email')}
             {renderRow(firstName, setFirstName, 'first name')}
             {renderRow(lastName, setLastName, 'last name')}
+            {renderRow(userType, setUserType, 'user type')}
             {renderSubmitButton()}
 
             <h2>Delete</h2>
