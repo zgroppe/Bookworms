@@ -52,3 +52,33 @@ export const DeleteUser = gql`
             
     }
 `
+
+export const ClockIn = gql`
+    mutation clockIn(
+        $location: String!,
+        $time: String!,
+        $userID: String!
+    ) {
+        clockIn(
+            location: $location,
+            time: $time,
+            userID: $userID
+        )
+            
+    }
+`
+
+export const ClockOut = gql`
+    mutation clockOut(
+        $location: String!,
+        $time: String!,
+        $userID: String!
+    ) {
+        clockOut(
+            location: $location,
+            time:$time,
+            userID: $userID
+        )
+            
+    }
+`

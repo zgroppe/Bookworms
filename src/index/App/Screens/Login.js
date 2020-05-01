@@ -1,10 +1,12 @@
 import '../Styles/Login.css'
-
 import React, { useState } from 'react'
-
 import auth from '../Components/Auth'
 import Screens from '../Screens'
+import { useMutation } from '@apollo/react-hooks'
+import { ClockIn, ClockOut } from '../API/Mutations/User'
 import { geolocated, geoPropTypes } from 'react-geolocated'
+import moment from 'moment'
+
 import {
 	Card,
 	CardTitle,
@@ -15,24 +17,53 @@ import {
 	TitleText,
 } from './../Styles/StyledComponents'
 
+let userID = '5e84e996646154001efe8e80'
+moment.locale('en')
+
 // This will be changed to david's login component when it is finished
 export default function Login(props) {
 	const [userName, setUsername] = useState('')
 	const [password, setPassword] = useState('')
 	const [latitude, setLat] = useState('')
     const [longitude, setLong] = useState('')
-  const icon1 = require('../Images/loginman.PNG')
-  const icon2 = require('../Images/loginlock.PNG')
-  const logo=require('../Images/IndaysLogo.png')
+	const icon1 = require('../Images/loginman.PNG')
+	const icon2 = require('../Images/loginlock.PNG')
+	const logo=require('../Images/IndaysLogo.png')
 
-    //const innerRef = useRef();
-    const getLocation = () => {
+	const [update1] = useMutation(ClockIn)
+	const [update2] = useMutation(ClockOut)
+	
+ 	 const getLocation = (x) => {
         function CheckBrowser (position) {
             setLat(position.coords.latitude)
             setLong(position.coords.longitude)
-            console.log("Latitude is :", position.coords.latitude);
+			
+			if(x === 'in')
+			{
+				update1({
+					variables: {
+						location: `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
+						time: moment().format('MMMM Do YYYY, h:mm:ss a'),
+						userID: userID
+					}
+				})
+				console.log("CLOCK IN COMPLETE");
+			}
+			else if(x === 'out')
+			{
+				update2({
+					variables: {
+						location: `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
+						time: moment().format('MMMM Do YYYY, h:mm:ss a'),
+						userID: userID
+					}
+				})
+				console.log("CLOCK OUT COMPLETE")
+			}
+
+			console.log("Latitude is :", position.coords.latitude);
             console.log("Longitude is :", position.coords.longitude);
-            console.log("Geo Sucess");
+			console.log("Geo Success");
         }
         
         function ERROR ()
@@ -65,16 +96,13 @@ export default function Login(props) {
 				}}
 			>
 				
-			
 			<TitleText> Login</TitleText>
-				
-				
-        		
-		<SubtitleText>
-					Clock-in with your username
-					<br />
-					Log-in with your username and password
-				</SubtitleText>
+			
+			<SubtitleText>
+				Clock-in with your username
+				<br />
+				Log-in with your username and password
+			</SubtitleText>
 			</div>
       <div 
       style={{
@@ -146,8 +174,10 @@ export default function Login(props) {
 					Login
 				</PrimaryButton>
 
-				<SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText>
-                <PrimaryButton onClick={() => getLocation()}>Get Location</PrimaryButton>
+				{/* <SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText> */}
+                <PrimaryButton onClick={() => getLocation('in')}>Clock In</PrimaryButton>
+				<PrimaryButton onClick={() => getLocation('out')}>Clock Out</PrimaryButton>
+
 
 			</div>
 		</Card>
