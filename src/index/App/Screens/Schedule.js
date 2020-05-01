@@ -6,7 +6,7 @@ import {
     PrimaryButton,
     SubtitleText,
     TextInput,
-    TitleText
+    TitleText,
 } from './../Styles/StyledComponents'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -17,11 +17,11 @@ import { Swatch, Color } from '../Styles/StyledComponents'
 import { HuePicker } from 'react-color'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
-import { UpdateUser } from '../API/Mutations/User'
+import { UpdateUsersShifts } from '../API/Mutations/Shifts'
 import { useQuery, useMutation } from '@apollo/react-hooks'
 import { GetUserByID, GetAllUsersId } from './../API/Queries/User'
 import AutoPopulate from './../Functions/AutoPopulation'
-
+import { UpdateUser } from './../API/Mutations/User'
 
 moment.locale('en')
 const localizer = momentLocalizer(moment)
@@ -39,15 +39,29 @@ export default function Schedule(props) {
     useEffect(() => {
         //calling setMyEventsList to set hardcoded list
         setMyEventsList([
-            { title: 'Employee 1', start: new Date(2020, 1, 23, 5), end: new Date(2020, 1, 23, 18), color: '#fc0373' },
-            { title: 'Employee 3', start: new Date(2020, 1, 25, 10), end: new Date(2020, 1, 25, 16), color: '#18fc03' }
-        ]);
-    }, []);
+            {
+                title: 'Employee 1',
+                start: new Date(2020, 1, 23, 5),
+                end: new Date(2020, 1, 23, 18),
+                color: '#fc0373',
+            },
+            {
+                title: 'Employee 3',
+                start: new Date(2020, 1, 25, 10),
+                end: new Date(2020, 1, 25, 16),
+                color: '#18fc03',
+            },
+        ])
+    }, [])
 
     const handleSelect = ({ start, end }) => {
-        const title = window.prompt('New Event name');
-        if (title) setMyEventsList([...myEventsList, { title, start, end, color: colorPicked && colorPicked.hex }]);
-    };
+        const title = window.prompt('New Event name')
+        if (title)
+            setMyEventsList([
+                ...myEventsList,
+                { title, start, end, color: colorPicked && colorPicked.hex },
+            ])
+    }
 
     const handleColorChangeComplete = (color, event) =>
         setColorPicked(color, () => setDisplayColorPicker(!displayColorPicker))
@@ -58,7 +72,7 @@ export default function Schedule(props) {
 
     const moveEvent = ({ event, start, end }) => {
         let { title, color } = event
-        let tempArr = myEventsList.filter(item => item !== event)
+        let tempArr = myEventsList.filter((item) => item !== event)
         tempArr.push({ title, start, end, color })
         setMyEventsList(tempArr)
     }
@@ -71,7 +85,7 @@ export default function Schedule(props) {
         setMyEventsList(tempArr)
     }
 
-    const handleDelete = event => {
+    const handleDelete = (event) => {
         const check = window.confirm(
             '\nDelete this event: Ok - YES, Cancel - NO'
         )
@@ -83,10 +97,8 @@ export default function Schedule(props) {
         }
     }
 
-
-
     //Handles the coloring of blackout days
-    const handleBlackoutDate = date => {
+    const handleBlackoutDate = (date) => {
         let blackoutStartDate = new Date(blackoutStart)
         let blackoutStartDate2 = new Date(blackoutEnd)
 
@@ -116,8 +128,8 @@ export default function Schedule(props) {
             ) {
                 return {
                     style: {
-                        backgroundColor: '#000'
-                    }
+                        backgroundColor: '#000',
+                    },
                 }
             }
         }
@@ -128,10 +140,10 @@ export default function Schedule(props) {
             return (
                 <DatePicker
                     selected={statename}
-                    onSelect={date => functionName(date)} //when day is clicked
+                    onSelect={(date) => functionName(date)} //when day is clicked
                     minDate={statename === blackoutEnd && blackoutStart}
                     maxDate={statename === blackoutStart && blackoutEnd}
-                //   onChange={this.handleChange} //only when value has changed
+                    //   onChange={this.handleChange} //only when value has changed
                 />
             )
         }
@@ -141,7 +153,7 @@ export default function Schedule(props) {
                     display: 'flex',
                     alignItems: 'center',
                     flexDirection: 'column',
-                    justifyContent: 'center'
+                    justifyContent: 'center',
                 }}
             >
                 <div style={{ display: 'flex' }}>
@@ -158,39 +170,54 @@ export default function Schedule(props) {
 
     const userID = '5e8541f66872e7001ec57752'
     const userFN = 'taylor'
-    const [update, mutationData] = useMutation(UpdateUser)
+    const [updateShifts] = useMutation(UpdateUsersShifts)
 
     const { loading, error, data: userData, refetch, networkStatus } = useQuery(
         GetUserByID,
         {
             variables: { id: userID },
-            notifyOnNetworkStatusChange: true
-        } 
+            notifyOnNetworkStatusChange: true,
+        }
     )
 
-    const{ loading: loading2, error: error2, data: multipleUserData, refetch: refetch2, networkStatus: netStat2} = useQuery(GetAllUsersId)
+    const {
+        loading: loading2,
+        error: error2,
+        data: multipleUserData,
+        refetch: refetch2,
+        networkStatus: netStat2,
+    } = useQuery(GetAllUsersId)
 
     //const { loading, error, data:userIds, refetch, networkStatus } = useQuery(getAllUsersId)
 
     if (loading) return <p>Loading...</p>
     if (error) return <p>Error :( {JSON.stringify(error)}</p>
     if (networkStatus === 4) return <p>Refetching...</p>
-    
-    const filterAutoPop = () => {
-        let idsArray = multipleUserData.getUsers.map(({_id}) => _id)
-        let filtered
-        idsArray.forEach((x) => {
-            filtered = AutoPopulationSchedule.filter(({id}) => id === x)
-            console.log(filtered)
-            // update({
-            //     variables: {
-            //         id: x,
-            //         shifts: filtered
-            //     }
-            // })
+
+    const sendAutoPopulatedShiftsToDB = () => {
+        const formattedForDB = {}
+        AutoPopulationSchedule.forEach((shift, index) => {
+            const { id, ...rest } = shift
+            const myPushObj = {
+                ...rest,
+                start: rest.start.toISOString(),
+                end: rest.end.toISOString(),
+
+                // Change these two later
+                _id: id,
+                color: 'blue',
+            }
+            if (id in formattedForDB) formattedForDB[id].shifts.push(myPushObj)
+            else {
+                formattedForDB[id] = {}
+                formattedForDB[id]._id = id
+                formattedForDB[id].shifts = [myPushObj]
+            }
         })
+        const myVar = Object.values(formattedForDB)
+        updateShifts({ variables: { users: myVar } })
     }
-    
+
     // AutoPopulationSchedule.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
     // console.log('Sorted AutoPop', AutoPopulationSchedule)
 
@@ -231,132 +258,133 @@ export default function Schedule(props) {
     //     setAutoPopulationSchedule(newArr)
     // }
     return (
-        <Card style={{
-            width:'1500px'
-        }}>
-        <div>
-            <h1>Schedule</h1>
-            <h3 style={{ color: colorPicked }}>
-                This is some schedule content
-            </h3>
-            <h3>First: {userData.getUserByID.firstName}</h3>
-            <Swatch onClick={() => setDisplayColorPicker(!displayColorPicker)}>
-                <Color color={colorPicked.hex} />
-                {displayColorPicker && (
-                    <HuePicker
-                        color={colorPicked}
-                        onChange={handleColorChangeComplete}
-                    />
-                )}
-            </Swatch>
-            {renderBlackout()}
-
-            <DraggableCalendar
-                selectable
-                localizer={localizer}
-                events={myEventsList}
-                views={['month', 'week']}
-                defaultView={Views.WEEK}
-                defaultDate={new Date(2020, 1, 25)}
-                onSelectEvent={handleDelete}
-                onSelectSlot={handleSelect}
-                style={{ height: '80vh', width: '1450px'}}
-                dayPropGetter={handleBlackoutDate}
-                eventPropGetter={event => ({
-                    style: {
-                        backgroundColor: event.color,
-                        alignSelf: 'center',
-                        alignContent: 'center'
-                    }
-                })}
-                slotPropGetter={() => ({
-                    style: {
-                        // backgroundColor: 'red',
-                        // borderColor: 'red'
-                        border: 'none',
-                        // display: 'flex',
-                        alignItems: 'center'
-                    }
-                })}
-                // titleAccessor={function(e) {
-                // 	console.log(e);
-                // 	return e.title;
-                // }}
-                components={{
-                    event: Event
-                }}
-                draggableAccessor={event => true}
-                onEventDrop={moveEvent}
-                onEventResize={resizeEvent}
-            />
-
-            {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
-            <AutoPopulate todo={(fromChild) => setAutoPopulationSchedule(fromChild)} />
-
+        <Card
+            style={{
+                width: '1500px',
+            }}
+        >
             <div>
-                <PrimaryButton style={{
-                    //clear:'left',
-                    align: 'left'
-
-                }}
-                    onClick={e =>
-                        filterAutoPop()
-                    }
+                <h1>Schedule</h1>
+                <h3 style={{ color: colorPicked }}>
+                    This is some schedule content
+                </h3>
+                <h3>First: {userData.getUserByID.firstName}</h3>
+                <Swatch
+                    onClick={() => setDisplayColorPicker(!displayColorPicker)}
                 >
-                
-                Submit Shifts To Database
-                </PrimaryButton>
+                    <Color color={colorPicked.hex} />
+                    {displayColorPicker && (
+                        <HuePicker
+                            color={colorPicked}
+                            onChange={handleColorChangeComplete}
+                        />
+                    )}
+                </Swatch>
+                {renderBlackout()}
 
-                <div
-                    style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center'
+                <DraggableCalendar
+                    selectable
+                    localizer={localizer}
+                    events={myEventsList}
+                    views={['month', 'week']}
+                    defaultView={Views.WEEK}
+                    defaultDate={new Date(2020, 1, 25)}
+                    onSelectEvent={handleDelete}
+                    onSelectSlot={handleSelect}
+                    style={{ height: '80vh', width: '1450px' }}
+                    dayPropGetter={handleBlackoutDate}
+                    eventPropGetter={(event) => ({
+                        style: {
+                            backgroundColor: event.color,
+                            alignSelf: 'center',
+                            alignContent: 'center',
+                        },
+                    })}
+                    slotPropGetter={() => ({
+                        style: {
+                            // backgroundColor: 'red',
+                            // borderColor: 'red'
+                            border: 'none',
+                            // display: 'flex',
+                            alignItems: 'center',
+                        },
+                    })}
+                    // titleAccessor={function(e) {
+                    // 	console.log(e);
+                    // 	return e.title;
+                    // }}
+                    components={{
+                        event: Event,
                     }}
-                >
+                    draggableAccessor={(event) => true}
+                    onEventDrop={moveEvent}
+                    onEventResize={resizeEvent}
+                />
+
+                {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
+                <AutoPopulate
+                    todo={(fromChild) => setAutoPopulationSchedule(fromChild)}
+                />
+
+                <div>
+                    <PrimaryButton
+                        style={{
+                            //clear:'left',
+                            align: 'left',
+                        }}
+                        onClick={(e) => sendAutoPopulatedShiftsToDB()}
+                    >
+                        Submit Shifts To Database
+                    </PrimaryButton>
+
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    ></div>
                 </div>
+
+                <DraggableCalendar
+                    selectable
+                    localizer={localizer}
+                    events={AutoPopulationSchedule}
+                    views={['month', 'week']}
+                    defaultView={Views.WEEK}
+                    defaultDate={new Date(2020, 2, 29)}
+                    onSelectEvent={handleDelete}
+                    onSelectSlot={handleSelect}
+                    style={{ height: '80vh', width: '1450px' }}
+                    dayPropGetter={handleBlackoutDate}
+                    eventPropGetter={(event) => ({
+                        style: {
+                            backgroundColor: event.color,
+                            alignSelf: 'center',
+                            alignContent: 'center',
+                        },
+                    })}
+                    slotPropGetter={() => ({
+                        style: {
+                            // backgroundColor: 'red',
+                            // borderColor: 'red'
+                            border: 'none',
+                            // display: 'flex',
+                            alignItems: 'center',
+                        },
+                    })}
+                    // titleAccessor={function(e) {
+                    // 	console.log(e);
+                    // 	return e.title;
+                    // }}
+                    components={{
+                        event: Event,
+                    }}
+                    draggableAccessor={(event) => true}
+                    onEventDrop={moveEvent}
+                    onEventResize={resizeEvent}
+                />
             </div>
-
-            <DraggableCalendar
-                selectable
-                localizer={localizer}
-                events={AutoPopulationSchedule}
-                views={['month', 'week']}
-                defaultView={Views.WEEK}
-                defaultDate={new Date(2020, 2, 29)}
-                onSelectEvent={handleDelete}
-                onSelectSlot={handleSelect}
-                style={{ height: '80vh', width: '1450px' }}
-                dayPropGetter={handleBlackoutDate}
-                eventPropGetter={event => ({
-                    style: {
-                        backgroundColor: event.color,
-                        alignSelf: 'center',
-                        alignContent: 'center'
-                    }
-                })}
-                slotPropGetter={() => ({
-                    style: {
-                        // backgroundColor: 'red',
-                        // borderColor: 'red'
-                        border: 'none',
-                        // display: 'flex',
-                        alignItems: 'center'
-                    }
-                })}
-                // titleAccessor={function(e) {
-                // 	console.log(e);
-                // 	return e.title;
-                // }}
-                components={{
-                    event: Event
-                }}
-                draggableAccessor={event => true}
-                onEventDrop={moveEvent}
-                onEventResize={resizeEvent}
-            />
-
-        </div>
         </Card>
     )
 }
