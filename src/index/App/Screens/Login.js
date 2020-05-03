@@ -2,7 +2,8 @@ import '../Styles/Login.css'
 import React, { useState } from 'react'
 import auth from '../Components/Auth'
 import Screens from '../Screens'
-import { useMutation } from '@apollo/react-hooks'
+import { useMutation, useQuery } from '@apollo/react-hooks'
+import { GetAllUsers } from '../API/Queries/User'
 import { ClockIn, ClockOut } from '../API/Mutations/User'
 import { geolocated, geoPropTypes } from 'react-geolocated'
 import moment from 'moment'
@@ -33,7 +34,7 @@ export default function Login(props) {
 	const [update1] = useMutation(ClockIn)
 	const [update2] = useMutation(ClockOut)
 	
- 	 const getLocation = (x) => {
+ 	const getLocation = (x) => {
         function CheckBrowser (position) {
             setLat(position.coords.latitude)
             setLong(position.coords.longitude)
@@ -77,9 +78,28 @@ export default function Login(props) {
             navigator.geolocation.getCurrentPosition(CheckBrowser, ERROR)
     };
 
-  const back=require('../Images/stockbackground.jpg')	
+	const { loading, error, data, refetch, networkStatus } = useQuery(GetAllUsers)
+
+
+	const setCurrentUser = () => {
+		if(userName !== '' && password !== '')
+		{
+			let users = data.getUsers
+			let currentUser
+			users.forEach(({ _id, firebaseID, email }) => {
+				if(userName === firebaseID && password === email)
+				{
+					currentUser = _id
+					// console.log('GOT HERE BABY')
+				}
+			})
+			localStorage.setItem('currentUserID', currentUser)
+			// console.log('CURRENT USER ID', localStorage.getItem('currentUserID'))
+		}
+	}
+
+  	const back=require('../Images/stockbackground.jpg')	
   
-	
 	const makeCard = () => {
   	return (
 			
@@ -184,6 +204,7 @@ export default function Login(props) {
 		
 	)
 	}
+
 	return(
 		
 			<div style={{
@@ -201,7 +222,7 @@ export default function Login(props) {
 		}}
 			/>
 		{makeCard()}
-		
+		{setCurrentUser()}
 		
 		</div>
 	)

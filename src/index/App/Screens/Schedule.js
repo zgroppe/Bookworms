@@ -168,7 +168,7 @@ export default function Schedule(props) {
         )
     }
 
-    const userID = '5e8541f66872e7001ec57752'
+    const userID = localStorage.getItem('currentUserID')
     const userFN = 'taylor'
     const [updateShifts] = useMutation(UpdateUsersShifts)
 

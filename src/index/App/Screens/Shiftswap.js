@@ -3,9 +3,7 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import moment from 'moment'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-
-
-//import { UpdateUser } from '../API/Mutations/User'
+import { UpdateUsersShifts, AddTradeBoardShift, RemoveTradeBoardShift, AcceptPendingShift, DeclinePendingShift } from '../API/Mutations/Shifts'
 import { GetAllUsers, GetUserByID } from '../API/Queries/User'
 
 moment.locale('en')
@@ -16,7 +14,7 @@ export default function Shiftswap(props) {
 	const [dropList, setDropList] = useState([])
 	const [pickUpList, setPickUpList] = useState([])
 
-	let userID = '5eaa3c45bf3771001e775281'
+	let userID = localStorage.getItem('currentUserID')
 
 	useEffect(() => {
         //calling setMyEventsList to set hardcoded list

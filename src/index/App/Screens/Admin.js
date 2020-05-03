@@ -14,6 +14,8 @@ import { CreateUser, DeleteUser } from '../API/Mutations/User'
 
 export default function Admin(props) {
    //const[update] = useMutation(CreateUser, DeleteUser)
+    const userID = localStorage.getItem('currentUserID')
+   
     const [update, { loading, data, error }] = useMutation(CreateUser, {
         onCompleted(data) {
             if (data) window.alert(`User with this email: ${email} has been created`)
@@ -35,6 +37,14 @@ export default function Admin(props) {
         }
     })
 
+    const { loading: loading3, error: error3, data: data3, refetch: refetch3, networkStatus: networkStatus3 } = useQuery(
+        GetUserByID,
+        {
+            variables: { id: userID },
+            notifyOnNetworkStatusChange: true
+        }
+    )
+
     /*
     const [update3, { loading: loading3, data: data3, error: error3 }] = useMutation(AdjustMaxes, {
         onCompleted(data3) {
@@ -52,6 +62,10 @@ export default function Admin(props) {
     const [deleteID, setDeleteID] = useState('')
     const [weeklyMax, setWeeklyMax] = useState(0)
     const [dailyMax, setDailyMax] = useState(0)
+
+    if (loading3) return <p>Loading...</p>
+   if (error3) return <p>Error :( {JSON.stringify(error2)}</p>
+   if (networkStatus3 === 4) return <p>Refetching...</p>
 
     const renderRow = (state, setState, placeholder) => {
         return (
@@ -124,6 +138,45 @@ export default function Admin(props) {
         )
     }
 
+    const adminCheck = () => {
+        if(data3.getUserByID.userType === 'Admin')
+		{
+            return(
+                <div>
+                    <h1>Admin</h1>
+
+                    <h2>Create</h2>
+                    {renderRow(firebaseID, setFirebaseID, 'firebase ID')}
+                    {renderRow(email, setEmail, 'email')}
+                    {renderRow(firstName, setFirstName, 'first name')}
+                    {renderRow(lastName, setLastName, 'last name')}
+                    {renderRow(userType, setUserType, 'user type')}
+                    {renderSubmitButton()}
+
+                    <h2>Delete</h2>
+
+                    {renderRow(deleteID, setDeleteID, 'ID')}
+                    {renderDeleteButton()}
+
+                    <h2>Hours</h2>
+
+                    {renderRow(weeklyMax, setWeeklyMax, weeklyMax.value)}
+                    {renderRow(dailyMax, setDailyMax, dailyMax.value)}
+                    {renderHoursButton()}    
+                </div>
+            )
+        }
+        else {
+            return(
+                <div>
+                    <h1>
+                        This is an admin only page!<br></br>If you are seeing this,<br></br>please leave this page immediately
+                    </h1>
+                </div>
+            )
+        }
+    }
+
     // const { loading, error, data, refetch, networkStatus } = useQuery(
     //     GetUserByID,
     //     {
@@ -136,7 +189,8 @@ export default function Admin(props) {
     // if (networkStatus === 4) return <p>Refetching...</p>
     return (
         <div>
-            <h1>Admin</h1>
+            {adminCheck()}
+            {/* <h1>Admin</h1>
 
             <h2>Create</h2>
             {renderRow(firebaseID, setFirebaseID, 'firebase ID')}
@@ -155,7 +209,7 @@ export default function Admin(props) {
 
             {renderRow(weeklyMax, setWeeklyMax, weeklyMax.value)}
             {renderRow(dailyMax, setDailyMax, dailyMax.value)}
-            {renderHoursButton()}    
+            {renderHoursButton()}     */}
 
             {/* <h2>Example page for getting/refetching data</h2> */}
             {/* <h1>Name: {data.getUserByID.firstName}</h1> */}

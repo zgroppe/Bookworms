@@ -123,7 +123,7 @@ export default function Account(props) {
     // };
 
 
-    const userID = '5e8541f66872e7001ec57752'
+    const userID = localStorage.getItem('currentUserID')
 
     const [update, mutationData] = useMutation(UpdateUser)
     const { loading, error, data, refetch, networkStatus } = useQuery(
