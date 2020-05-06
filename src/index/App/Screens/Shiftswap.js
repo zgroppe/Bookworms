@@ -5,7 +5,15 @@ import moment from 'moment'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import { UpdateUsersShifts, AddTradeBoardShift, RemoveTradeBoardShift, AcceptPendingShift, DeclinePendingShift } from '../API/Mutations/Shifts'
 import { GetAllUsers, GetUserByID } from '../API/Queries/User'
-
+import {
+    Card,
+    CardTitle,
+    Hyperlink,
+    PrimaryButton,
+    SubtitleText,
+    TextInput,
+    TitleText,
+} from './../Styles/StyledComponents'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
 const DraggableCalendar = withDragAndDrop(Calendar)
@@ -120,7 +128,7 @@ export default function Shiftswap(props) {
 				defaultDate={new Date(2020, 1, 25)}
 				onSelectEvent={handlePickUp}
 				//onSelectSlot={handleSelect}
-				style={{ height: '80vh', width: '1450px'}}
+				style={{ align: 'center', height: '80vh', width: '1450px'}}
 				//dayPropGetter={handleBlackoutDate}
 				eventPropGetter={event => ({
 					style: {
@@ -207,7 +215,7 @@ export default function Shiftswap(props) {
 					defaultDate={new Date(2020, 1, 25)}
 					onSelectEvent={handleApproval}
 					//onSelectSlot={handleSelect}
-					style={{ height: '80vh', width: '1450px'}}
+					style={{ align: 'center', height: '80vh', width: '1450px'}}
 					//dayPropGetter={handleBlackoutDate}
 					eventPropGetter={event => ({
 						style: {
@@ -240,13 +248,20 @@ export default function Shiftswap(props) {
 	}
 
 	return (
+		<Card style={{
+            width: '1500px' }}>
 		<div>
-			<h1>Shiftswap</h1>
+			<TitleText style={{
+                    textAlign: 'left',
+                    position: 'flex',
+                    fontSize: '48px',
+                    //clear:'left'
+                }}>Shiftswap</TitleText>
 			{renderTradeBoard()}
 			{renderApprovalBoard()}
 
 		</div>
-
+		</Card>
 
 
 	)

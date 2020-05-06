@@ -157,11 +157,10 @@ export default function Schedule(props) {
                 }}
             >
                 <div style={{ display: 'flex' }}>
-                    <p>start</p>
+                    <h3>Start</h3>
                     {renderDatePicker(blackoutStart, setBlackoutStart)}
-                </div>
-                <div style={{ display: 'flex' }}>
-                    <p>end</p>
+                
+                <h3>End</h3>
                     {renderDatePicker(blackoutEnd, setBlackoutEnd)}
                 </div>
             </div>
@@ -264,11 +263,16 @@ export default function Schedule(props) {
             }}
         >
             <div>
-                <h1>Schedule</h1>
+            <TitleText style={{
+                    textAlign: 'left',
+                    position: 'flex',
+                    fontSize: '48px',
+                    //clear:'left'
+                }}>Schedule</TitleText>
                 <h3 style={{ color: colorPicked }}>
                     This is some schedule content
                 </h3>
-                <h3>First: {userData.getUserByID.firstName}</h3>
+                <h3>First Name: {userData.getUserByID.firstName}</h3>
                 <Swatch
                     onClick={() => setDisplayColorPicker(!displayColorPicker)}
                 >

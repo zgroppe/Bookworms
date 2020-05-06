@@ -13,6 +13,7 @@ import { GetUserByID } from '../API/Queries/User'
 import '../Styles/Login.css'
 import '../Styles/Schedule.css'
 import ClockIn from '../API/Geolocation/ClockIn'
+import { Input } from 'semantic-ui-react'
 import {
     PrimaryButton,
     TextInput,
