@@ -6,6 +6,7 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { GetAllUsers } from '../API/Queries/User'
 import { ClockIn, ClockOut } from '../API/Mutations/User'
 import { geolocated, geoPropTypes } from 'react-geolocated'
+import { Icon, Input } from 'semantic-ui-react'
 import moment from 'moment'
 
 import {
@@ -27,8 +28,6 @@ export default function Login(props) {
     const [password, setPassword] = useState('')
     const [latitude, setLat] = useState('')
     const [longitude, setLong] = useState('')
-    const icon1 = require('../Images/loginman.PNG')
-    const icon2 = require('../Images/loginlock.PNG')
     const logo = require('../Images/IndaysLogo.png')
 
     const [update1] = useMutation(ClockIn)
@@ -92,7 +91,6 @@ export default function Login(props) {
         }
     }
 
-    const back = require('../Images/stockbackground.jpg')
 
     const makeCard = () => {
         return (
@@ -121,17 +119,7 @@ export default function Login(props) {
                         height: '5px',
                     }}
                 >
-                    <img
-                        src={icon1}
-                        alt='username icon'
-                        style={{
-                            position: 'absolute',
-                            width: '35px',
-                            height: '35px',
-                            top: 66,
-                            left: 140,
-                        }}
-                    />
+                    
                 </div>
                 <div
                     style={{
@@ -140,17 +128,7 @@ export default function Login(props) {
                         height: '5px',
                     }}
                 >
-                    <img
-                        src={icon2}
-                        alt='lock icon'
-                        style={{
-                            position: 'absolute',
-                            width: '30px',
-                            height: '30px',
-                            top: 145,
-                            left: 143,
-                        }}
-                    />
+                    
                 </div>
                 <div
                     style={{
@@ -161,18 +139,15 @@ export default function Login(props) {
                         alignItems: 'center',
                     }}
                 >
-                    <TextInput
-                        placeholder='username'
-                        type='text'
-                        value={userName}
-                        onChange={(e) => setUsername(e.target.value)}
-                    />
-                    <TextInput
-                        placeholder='password'
-                        type='password'
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                    />
+                <Input icon='user outline' 
+				iconPosition='left' 
+				placeholder='username...' 
+				onChange={e => setUsername(e.target.value)}/>
+				<br/>
+				<Input icon='lock'
+				iconPosition='left' 
+				placeholder='password...' 
+				onChange={e => setPassword(e.target.value)}/>
                     <div
                         style={{
                             width: '20vw',
@@ -224,7 +199,8 @@ export default function Login(props) {
                 alt='indays logo'
                 style={{
                     height: '30vh',
-                    // backgroundColor: 'grey',
+					backgroundColor: 'rgba(255, 255, 255, 0.53)',
+					borderRadius: '200px'
                 }}
             />
             {makeCard()}

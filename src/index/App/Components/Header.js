@@ -1,13 +1,12 @@
 import React from 'react'
 import Screens from '../Screens'
+import { Icon } from 'semantic-ui-react'
 import {
 	TitleText,
+	Navlink,
 	SubtitleText
 } from './../Styles/StyledComponents'
 import Account from '../Screens/Account';
-const LibraryLogo = require('../Images/LibraryLogo.png')
-const Usericon = require('../Images/profileicon.PNG')
-const Bell = require('../Images/bell.PNG')
 const logo=require('../Images/IndaysLogo.png')
 export default function Header() {
 	return (
@@ -41,22 +40,10 @@ export default function Header() {
 					style={{ height: '193px' }}	
 				/>
 			
-				<img 
-       			src={Usericon} 
-        		alt="user icon" 
-				style={{ 
-				width: '4vw',
-				height: '6vh', marginRight:'5px'}}
-				//onClick={() => Screens[4].path}
-        		/>
+			
+				<Icon name='user circle' size='big'  />
 				<SubtitleText> John Deer </SubtitleText>
-				<img 
-       			src={Bell} 
-        		alt="notification bell" 
-				style={{ 
-				width: '3vw',
-        		height: '5vh', marginLeft:'20px'}}
-        		/>
+				<Icon name='bell outline' size='large' />
 			</div>
 		</div>
 	)
