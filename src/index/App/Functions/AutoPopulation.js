@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import { GetAllUsers } from '../API/Queries/User'
-import React from 'react'
+import React, { useState } from 'react'
 import {
         Card,
         Hyperlink,
@@ -10,8 +10,35 @@ import {
         TitleText
 } from './../Styles/StyledComponents'
 import { SCHEDULE } from './AutoPopConstant'
-const WEEKLYMAX = 20
-const DAILYMAX = 7
+
+const checkWeekly = () => {
+        if(localStorage.getItem('currentWeeklyMax'))
+        {
+                console.log(localStorage.getItem('currentWeeklyMax'))
+                return localStorage.getItem('currentWeeklyMax')
+        }
+        else
+        {
+                console.log('DIDNT USE LOCAL')
+                return 20
+        }
+}
+
+const checkDaily = () => {
+        if(localStorage.getItem('currentDailyMax'))
+        {
+                console.log(localStorage.getItem('currentDailyMax'))
+                return localStorage.getItem('currentDailyMax')
+        }
+        else
+        {
+                console.log('DIDNT USE LOCAL')
+                return 7
+        }
+}
+
+let WEEKLYMAX = 0
+let DAILYMAX = 0
 
 /*
         Per Shift
@@ -39,6 +66,11 @@ let dailyMax = {}
 
 export default function AutoPopulation(props) {
 
+        WEEKLYMAX = checkWeekly()
+        DAILYMAX = checkDaily()
+        console.log(WEEKLYMAX)
+        console.log(DAILYMAX)
+        
         const day = (itemList, indexArray) => {
 
                 const canWork = (id) => {

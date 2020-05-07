@@ -3,7 +3,7 @@ import { useMutation, useQuery } from '@apollo/react-hooks'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import moment from 'moment'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-import { UpdateUsersShifts, AddTradeBoardShift, RemoveTradeBoardShift, AcceptPendingShift, DeclinePendingShift } from '../API/Mutations/Shifts'
+import { UpdateUsersShifts, RemoveTradeBoardShift, AddPendingShift, AcceptPendingShift, DeclinePendingShift } from '../API/Mutations/Shifts'
 import { GetAllUsers, GetUserByID } from '../API/Queries/User'
 import {
     Card,
@@ -14,24 +14,74 @@ import {
     TextInput,
     TitleText,
 } from './../Styles/StyledComponents'
+import {GetTradeBoardShifts, GetPendingShifts} from '../API/Queries/Shifts'
+import { Button } from 'semantic-ui-react'
+
 moment.locale('en')
 const localizer = momentLocalizer(moment)
 const DraggableCalendar = withDragAndDrop(Calendar)
 
 export default function Shiftswap(props) {
-	const [dropList, setDropList] = useState([])
-	const [pickUpList, setPickUpList] = useState([])
+	const [tradeBoardShifts, setTradeBoardShifts] = useState([])
+	const [pendingApprovalShifts, setPendingApprovalShifts] = useState([])
 
 	let userID = localStorage.getItem('currentUserID')
+	
+	const {
+        loading: loading,
+        error: error,
+        data: data,
+        refetch: refetch,
+        networkStatus: netStat,
+	} = useQuery(GetTradeBoardShifts)
+	
+	const {
+        loading: loading3,
+        error: error3,
+        data: data3,
+        refetch: refetch3,
+        networkStatus: netStat3,
+    } = useQuery(GetPendingShifts)
+
+	const { loading: loading2, error: error2, data: data2, refetch: refetch2, networkStatus: networkStatus2 } = useQuery(
+        GetUserByID,
+        {
+            variables: { id: userID },
+            notifyOnNetworkStatusChange: true
+        }
+	)
+	
+	const [shiftsToRemove] = useMutation(RemoveTradeBoardShift)
+	const [shiftsToApprove] = useMutation(AddPendingShift)
+	const [acceptShift] = useMutation(AcceptPendingShift)
+	const [declineShift] = useMutation(DeclinePendingShift)
 
 	useEffect(() => {
-        //calling setMyEventsList to set hardcoded list
-        setDropList([
-            { title: 'Employee 1', start: new Date(2020, 1, 23, 5), end: new Date(2020, 1, 23, 18), color: '#fc0373' },
-            { title: 'Employee 3', start: new Date(2020, 1, 25, 10), end: new Date(2020, 1, 25, 16), color: '#18fc03' }
-        ]);
-	}, []);
-	
+        const onCompleted = data => {
+			let temp = []
+			//console.log('GOT HERE')
+			data.getTradeBoardShifts.forEach(({ title, start, end, color, _id , full_user}) => {
+				let startDate = new Date(start)
+				let endDate = new Date(end)
+				temp.push({ title, start: startDate, end: endDate, color, _id, full_user })
+			})
+			setTradeBoardShifts(temp)
+			//console.log(tradeBoardShifts)
+		}
+		const onCompleted2 = data3 => {
+			let temp2 = []
+			data3.getPendingShifts.forEach(({ title, start, end, color, _id, fromUserID, toUserId}) => {
+				let startDate = new Date(start)
+				let endDate = new Date(end)
+				temp2.push({ title, start: startDate, end: endDate, color, _id, fromUserID, toUserId })
+			})
+			setPendingApprovalShifts(temp2)
+			//console.log(pendingApprovalShifts)
+        }
+		if (!loading && !error) onCompleted(data)
+		if (!loading3 && !error3) onCompleted2(data3)
+    }, [loading, data, error, loading3, data3, error3])
+
 	const Event = ({ event }) => {
         return <p style={{ color: 'yellow' }}>{event.title}</p>
     }
@@ -42,49 +92,17 @@ export default function Shiftswap(props) {
 	// const { loading, error, data, refetch, networkStatus } = useQuery(GetAllUsers)
 
 	//To be used for ensuring user with current ID is an admin
-	const { loading: loading2, error: error2, data: data2, refetch: refetch2, networkStatus: networkStatus2 } = useQuery(
-        GetUserByID,
-        {
-            variables: { id: userID },
-            notifyOnNetworkStatusChange: true
-        }
-    )
-
+	
 	if (loading2) return <p>Loading...</p>
     if (error2) return <p>Error :( {JSON.stringify(error2)}</p>
     if (networkStatus2 === 4) return <p>Refetching...</p>
-	
-	// const [update, { loading, data, error }] = useMutation(______________, {
-    //     onCompleted(data) {
-    //     }
-	// })
-	
-	//This would be used in getting all users with shifts that are toBeDropped
-	// const getData = () => {
-	// 	let usersArr = data.getUsers
-	// 	let userShiftsToDrop = []
-	// 	usersArr.forEach(({ _id, shifts, firstName }) => {
-	// 		shifts.forEach(({ start, end, value, toBeDropped }) => {
-	// 			let startDate = new Date(start)
-	// 			let endDate = new Date(end)
-								
-	// 			if(toBeDropped)
-	// 			{
-	// 				userShiftsToDrop.push({ empID: _id, emp: firstName, startDate, endDate, value: parseInt(value), toBeDropped: toBeDropped })
-	// 			}
-	// 		})
-	// 	})
-	// 	setDropList(userShiftsToDrop)
-	// }
 
 	const handlePickUp = event => {
         const check = window.confirm(
             '\nDo you want to pickup this shift: Ok - YES, Cancel - NO'
         )
         if (check) {
-			let tempArray = [...pickUpList]
-			tempArray.push(event)
-			setPickUpList(tempArray)
+			shiftsToApprove({ variables: { toUserID: userID, fromUserID: event.full_user._id, shiftID: event._id } })
         }
 	}
 	
@@ -93,113 +111,60 @@ export default function Shiftswap(props) {
             '\nDo you want to approve this shift pickup: Ok - YES, Cancel - NO'
         )
         if (check) {
-			let approvalSpot = pickUpList.indexOf(event)
-			let pickUpSlot = dropList.indexOf(event)
-
-			let tempArray = [...dropList]
-			tempArray.splice(pickUpSlot, 1)
-			setDropList(tempArray)
-			
-			let tempArray2 = [...pickUpList]
-			tempArray2.splice(approvalSpot, 1)
-			setPickUpList(tempArray2)
-
+			acceptShift({ variables: { shiftID: event._id } })
+			shiftsToRemove({ variables: {shiftID: event._id, userID: event.fromUserID }})			
 			console.log('Shift swap has been approved')
-			//REASSIGN SHIFT
 		}
 		else
 		{
-			let approvalSpot = pickUpList.indexOf(event)
-			let tempArray2 = [...pickUpList]
-			tempArray2.splice(approvalSpot, 1)
-			setPickUpList(tempArray2)
+			declineShift({ variables: { shiftID: event._id } })
 			console.log('Shift was not approved')
 		}
     }
 
-	const renderTradeBoard = () => {
-		return(
-			<DraggableCalendar
-				selectable
-				localizer={localizer}
-				events={dropList}
-				views={['month', 'week']}
-				defaultView={Views.WEEK}
-				defaultDate={new Date(2020, 1, 25)}
-				onSelectEvent={handlePickUp}
-				//onSelectSlot={handleSelect}
-				style={{ align: 'center', height: '80vh', width: '1450px'}}
-				//dayPropGetter={handleBlackoutDate}
-				eventPropGetter={event => ({
-					style: {
-						backgroundColor: event.color,
-						alignSelf: 'center',
-						alignContent: 'center'
-					}
-				})}
-				slotPropGetter={() => ({
-					style: {
-						// backgroundColor: 'red',
-						// borderColor: 'red'
-						border: 'none',
-						// display: 'flex',
-						alignItems: 'center'
-					}
-				})}
-				// titleAccessor={function(e) {
-				// 	console.log(e);
-				// 	return e.title;
-				// }}
-				components={{
-					event: Event
-				}}
-				//draggableAccessor={event => true}
-				//onEventDrop={moveEvent}
-			/>
-		)
-		
-		// if(data2.getUserByID.userType !== 'Admin')
-		// {
-		// 	return(
-		// 		<DraggableCalendar
-		// 			selectable
-		// 			localizer={localizer}
-		// 			events={dropList}
-		// 			views={['month', 'week']}
-		// 			defaultView={Views.WEEK}
-		// 			defaultDate={new Date(2020, 1, 25)}
-		// 			onSelectEvent={handlePickUp}
-		// 			//onSelectSlot={handleSelect}
-		// 			style={{ height: '80vh', width: '1450px'}}
-		// 			//dayPropGetter={handleBlackoutDate}
-		// 			eventPropGetter={event => ({
-		// 				style: {
-		// 					backgroundColor: event.color,
-		// 					alignSelf: 'center',
-		// 					alignContent: 'center'
-		// 				}
-		// 			})}
-		// 			slotPropGetter={() => ({
-		// 				style: {
-		// 					// backgroundColor: 'red',
-		// 					// borderColor: 'red'
-		// 					border: 'none',
-		// 					// display: 'flex',
-		// 					alignItems: 'center'
-		// 				}
-		// 			})}
-		// 			// titleAccessor={function(e) {
-		// 			// 	console.log(e);
-		// 			// 	return e.title;
-		// 			// }}
-		// 			components={{
-		// 				event: Event
-		// 			}}
-		// 			//draggableAccessor={event => true}
-		// 			//onEventDrop={moveEvent}
-        //     	/>
-		// 	)
-		// }
+	const renderTradeBoard = () => {	
+		if(data2.getUserByID.userType !== 'Admin')
+		{
+			return(
+				<DraggableCalendar
+					selectable
+					localizer={localizer}
+					events={tradeBoardShifts}
+					views={['month', 'week']}
+					defaultView={Views.WEEK}
+					defaultDate={new Date(2020, 1, 25)}
+					onSelectEvent={handlePickUp}
+					//onSelectSlot={handleSelect}
+					style={{ align: 'center', height: '80vh', width: '1450px'}}
+					//dayPropGetter={handleBlackoutDate}
+					eventPropGetter={event => ({
+						style: {
+							backgroundColor: event.color,
+							alignSelf: 'center',
+							alignContent: 'center'
+						}
+					})}
+					slotPropGetter={() => ({
+						style: {
+							// backgroundColor: 'red',
+							// borderColor: 'red'
+							border: 'none',
+							// display: 'flex',
+							alignItems: 'center'
+						}
+					})}
+					// titleAccessor={function(e) {
+					// 	console.log(e);
+					// 	return e.title;
+					// }}
+					components={{
+						event: Event
+					}}
+					//draggableAccessor={event => true}
+					//onEventDrop={moveEvent}
+				/>
+			)
+		}
 	}
 
 	const renderApprovalBoard = () => {
@@ -209,7 +174,7 @@ export default function Shiftswap(props) {
 				<DraggableCalendar
 					selectable
 					localizer={localizer}
-					events={pickUpList}
+					events={pendingApprovalShifts}
 					views={['month', 'week']}
 					defaultView={Views.WEEK}
 					defaultDate={new Date(2020, 1, 25)}
@@ -242,7 +207,7 @@ export default function Shiftswap(props) {
 					}}
 					//draggableAccessor={event => true}
 					//onEventDrop={moveEvent}
-            	/>
+				/>
 			)
 		}
 	}
@@ -257,9 +222,11 @@ export default function Shiftswap(props) {
                     fontSize: '48px',
                     //clear:'left'
                 }}>Shiftswap</TitleText>
+			{/* <button onClick = {() => console.log(tradeBoardShifts)}>
+			CLICK ME
+			</button> */}
 			{renderTradeBoard()}
 			{renderApprovalBoard()}
-
 		</div>
 		</Card>
 

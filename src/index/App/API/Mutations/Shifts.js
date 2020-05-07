@@ -17,7 +17,7 @@ export const AddTradeBoardShift = gql`
         addTradeBoardShift(
             shiftID: $shiftID,
             userID: $userID
-        )
+        ){_id}
     }
 `
 
@@ -29,6 +29,20 @@ export const RemoveTradeBoardShift = gql`
         removeTradeBoardShift(
             shiftID: $shiftID,
             userID: $userID
+        )
+    }
+`
+
+export const AddPendingShift = gql`
+    mutation addPendingShift(
+        $toUserID: String!,
+        $fromUserID: String!,
+        $shiftID: String!
+        ) {
+        addPendingShift(
+            toUserID: $toUserID,
+            fromUserID: $fromUserID,
+            shiftID: $shiftID
         )
     }
 `

@@ -33,6 +33,10 @@ export default function Login(props) {
     const [update1] = useMutation(ClockIn)
     const [update2] = useMutation(ClockOut)
 
+    const clearALL = () => {
+        localStorage.clear()
+    }
+
     const getLocation = (x) => {
         function CheckBrowser(position) {
             setLat(position.coords.latitude)
@@ -80,9 +84,11 @@ export default function Login(props) {
         if (userName !== '' && password !== '') {
             let users = data.getUsers
             let currentUser
+            let isFoundYet = false
             users.forEach(({ _id, firebaseID, email }) => {
-                if (userName === firebaseID && password === email) {
+                if (userName === firebaseID && password === email && !isFoundYet) {
                     currentUser = _id
+                    isFoundYet = true
                     // console.log('GOT HERE BABY')
                 }
             })
@@ -203,6 +209,7 @@ export default function Login(props) {
 					borderRadius: '200px'
                 }}
             />
+            {clearALL()}
             {makeCard()}
             {setCurrentUser()}
         </div>

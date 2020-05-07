@@ -60,8 +60,8 @@ export default function Admin(props) {
     const [lastName, setLastName] = useState('')
     const [userType, setUserType] = useState('')
     const [deleteID, setDeleteID] = useState('')
-    const [weeklyMax, setWeeklyMax] = useState(0)
-    const [dailyMax, setDailyMax] = useState(0)
+    const [weeklyMax, setWeeklyMax] = useState(null)
+    const [dailyMax, setDailyMax] = useState(null)
 
     if (loading3) return <p>Loading...</p>
    if (error3) return <p>Error :( {JSON.stringify(error2)}</p>
@@ -73,7 +73,7 @@ export default function Admin(props) {
                 placeholder={placeholder}
                 type='text'
                 value={state}
-                borderColor={(state === '' || state === 0) && 'red'}
+                borderColor={(state === '' || state === 0 || state === null) && 'red'}
                 onChange={e => setState(e.target.value)}
             />
 
@@ -120,18 +120,15 @@ export default function Admin(props) {
 
     const renderHoursButton = () => {
         const validation = () => {
-            /*
             if (weeklyMax !== 0 && dailyMax !== 0) {
-                update3({
-                    variables: {
-                        SOMETHING WILL GO HERE... EVENTUALLY
-                    }
-                })
-
+                localStorage.setItem('currentWeeklyMax', weeklyMax)
+                localStorage.setItem('currentDailyMax', dailyMax)
             }
-            */
-            //call api
             console.log('TEST 123')
+            window.alert('New weekly and daily maxes have been set.')
+            //console.log(localStorage.getItem('currentWeeklyMax'))
+            setWeeklyMax(null)
+            setDailyMax(null)
         }
         return (
             <PrimaryButton onClick={() => validation()}>Adjust Hour Maxes</PrimaryButton>
@@ -160,8 +157,8 @@ export default function Admin(props) {
 
                     <h2>Hours</h2>
 
-                    {renderRow(weeklyMax, setWeeklyMax, weeklyMax.value)}
-                    {renderRow(dailyMax, setDailyMax, dailyMax.value)}
+                    {renderRow(weeklyMax, setWeeklyMax, 'weekly max')}
+                    {renderRow(dailyMax, setDailyMax, 'daily max')}
                     {renderHoursButton()}    
                 </div>
             )

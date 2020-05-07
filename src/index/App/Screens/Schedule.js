@@ -168,7 +168,6 @@ export default function Schedule(props) {
     }
 
     const userID = localStorage.getItem('currentUserID')
-    const userFN = 'taylor'
     const [updateShifts] = useMutation(UpdateUsersShifts)
 
     const { loading, error, data: userData, refetch, networkStatus } = useQuery(
@@ -203,7 +202,7 @@ export default function Schedule(props) {
                 end: rest.end.toISOString(),
 
                 // Change these two later
-                _id: id,
+                //_id: id,
                 color: 'blue',
             }
             if (id in formattedForDB) formattedForDB[id].shifts.push(myPushObj)
