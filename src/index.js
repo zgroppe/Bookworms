@@ -3,23 +3,12 @@ import ReactDOM from 'react-dom'
 import './index/index.css'
 import App from './index/App'
 import * as serviceWorker from './index/serviceWorker'
-import * as firebase from 'firebase'
 import { BrowserRouter } from 'react-router-dom'
 
 import { ApolloProvider } from '@apollo/react-hooks'
 import Client from './index/App/API/Client'
 
 // This will register our app with firebase, which will allow us to authenticate users.
-const firebaseConfig = {
-    apiKey: process.env.FIREBASE_KEY,
-    authDomain: 'auth-4baa3.firebaseapp.com',
-    databaseURL: 'https://auth-4baa3.firebaseio.com',
-    projectId: 'auth-4baa3',
-    storageBucket: 'auth-4baa3.appspot.com',
-    messagingSenderId: '887659037856',
-    appId: '1:887659037856:web:dc94522a2d2c1c29e635c5'
-}
-firebase.initializeApp(firebaseConfig)
 
 ReactDOM.render(
     <ApolloProvider client={Client}>

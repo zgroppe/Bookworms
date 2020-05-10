@@ -7,6 +7,13 @@ export const GetUserByID = gql`
         }
     }
 `
+export const GetUserByFirebaseID = gql`
+    query getUserByFirebaseID($firebaseID: String!) {
+        getUserByFirebaseID(firebaseID: $firebaseID) {
+            ${UserData}
+        }
+    }
+`
 export const GetAllUsers = gql`
     query {
         getUsers {
@@ -16,9 +23,9 @@ export const GetAllUsers = gql`
 `
 
 export const GetAllUsersId = gql`
-query {
-    getUsers {
-        _id
+    query {
+        getUsers {
+            _id
+        }
     }
-}
 `

@@ -1,33 +1,39 @@
 @import url('https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap');
 .container {
-	text-align: start;
+    text-align: start;
 }
 h1 {
-	font-family: 'Poppins';
-	font-style: bold;
-	margin: 0;
-	color: #3385ff;
+    font-family: 'Poppins';
+    font-style: bold;
+    margin: 0;
+    color: #3385ff;
 }
 div > p {
-	font-size: 2.5vh;
-	margin-top: 1%;
+    font-size: 2.5vh;
+    margin-top: 1%;
 }
 
 .container2 {
-	flex-direction: column;
-	display: flex;
-	align-items: center;
+    flex-direction: column;
+    display: flex;
+    align-items: center;
 }
 
 .inputForm {
-	background: transparent;
-	width: 75%;
-	border: none;	
-	border-bottom: 1px solid #000000;
+    background: transparent;
+    width: 75%;
+    border: none;
+    border-bottom: 1px solid #000000;
 }
 
 .inputForm:focus {
-	border: none;
-	border-bottom: 1px solid #3385ff;
+    border: none;
+    border-bottom: 1px solid #3385ff;
 }
 
+button:disabled,
+button[disabled] {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
+}

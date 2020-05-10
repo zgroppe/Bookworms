@@ -1,6 +1,6 @@
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import moment from 'moment'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useEffect, useState, useContext } from 'react'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
@@ -9,166 +9,96 @@ import 'react-datepicker/dist/react-datepicker.css'
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
 import { UpdateUser } from '../API/Mutations/User'
-import { GetUserByID } from '../API/Queries/User'
 import '../Styles/Login.css'
 import '../Styles/Schedule.css'
-import ClockIn from '../API/Geolocation/ClockIn'
-import { Input } from 'semantic-ui-react'
+import { AuthContext } from './../Components/Auth'
 import {
+    Card,
     PrimaryButton,
-    TextInput,
     SubtitleText,
+    TextInput,
     TitleText,
-    Card
 } from './../Styles/StyledComponents'
-//import ProgressBar from 'react-bootstrap/ProgressBar'
-import { geolocated, geoPropTypes } from 'react-geolocated'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
 const options = [
     { value: -100, label: 'In-Class', color: 'darkred' },
     { value: -1, label: 'Unpreferred', color: 'red' },
     { value: 0, label: 'Neutral', color: 'grey' },
-    { value: 1, label: 'Preferred', color: 'green' }
+    { value: 1, label: 'Preferred', color: 'green' },
 ]
 
 const DraggableCalendar = withDragAndDrop(Calendar)
 const DAYS = [
     {
         value: 0,
-        label: 'Sunday'
+        label: 'Sunday',
     },
     {
         value: 1,
-        label: 'Monday'
+        label: 'Monday',
     },
     {
         value: 2,
-        label: 'Tuesday'
+        label: 'Tuesday',
     },
     {
         value: 3,
-        label: 'Wednesday'
+        label: 'Wednesday',
     },
     {
         value: 4,
-        label: 'Thursday'
+        label: 'Thursday',
     },
     {
         value: 5,
-        label: 'Friday'
+        label: 'Friday',
     },
     {
         value: 6,
-        label: 'Saturday'
-    }
+        label: 'Saturday',
+    },
 ]
 let totalPreferredTime
 
 export default function Account(props) {
-    const [updatedEmail, updateEmail] = useState('')
-    const [updatedFName, updateFName] = useState('')
-    const [updatedLName, updateLName] = useState('')
-    const [userInfo, setUserInfo] = useState({ email: '', firstName: '', lastName: '' })
-    const [updatedDays, updateDays] = useState('')
-    const [updatedSHour, updateSHour] = useState('')
-    const [updatedEHour, updateEHour] = useState('')
-    const [updatedSColor, updateSColor] = useState('')
-    const [FirebaseID, ValidateFirebaseID] = useState('')
-    const [updatedUserType, updateUserType] = useState('')
+    const { user, setUser } = useContext(AuthContext)
+    const [userInfo, setUserInfo] = useState(user)
     const [myPreferencesList, setMyPreferencesList] = useState([])
     const [dropdownValue, setDropdownValue] = useState(options[1])
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
-    //const [latitude, setLat] = useState('')
-    //const [longitude, setLong] = useState('')
-    /*
-    {
-        coords: {
-            latitude,
-            longitude,
-            altitude,
-            accuracy,
-            altitudeAccuracy,
-            heading,
-            speed
-        }
-        isGeolocationAvailable, // boolean flag indicating that the browser supports the Geolocation API
-        isGeolocationEnabled, // boolean flag indicating that the user has allowed the use of the Geolocation API
-        positionError // object with the error returned from the Geolocation API call
-    }
-    */
 
+    const [update, { data, loading }] = useMutation(UpdateUser)
 
-    // const innerRef = useRef();
-    // const getLocation = () => {
-    //     function CheckBrowser (position) {
-    //         setLat(position.coords.latitude)
-    //         setLong(position.coords.longitude)
-    //         console.log("Latitude is :", position.coords.latitude);
-    //         console.log("Longitude is :", position.coords.longitude);
-    //         console.log("Geo Sucess");
-    //     }
-        
-    //     function ERROR ()
-    //     {
-    //         console.log("Geo Failure");
-    //     }
-
-    //     if(!navigator.geolocation)
-    //         console.log("Geolocation not supported by browser");
-    //     else
-    //         navigator.geolocation.getCurrentPosition(CheckBrowser, ERROR)
-
-    //     // innerRef.current && innerRef.current.getLocation();
-    // };
-
-
-    const userID = localStorage.getItem('currentUserID')
-
-    const [update, mutationData] = useMutation(UpdateUser)
-    const { loading, error, data, refetch, networkStatus } = useQuery(
-        GetUserByID,
-        {
-            variables: { id: userID },
-            notifyOnNetworkStatusChange: true
-        }
-    )
-
-    const reFormatPreferenceList = prefArray => {
+    const reFormatPreferenceList = (prefArray) => {
         let temp = []
-
         prefArray.forEach(({ title, start, end, color, value }) => {
             let startDate = new Date(start)
             let endDate = new Date(end)
             temp.push({ title, start: startDate, end: endDate, color, value })
         })
-
-        temp.sort(function (a, b) { return new Date(a.start) - new Date(b.start); });
-
-        console.log(temp)
-
+        temp.sort(function (a, b) {
+            return new Date(a.start) - new Date(b.start)
+        })
         setMyPreferencesList(temp)
     }
 
     useEffect(() => {
-        const onCompleted = data => {
-            reFormatPreferenceList(data.getUserByID.preferences)
-            setUserInfo(data.getUserByID)
-        }
-        if (onCompleted && !loading && !error) onCompleted(data)
-    }, [loading, data, error])
+        reFormatPreferenceList(user.preferences)
+    }, [user])
 
-    if (loading) return <p>Loading...</p>
-    if (error) return <p>Error :( {JSON.stringify(error)}</p>
-    if (networkStatus === 4) return <p>"Refetching!"</p>
-    // if (data && oneTime) reFormatPreferenceList(data.getUserByID.preferences)
+    useEffect(() => {
+        if (!loading && data && data.updateUser) {
+            debugger
+            setUser(data.updateUser)
+        }
+    }, [data, loading, setUser])
 
     const renderPreferenceSchedule = () => {
-
         let formats = {
             dayFormat: (date, culture, localizer) =>
-                localizer.format(date, 'dddd', culture)
+                localizer.format(date, 'dddd', culture),
         }
         const handleSelectPreference = ({ start, end }) => {
             let color = 'green'
@@ -184,8 +114,8 @@ export default function Account(props) {
                     start,
                     end,
                     color,
-                    value: dropdownValue.value.toString()
-                }
+                    value: dropdownValue.value.toString(),
+                },
             ])
         }
 
@@ -199,10 +129,10 @@ export default function Account(props) {
             if (check) {
                 setMyPreferencesList([
                     ...myPreferencesList,
-                    { title, start, end, color, value }
+                    { title, start, end, color, value },
                 ])
             } else {
-                let tempArr = myPreferencesList.filter(item => item !== event)
+                let tempArr = myPreferencesList.filter((item) => item !== event)
                 tempArr.push({ title, start, end, color, value })
                 setMyPreferencesList(tempArr)
             }
@@ -216,7 +146,7 @@ export default function Account(props) {
             setMyPreferencesList(tempArr)
         }
 
-        const handleDeletePreference = event => {
+        const handleDeletePreference = (event) => {
             const check = window.confirm(
                 '\nDelete this event: Ok - YES, Cancel - NO'
             )
@@ -261,7 +191,7 @@ export default function Account(props) {
                                     start: newStart,
                                     end: newEnd,
                                     color: color,
-                                    value: value
+                                    value: value,
                                 })
                             }
                         }
@@ -270,34 +200,40 @@ export default function Account(props) {
                 setMyPreferencesList(temp)
             }
             return (
-
                 <div>
-                    <TitleText style={{
-                        fontSize: '48px',
-                        textAlign: 'left'
-
-                    }}>Preferences</TitleText>
-                    <PrimaryButton style={{
-                        align: 'left'
-
-                    }} onClick={() => console.log(myPreferencesList)}>
+                    <TitleText
+                        style={{
+                            fontSize: '3rem',
+                            textAlign: 'left',
+                        }}
+                    >
+                        Preferences
+                    </TitleText>
+                    <PrimaryButton
+                        style={{
+                            align: 'left',
+                        }}
+                        onClick={() => console.log(myPreferencesList)}
+                    >
                         Log State
                     </PrimaryButton>
-                    <PrimaryButton style={{
-                        align: 'left'
-                    }} onClick={() => handlePreferenceCopy()}>
+                    <PrimaryButton
+                        style={{
+                            align: 'left',
+                        }}
+                        onClick={() => handlePreferenceCopy()}
+                    >
                         Copy
-                        </PrimaryButton>
+                    </PrimaryButton>
                     <div
                         style={{
                             display: 'flex',
                             justifyContent: 'space-evenly',
                         }}
                     >
-
                         <Dropdown
                             options={options}
-                            onChange={x => setDropdownValue(x)}
+                            onChange={(x) => setDropdownValue(x)}
                             value={dropdownValue}
                             placeholder='Select an option'
                         />
@@ -305,7 +241,7 @@ export default function Account(props) {
                             <SubtitleText>From</SubtitleText>
                             <Dropdown
                                 options={DAYS}
-                                onChange={x => setCopyFrom(x)}
+                                onChange={(x) => setCopyFrom(x)}
                                 value={copyFrom}
                                 placeholder='Select an option'
                             />
@@ -314,16 +250,13 @@ export default function Account(props) {
                             <SubtitleText>To</SubtitleText>
                             <Dropdown
                                 options={DAYS}
-                                onChange={x => setCopyTo(x)}
+                                onChange={(x) => setCopyTo(x)}
                                 value={copyTo}
                                 placeholder='Select an option'
                             />
                         </div>
                     </div>
-
-
                 </div>
-
             )
         }
         const getTotalPreferredHours = () => {
@@ -342,21 +275,25 @@ export default function Account(props) {
             return totalPreferredTime
         }
         return (
-
             <div>
                 {renderCopyPreference()}
-                <PrimaryButton style={{
-                    //clear:'left',
-                    align: 'left'
-
-                }}
-                    onClick={e =>
+                <PrimaryButton
+                    style={{
+                        //clear:'left',
+                        align: 'left',
+                    }}
+                    onClick={(e) =>
                         totalPreferredTime >= 30 &&
                         update({
                             variables: {
-                                id: userID,
-                                preferences: myPreferencesList.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
-                            }
+                                id: user._id,
+                                preferences: myPreferencesList.sort(function (
+                                    a,
+                                    b
+                                ) {
+                                    return new Date(a.start) - new Date(b.start)
+                                }),
+                            },
                         })
                     }
                 >
@@ -366,12 +303,9 @@ export default function Account(props) {
                     style={{
                         display: 'flex',
                         flexDirection: 'column',
-                        alignItems: 'center'
+                        alignItems: 'center',
                     }}
-                >
-
-                   
-                </div>
+                ></div>
 
                 <DraggableCalendar //Preferences calendar
                     selectable
@@ -383,45 +317,36 @@ export default function Account(props) {
                     defaultDate={new Date(2020, 2, 29)}
                     onSelectEvent={handleDeletePreference}
                     onSelectSlot={handleSelectPreference}
-                    style={{ align: 'center', height: '80vh', width: '1450px' }}
-                    eventPropGetter={event => ({
+                    style={{ align: 'center', width: '100%' }}
+                    eventPropGetter={(event) => ({
                         style: {
                             backgroundColor: event.color,
                             alignSelf: 'center',
-                            alignContent: 'center'
-                        }
+                            alignContent: 'center',
+                        },
                     })}
                     slotPropGetter={() => ({
                         //left pane, time
                         style: {
                             border: 'none',
-                            alignItems: 'center'
-                        }
+                            alignItems: 'center',
+                        },
                     })}
                     dayPropGetter={() => ({
                         style: {
-                            alignItems: 'flex-start'
-                        }
+                            alignItems: 'flex-start',
+                        },
                     })}
-                    // titleAccessor={function(e) {
-                    // 	console.log(e);
-                    // 	return e.title;
-                    // }}
-                    // components={{
-                    // 	event: Event
-                    // }}
-                    draggableAccessor={event => true}
+                    draggableAccessor={(event) => true}
                     onEventDrop={movePreference}
                     onEventResize={resizePreference}
                 />
-
             </div>
-
         )
     }
-    const renderRow = (state, placeholder, ) => {
+    const renderRow = (state, placeholder) => {
         const onChange = (value) => {
-            let temp = { ...userInfo };
+            let temp = { ...userInfo }
             temp[state] = value
             setUserInfo(temp)
         }
@@ -431,101 +356,69 @@ export default function Account(props) {
                 type='text'
                 value={userInfo[state]}
                 borderColor={userInfo[state] === '' && 'red'}
-                onChange={e => onChange(e.target.value)}
+                onChange={(e) => onChange(e.target.value)}
             />
-
         )
     }
     const validation = ({ email, firstName, lastName }) => {
-        if (email === '' || firstName === '' || lastName === '') console.log('asad')
+        if (email === '' || firstName === '' || lastName === '')
+            console.log('asad')
         else {
             update({
                 variables: {
-                    id: userID,
+                    id: user._id,
                     first: firstName,
                     last: lastName,
-                    email: email
-                }
+                    email: email,
+                },
             })
         }
     }
     return (
-        <Card style={{
-            width: '1500px'
-        }}>
+        <Card
+            style={{
+                width: '78vw',
+            }}
+        >
             <div>
-                <TitleText style={{
-                    textAlign: 'left',
-                    position: 'flex',
-                    fontSize: '48px',
-                    //clear:'left'
-                }}
-                >Account </TitleText>
-                <h1 style={{
-                    textAlign: 'left',
-                    position: 'flex',
-                    //clear:'left'
-                }}
-                > {data.getUserByID.firstName}</h1>
-                <h3 style={{
-                    textAlign: 'start',
-                    fontSize: '18px'
-                }}>
+                <TitleText
+                    style={{
+                        textAlign: 'left',
+                        position: 'flex',
+                        fontSize: '3rem',
+                    }}
+                >
+                    Account Information
+                </TitleText>
+                <h1
+                    style={{
+                        textAlign: 'left',
+                    }}
+                >
+                    {user.firstName}
+                </h1>
+                <h3
+                    style={{
+                        textAlign: 'start',
+                        fontSize: '1.3rem',
+                    }}
+                >
                     Here you can update your account information. Please provide
-                    your FirebaseID in the box below before submitting any changes.
-            </h3>
-
-                <PrimaryButton style={{
-                    float: 'left'
-
-                }} onClick={() => refetch()}>
-                    Click me!</PrimaryButton>
-
-                <TitleText style={{
-                    fontSize: '48px',
-                    clear: 'left',
-                    textAlign: 'left'
-
-                }}>Information</TitleText>
+                    your FirebaseID in the box below before submitting any
+                    changes.
+                </h3>
                 {renderRow('email', 'Email')}
                 {renderRow('firstName', 'First Name')}
                 {renderRow('lastName', 'Last Name')}
-                <PrimaryButton style={{
-                    display: 'block'
-
-                }} onClick={() => validation(userInfo)} >Save</PrimaryButton>
-
-                {/* <PrimaryButton
-                    onClick={e =>
-                        totalPreferredTime >= 30 &&
-                        update({
-                            variables: {
-                                id: userID,
-                                preferences: myPreferencesList.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
-                            }
-                        })
-                    }
-                > */}
-
-
-                {renderPreferenceSchedule()}
-
-
-
-                {/* <ClockIn />
-                <button
-                    className="pure-button pure-button-primary"
-                    onClick={() => getLocation()}
-                    type="button"
+                <PrimaryButton
+                    style={{
+                        display: 'block',
+                    }}
+                    onClick={() => validation(userInfo)}
                 >
-                    Get location
-                    </button> */}
-                
-               
-            {/* <SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText>
-            <PrimaryButton onClick={() => getLocation()}>Get Location</PrimaryButton> */}
-             
-         
+                    Save
+                </PrimaryButton>
+                {renderPreferenceSchedule()}
             </div>
         </Card>
     )

@@ -1,23 +1,15 @@
-class Auth {
-	constructor() {
-		this.authenticated = false
-	}
-
-	login(routeAfterLogin) {
-		// TODO add firebase login auth logic
-		this.authenticated = true
-		routeAfterLogin()
-	}
-
-	logout(routeAfterLogout) {
-		// TODO add firebase logout logic
-		this.authenticated = false
-		routeAfterLogout()
-	}
-
-	isAuthenticated() {
-		return this.authenticated
-	}
+import React, { useState } from 'react'
+export const AuthContext = React.createContext()
+export const AuthProvider = ({ children }) => {
+    const [user, setCurrentUser] = useState(null)
+    return (
+        <AuthContext.Provider
+            value={{
+                user,
+                setUser: (user) => setCurrentUser(user),
+            }}
+        >
+            {children}
+        </AuthContext.Provider>
+    )
 }
-
-export default new Auth()

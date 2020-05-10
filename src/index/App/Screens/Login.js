@@ -1,47 +1,42 @@
-import '../Styles/Login.css'
-import React, { useState } from 'react'
-import auth from '../Components/Auth'
-import Screens from '../Screens'
-import { useMutation, useQuery } from '@apollo/react-hooks'
-import { GetAllUsers } from '../API/Queries/User'
-import { ClockIn, ClockOut } from '../API/Mutations/User'
-import { geolocated, geoPropTypes } from 'react-geolocated'
-import { Icon, Input } from 'semantic-ui-react'
+import { useLazyQuery, useMutation } from '@apollo/react-hooks'
 import moment from 'moment'
-
+import React, { useContext, useEffect, useState } from 'react'
+import Alert from 'react-bootstrap/Alert'
+import Form from 'react-bootstrap/Form'
+import FormControl from 'react-bootstrap/FormControl'
+import InputGroup from 'react-bootstrap/InputGroup'
+import { ClockIn, ClockOut } from '../API/Mutations/User'
+import { GetUserByFirebaseID } from '../API/Queries/User'
+import Screens from '../Screens'
+import '../Styles/Login.css'
+import fb from './../../../firebase'
+import { AuthContext } from './../Components/Auth'
 import {
     Card,
-    CardTitle,
-    Hyperlink,
     PrimaryButton,
     SubtitleText,
-    TextInput,
     TitleText,
 } from './../Styles/StyledComponents'
-
+const logo = require('../Images/IndaysLogo.png')
 let userID = '5e84e996646154001efe8e80'
 moment.locale('en')
-
 // This will be changed to david's login component when it is finished
 export default function Login(props) {
     const [userName, setUsername] = useState('')
     const [password, setPassword] = useState('')
-    const [latitude, setLat] = useState('')
-    const [longitude, setLong] = useState('')
-    const logo = require('../Images/IndaysLogo.png')
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState(false)
+    const [update1, { loading: clockInLoading }] = useMutation(ClockIn)
+    const [update2, { loading: clockOutLoading }] = useMutation(ClockOut)
+    const [
+        getUserByFirebaseID,
+        { data: UserFromFirebaseID, loading: getUserLoading },
+    ] = useLazyQuery(GetUserByFirebaseID)
 
-    const [update1] = useMutation(ClockIn)
-    const [update2] = useMutation(ClockOut)
-
-    const clearALL = () => {
-        localStorage.clear()
-    }
+    const { user, setUser } = useContext(AuthContext)
 
     const getLocation = (x) => {
         function CheckBrowser(position) {
-            setLat(position.coords.latitude)
-            setLong(position.coords.longitude)
-
             if (x === 'in') {
                 update1({
                     variables: {
@@ -61,7 +56,6 @@ export default function Login(props) {
                 })
                 console.log('CLOCK OUT COMPLETE')
             }
-
             console.log('Latitude is :', position.coords.latitude)
             console.log('Longitude is :', position.coords.longitude)
             console.log('Geo Success')
@@ -76,27 +70,108 @@ export default function Login(props) {
         else navigator.geolocation.getCurrentPosition(CheckBrowser, ERROR)
     }
 
-    const { loading, error, data, refetch, networkStatus } = useQuery(
-        GetAllUsers
-    )
+    // This is called to auto-login a user if saved
+    useEffect(() => {
+        const storedFirebaseID = localStorage.getItem('currentUserFirebaseID')
+        if (user) {
+            props.history.push(Screens[0].path)
+        } else if (!getUserLoading && storedFirebaseID) {
+            getUserByFirebaseID({ variables: { firebaseID: storedFirebaseID } })
+        }
+    }, [getUserByFirebaseID, getUserLoading, props.history, setUser, user])
 
-    const setCurrentUser = () => {
-        if (userName !== '' && password !== '') {
-            let users = data.getUsers
-            let currentUser
-            let isFoundYet = false
-            users.forEach(({ _id, firebaseID, email }) => {
-                if (userName === firebaseID && password === email && !isFoundYet) {
-                    currentUser = _id
-                    isFoundYet = true
-                    // console.log('GOT HERE BABY')
-                }
-            })
-            localStorage.setItem('currentUserID', currentUser)
-            // console.log('CURRENT USER ID', localStorage.getItem('currentUserID'))
+    // This is triggered when the user successfully logs in, or if their id was saved in localstorage
+    useEffect(() => {
+        if (UserFromFirebaseID) {
+            console.log('UserFromFirebaseID')
+            // They have a firebase account and a database account
+            if (UserFromFirebaseID.getUserByFirebaseID) {
+                console.log(
+                    'UserFromFirebaseID.getUserByFirebaseID:',
+                    UserFromFirebaseID.getUserByFirebaseID
+                )
+                const {
+                    _id,
+                    firebaseID,
+                } = UserFromFirebaseID.getUserByFirebaseID
+                localStorage.setItem('currentUserID', _id)
+                localStorage.setItem('currentUserFirebaseID', firebaseID)
+                setUser(UserFromFirebaseID.getUserByFirebaseID)
+                props.history.push(Screens[0].path)
+            } else {
+                // They have a firebase account but no database account
+                setError(
+                    'Contact your administrator. Your account is missing database information)'
+                )
+                setLoading(false)
+                // createUser({variables: { firebaseID, email: userName + '@islander.tamucc.edu', }})
+            }
+        }
+    }, [UserFromFirebaseID, props.history, setUser])
+
+    // Used to set one loading state if any of the functions are loading
+    useEffect(() => {
+        if (clockInLoading || clockOutLoading || getUserLoading)
+            setLoading(true)
+        else setLoading(false)
+    }, [clockInLoading, clockOutLoading, getUserLoading])
+
+    const handleLoginPressed = async (e) => {
+        // Prevent screen refresh
+        e.preventDefault()
+
+        // Say it is loading
+        setLoading(true)
+
+        const formatUsername = () => {
+            if (userName.includes('@')) return userName
+            else return `${userName}@islander.tamucc.edu`
+        }
+
+        // Get the user's auth from firebase for their firebaseID
+        try {
+            const {
+                user: { uid: firebaseID },
+            } = await fb
+                .auth()
+                .signInWithEmailAndPassword(formatUsername(), password)
+
+            // Get the full user from the database with that firebaseID
+            getUserByFirebaseID({ variables: { firebaseID } })
+        } catch (e) {
+            // Display any errors
+            console.log({ error: e })
+            setError(e.message)
+            // Set loading as done regardless
+        } finally {
+            setLoading(false)
         }
     }
 
+    const renderAlert = () => {
+        return (
+            <Alert
+                style={{ position: 'absolute', top: '3vh', right: '40vw' }}
+                variant='danger'
+                onClose={() => setError(false)}
+                dismissible
+            >
+                <Alert.Heading>
+                    There was an error logging you in!
+                </Alert.Heading>
+                <p>{error}</p>
+                <hr />
+                <div className='d-flex justify-content-end'>
+                    <PrimaryButton
+                        onClick={() => setError(false)}
+                        variant='outline-success'
+                    >
+                        Okay
+                    </PrimaryButton>
+                </div>
+            </Alert>
+        )
+    }
 
     const makeCard = () => {
         return (
@@ -107,77 +182,69 @@ export default function Login(props) {
                         display: 'flex',
                         justifyContent: 'space-between',
                         flexDirection: 'column',
-                        width: '700px',
+                        width: '30vw',
                     }}
                 >
                     <TitleText> Login</TitleText>
-
                     <SubtitleText>
                         Clock-in with your username
                         <br />
                         Log-in with your username and password
                     </SubtitleText>
-                </div>
-                <div
-                    style={{
-                        position: 'relative',
-                        width: '5px',
-                        height: '5px',
-                    }}
-                >
-                    
-                </div>
-                <div
-                    style={{
-                        position: 'relative',
-                        width: '5px',
-                        height: '5px',
-                    }}
-                >
-                    
-                </div>
-                <div
-                    style={{
-                        flexDirection: 'column',
-                        padding: '4vh',
-                        display: 'flex',
-                        justifyContent: 'space-around',
-                        alignItems: 'center',
-                    }}
-                >
-                <Input icon='user outline' 
-				iconPosition='left' 
-				placeholder='username...' 
-				onChange={e => setUsername(e.target.value)}/>
-				<br/>
-				<Input icon='lock'
-				iconPosition='left' 
-				placeholder='password...' 
-				onChange={e => setPassword(e.target.value)}/>
-                    <div
-                        style={{
-                            width: '20vw',
-                            display: 'flex',
-                            justifyContent: 'flex-end',
-                        }}
-                    >
-                        <Hyperlink href=''>forgot password?</Hyperlink>
-                    </div>
-                    <PrimaryButton
-                        onClick={() => {
-                            auth.login(() => {
-                                props.history.push(Screens[0].path)
-                            })
-                        }}
-                    >
-                        Login
-                    </PrimaryButton>
+                    <Form onSubmit={handleLoginPressed}>
+                        <Form.Group>
+                            <Form.Label>Username</Form.Label>
+                            <InputGroup style={{ width: '60%' }}>
+                                <FormControl
+                                    placeholder='Username...'
+                                    aria-label='Username'
+                                    onChange={({ target: { value } }) =>
+                                        setUsername(value)
+                                    }
+                                    style={{ width: '50%' }}
+                                    autoComplete='username'
+                                    type='text'
+                                />
+                                <InputGroup.Append>
+                                    <InputGroup.Text>
+                                        @islander.tamucc.edu
+                                    </InputGroup.Text>
+                                </InputGroup.Append>
+                            </InputGroup>
+                            <Form.Text className='text-muted'>
+                                We'll never share your email with anyone else.
+                            </Form.Text>
+                        </Form.Group>
 
-                    {/* <SubtitleText>lat:{latitude}  long:{longitude}</SubtitleText> */}
-                    <PrimaryButton onClick={() => getLocation('in')}>
+                        <Form.Group>
+                            <Form.Label>Password</Form.Label>
+                            <Form.Control
+                                type='password'
+                                placeholder='Password...'
+                                onChange={({ target: { value } }) =>
+                                    setPassword(value)
+                                }
+                                autoComplete='password'
+                                style={{ width: '60%' }}
+                            />
+                        </Form.Group>
+                        <PrimaryButton
+                            disabled={loading || error}
+                            type='submit'
+                        >
+                            Login
+                        </PrimaryButton>
+                    </Form>
+                    <PrimaryButton
+                        disabled={loading || error}
+                        onClick={() => getLocation('in')}
+                    >
                         Clock In
                     </PrimaryButton>
-                    <PrimaryButton onClick={() => getLocation('out')}>
+                    <PrimaryButton
+                        disabled={loading || error}
+                        onClick={() => getLocation('out')}
+                    >
                         Clock Out
                     </PrimaryButton>
                 </div>
@@ -195,9 +262,6 @@ export default function Login(props) {
                 height: '100vh',
                 justifyContent: 'space-around',
                 alignItems: 'center',
-
-                // width: '100vw',
-                // height: '100vh',
             }}
         >
             <img
@@ -205,13 +269,12 @@ export default function Login(props) {
                 alt='indays logo'
                 style={{
                     height: '30vh',
-					backgroundColor: 'rgba(255, 255, 255, 0.53)',
-					borderRadius: '200px'
+                    backgroundColor: 'rgba(255, 255, 255, 0.53)',
+                    borderRadius: '15vh',
                 }}
             />
-            {clearALL()}
+            {error && renderAlert()}
             {makeCard()}
-            {setCurrentUser()}
         </div>
     )
 }
