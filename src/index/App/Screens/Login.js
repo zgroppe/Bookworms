@@ -201,6 +201,13 @@ export default function Login(props) {
     }
 
     const handleResetPressed = async () => {
+        if (userName.length < 2) {
+            setError({
+                title: 'Whoops!',
+                message: 'Please enter your username to reset your password.',
+            })
+            return
+        }
         try {
             await fb.auth().sendPasswordResetEmail(formatUsername())
             setForgot(true)
