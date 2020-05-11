@@ -26,6 +26,7 @@ export default function Login(props) {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
+    const [forgot, setForgot] = useState(false)
     const [update1, { loading: clockInLoading }] = useMutation(ClockIn)
     const [update2, { loading: clockOutLoading }] = useMutation(ClockOut)
     const [
@@ -100,9 +101,11 @@ export default function Login(props) {
                 props.history.push(Screens[0].path)
             } else {
                 // They have a firebase account but no database account
-                setError(
-                    'Contact your administrator. Your account is missing database information)'
-                )
+                setError({
+                    title: 'Error Logging You In',
+                    message:
+                        'Contact your administrator. Your account is missing database information)',
+                })
                 setLoading(false)
                 // createUser({variables: { firebaseID, email: userName + '@islander.tamucc.edu', }})
             }
@@ -116,17 +119,17 @@ export default function Login(props) {
         else setLoading(false)
     }, [clockInLoading, clockOutLoading, getUserLoading])
 
+    const formatUsername = () => {
+        if (userName.includes('@')) return userName
+        else return `${userName}@islander.tamucc.edu`
+    }
+
     const handleLoginPressed = async (e) => {
         // Prevent screen refresh
         e.preventDefault()
 
         // Say it is loading
         setLoading(true)
-
-        const formatUsername = () => {
-            if (userName.includes('@')) return userName
-            else return `${userName}@islander.tamucc.edu`
-        }
 
         // Get the user's auth from firebase for their firebaseID
         try {
@@ -140,8 +143,7 @@ export default function Login(props) {
             getUserByFirebaseID({ variables: { firebaseID } })
         } catch (e) {
             // Display any errors
-            console.log({ error: e })
-            setError(e.message)
+            setError({ title: 'Error!', message: e.message })
             // Set loading as done regardless
         } finally {
             setLoading(false)
@@ -156,11 +158,10 @@ export default function Login(props) {
                 onClose={() => setError(false)}
                 dismissible
             >
-                <Alert.Heading>
-                    There was an error logging you in!
-                </Alert.Heading>
-                <p>{error}</p>
+                <Alert.Heading>{error.title}</Alert.Heading>
+                <p>{error.message}</p>
                 <hr />
+
                 <div className='d-flex justify-content-end'>
                     <PrimaryButton
                         onClick={() => setError(false)}
@@ -171,6 +172,41 @@ export default function Login(props) {
                 </div>
             </Alert>
         )
+    }
+
+    const renderForgotPassword = () => {
+        return (
+            <Alert
+                style={{ position: 'absolute', top: '3vh', right: '40vw' }}
+                variant='success'
+                onClose={() => setForgot(false)}
+                dismissible
+            >
+                <Alert.Heading>Password Reset Link Sent!</Alert.Heading>
+                <p>
+                    Intructions to reset your password have been sent to:{' '}
+                    {formatUsername()}
+                </p>
+                <hr />
+                <div className='d-flex justify-content-end'>
+                    <PrimaryButton
+                        onClick={() => setForgot(false)}
+                        variant='outline-success'
+                    >
+                        Okay
+                    </PrimaryButton>
+                </div>
+            </Alert>
+        )
+    }
+
+    const handleResetPressed = async () => {
+        try {
+            await fb.auth().sendPasswordResetEmail(formatUsername())
+            setForgot(true)
+        } catch (e) {
+            setError({ title: 'Error Resetting Password', message: e.message })
+        }
     }
 
     const makeCard = () => {
@@ -227,6 +263,7 @@ export default function Login(props) {
                                 autoComplete='password'
                                 style={{ width: '60%' }}
                             />
+                            <u onClick={handleResetPressed}>Forgot Password?</u>
                         </Form.Group>
                         <PrimaryButton
                             disabled={loading || error}
@@ -274,6 +311,7 @@ export default function Login(props) {
                 }}
             />
             {error && renderAlert()}
+            {forgot && renderForgotPassword()}
             {makeCard()}
         </div>
     )

@@ -37,3 +37,13 @@ button[disabled] {
     background-color: #cccccc;
     color: #666666;
 }
+
+u {
+    text-decoration: underline;
+    text-align: center;
+}
+
+u:hover {
+    color: #3385ff;
+    cursor: pointer;
+}
