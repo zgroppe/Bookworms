@@ -1,8 +1,17 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import { NavLink } from 'react-router-dom'
 import Screens from '../Screens'
 import { Navlink as Button } from './../Styles/StyledComponents'
+import { AuthContext } from './Auth'
 export default function Navbar() {
+    const { user } = useContext(AuthContext)
+    const screensToRender = [...Screens]
+    if (user.userType != 'Admin') {
+        const foundIndex = screensToRender.findIndex(
+            ({ name }) => name == 'Admin'
+        )
+        screensToRender.splice(foundIndex, 1)
+    }
     return (
         <ul
             className='Navbar'
@@ -16,7 +25,7 @@ export default function Navbar() {
             }}
         >
             {/* This will make all screens as a navbar item */}
-            {Screens.map((screen) => {
+            {screensToRender.map((screen) => {
                 return (
                     <li style={{ marginBottom: '3vh' }}>
                         <NavLink

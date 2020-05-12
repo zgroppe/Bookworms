@@ -101,6 +101,7 @@ export default function Login(props) {
                 props.history.push(Screens[0].path)
             } else {
                 // They have a firebase account but no database account
+                localStorage.clear()
                 setError({
                     title: 'Error Logging You In',
                     message:
