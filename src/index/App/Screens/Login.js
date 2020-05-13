@@ -3,8 +3,6 @@ import moment from 'moment'
 import React, { useContext, useEffect, useState } from 'react'
 import Alert from 'react-bootstrap/Alert'
 import Form from 'react-bootstrap/Form'
-import FormControl from 'react-bootstrap/FormControl'
-import InputGroup from 'react-bootstrap/InputGroup'
 import { ClockIn, ClockOut } from '../API/Mutations/User'
 import { GetUserByFirebaseID } from '../API/Queries/User'
 import Screens from '../Screens'
@@ -18,8 +16,9 @@ import {
     SubtitleText,
     TitleText,
 } from './../Styles/StyledComponents'
+import { Input } from 'semantic-ui-react'
 const logo = require('../Images/IndaysLogo.png')
-let userID = '5e84e996646154001efe8e80'
+
 moment.locale('en')
 // This will be changed to david's login component when it is finished
 export default function Login(props) {
@@ -27,48 +26,81 @@ export default function Login(props) {
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
     const [error, setError] = useState(false)
-    const [forgot, setForgot] = useState(false)
-    const [update1, { loading: clockInLoading }] = useMutation(ClockIn)
-    const [update2, { loading: clockOutLoading }] = useMutation(ClockOut)
-    const [
-        getUserByFirebaseID,
-        { data: UserFromFirebaseID, loading: getUserLoading },
-    ] = useLazyQuery(GetUserByFirebaseID)
+    const [success, setSuccess] = useState(false)
+
+    const clockComplete = (type) => {
+        setLoading(false)
+        setSuccess(`You have been clocked ${type}`)
+    }
+
+    const [clockIn, { loading: clockInLoading }] = useMutation(ClockIn, {
+        onError(e) {
+            setError({ title: 'Error Clocking In!', message: e.message })
+        },
+        onCompleted({ clockIn }) {
+            clockComplete('in')
+        },
+    })
+    const [clockOut, { loading: clockOutLoading }] = useMutation(ClockOut, {
+        onError(e) {
+            setError({ title: 'Error Clocking Out!', message: e.message })
+        },
+        onCompleted({ clockOut }) {
+            clockComplete('out')
+        },
+    })
+    const [getUserByFirebaseID, { loading: getUserLoading }] = useLazyQuery(
+        GetUserByFirebaseID,
+        {
+            onError(e) {
+                setLoading(false)
+                setError({ title: 'Error Logging In!', message: e.message })
+                localStorage.clear()
+            },
+            onCompleted({ getUserByFirebaseID }) {
+                setLoading(false)
+                if (getUserByFirebaseID) {
+                    const { _id, firebaseID } = getUserByFirebaseID
+                    localStorage.setItem('currentUserID', _id)
+                    localStorage.setItem('currentUserFirebaseID', firebaseID)
+                    setUser(getUserByFirebaseID)
+                    props.history.push('/overview')
+                } else {
+                    setError({
+                        title: 'Error Logging In!',
+                        message: 'Could not find a user with that ID',
+                    })
+                    localStorage.clear()
+                }
+            },
+        }
+    )
 
     const { user, setUser } = useContext(AuthContext)
 
-    const getLocation = (x) => {
-        function CheckBrowser(position) {
-            if (x === 'in') {
-                update1({
-                    variables: {
-                        location: `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
-                        time: moment().format('MMMM Do YYYY, h:mm:ss a'),
-                        userID: userID,
-                    },
-                })
-                console.log('CLOCK IN COMPLETE')
-            } else if (x === 'out') {
-                update2({
-                    variables: {
-                        location: `Latitude: ${position.coords.latitude}, Longitude: ${position.coords.longitude}`,
-                        time: moment().format('MMMM Do YYYY, h:mm:ss a'),
-                        userID: userID,
-                    },
-                })
-                console.log('CLOCK OUT COMPLETE')
+    const getLocation = (inOrOut) => {
+        function CheckBrowser({ coords: { latitude, longitude } }) {
+            const variables = {
+                location: `Latitude: ${latitude}, Longitude: ${longitude}`,
+                time: moment().format('MMMM Do YYYY, h:mm:ss a'),
+                email: formatUsername(),
             }
-            console.log('Latitude is :', position.coords.latitude)
-            console.log('Longitude is :', position.coords.longitude)
-            console.log('Geo Success')
+            if (inOrOut === 'in') clockIn({ variables })
+            else if (inOrOut === 'out') clockOut({ variables })
         }
 
-        function ERROR() {
-            console.log('Geo Failure')
+        function ERROR(e) {
+            setError({
+                title: `Unable to Clock ${inOrOut}!`,
+                message: e.message,
+            })
         }
 
         if (!navigator.geolocation)
-            console.log('Geolocation not supported by browser')
+            setError({
+                title: `Unable to Clock ${inOrOut}!`,
+                message: 'Geolocation is not supported by your browser',
+            })
         else navigator.geolocation.getCurrentPosition(CheckBrowser, ERROR)
     }
 
@@ -80,39 +112,7 @@ export default function Login(props) {
         } else if (!getUserLoading && storedFirebaseID) {
             getUserByFirebaseID({ variables: { firebaseID: storedFirebaseID } })
         }
-    }, [getUserByFirebaseID, getUserLoading, props.history, setUser, user])
-
-    // This is triggered when the user successfully logs in, or if their id was saved in localstorage
-    useEffect(() => {
-        if (UserFromFirebaseID) {
-            console.log('UserFromFirebaseID')
-            // They have a firebase account and a database account
-            if (UserFromFirebaseID.getUserByFirebaseID) {
-                console.log(
-                    'UserFromFirebaseID.getUserByFirebaseID:',
-                    UserFromFirebaseID.getUserByFirebaseID
-                )
-                const {
-                    _id,
-                    firebaseID,
-                } = UserFromFirebaseID.getUserByFirebaseID
-                localStorage.setItem('currentUserID', _id)
-                localStorage.setItem('currentUserFirebaseID', firebaseID)
-                setUser(UserFromFirebaseID.getUserByFirebaseID)
-                props.history.push('/overview')
-            } else {
-                // They have a firebase account but no database account
-                localStorage.clear()
-                setError({
-                    title: 'Error Logging You In',
-                    message:
-                        'Contact your administrator. Your account is missing database information)',
-                })
-                setLoading(false)
-                // createUser({variables: { firebaseID, email: userName + '@islander.tamucc.edu', }})
-            }
-        }
-    }, [UserFromFirebaseID, props.history, setUser])
+    }, [getUserByFirebaseID, getUserLoading, props.history, user])
 
     // Used to set one loading state if any of the functions are loading
     useEffect(() => {
@@ -145,14 +145,14 @@ export default function Login(props) {
             getUserByFirebaseID({ variables: { firebaseID } })
         } catch (e) {
             // Display any errors
-            setError({ title: 'Error!', message: e.message })
+            setError({ title: 'Error Logging In!', message: e.message })
             // Set loading as done regardless
         } finally {
             setLoading(false)
         }
     }
 
-    const renderAlert = () => {
+    const renderErrorAlert = () => {
         return (
             <Alert
                 style={{ position: 'absolute', top: '3vh', right: '40vw' }}
@@ -176,23 +176,20 @@ export default function Login(props) {
         )
     }
 
-    const renderForgotPassword = () => {
+    const renderSuccessAlert = () => {
         return (
             <Alert
                 style={{ position: 'absolute', top: '3vh', right: '40vw' }}
                 variant='success'
-                onClose={() => setForgot(false)}
+                onClose={() => setSuccess(false)}
                 dismissible
             >
-                <Alert.Heading>Password Reset Link Sent!</Alert.Heading>
-                <p>
-                    Intructions to reset your password have been sent to:{' '}
-                    {formatUsername()}
-                </p>
+                <Alert.Heading>Success!</Alert.Heading>
+                <p>{success}</p>
                 <hr />
                 <div className='d-flex justify-content-end'>
                     <PrimaryButton
-                        onClick={() => setForgot(false)}
+                        onClick={() => setSuccess(false)}
                         variant='outline-success'
                     >
                         Okay
@@ -212,7 +209,9 @@ export default function Login(props) {
         }
         try {
             await fb.auth().sendPasswordResetEmail(formatUsername())
-            setForgot(true)
+            setSuccess(
+                'A link to reset your pasword has been sent to your email!'
+            )
         } catch (e) {
             setError({ title: 'Error Resetting Password', message: e.message })
         }
@@ -238,19 +237,28 @@ export default function Login(props) {
                     </SubtitleText>
                     <Form onSubmit={handleLoginPressed}>
                         <UsernameInput
-                            containerStyle={{ width: '60%' }}
+                            containerStyle={{
+                                display: 'flex',
+                                width: '62.5%',
+                                flexDirection: 'column',
+                            }}
                             onChange={(text) => setUsername(text)}
+                            value={userName}
                         />
-                        <Form.Group>
+                        <Form.Group
+                            style={{ flexDirection: 'column', display: 'flex' }}
+                        >
                             <Form.Label>Password</Form.Label>
-                            <Form.Control
+                            <Input
+                                icon='lock'
+                                iconPosition='left'
                                 type='password'
                                 placeholder='Password...'
                                 onChange={({ target: { value } }) =>
                                     setPassword(value)
                                 }
                                 autoComplete='password'
-                                style={{ width: '60%' }}
+                                style={{ width: '62.5%' }}
                             />
                             <u onClick={handleResetPressed}>Forgot Password?</u>
                         </Form.Group>
@@ -299,8 +307,8 @@ export default function Login(props) {
                     borderRadius: '15vh',
                 }}
             />
-            {error && renderAlert()}
-            {forgot && renderForgotPassword()}
+            {error && renderErrorAlert()}
+            {success && renderSuccessAlert()}
             {makeCard()}
         </div>
     )

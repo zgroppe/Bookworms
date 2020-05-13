@@ -49,13 +49,13 @@ export const DeleteUser = gql`
 `
 
 export const ClockIn = gql`
-    mutation clockIn($location: String!, $time: String!, $userID: String!) {
-        clockIn(location: $location, time: $time, userID: $userID)
+    mutation clockIn($location: String!, $time: String!, $email: String!) {
+        clockIn(location: $location, time: $time, email: $email)
     }
 `
 
 export const ClockOut = gql`
-    mutation clockOut($location: String!, $time: String!, $userID: String!) {
-        clockOut(location: $location, time: $time, userID: $userID)
+    mutation clockOut($location: String!, $time: String!, $email: String!) {
+        clockOut(location: $location, time: $time, email: $email)
     }
 `
