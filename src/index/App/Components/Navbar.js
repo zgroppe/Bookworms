@@ -5,12 +5,11 @@ import { Navlink as Button } from './../Styles/StyledComponents'
 import { AuthContext } from './Auth'
 export default function Navbar() {
     const { user } = useContext(AuthContext)
-    const screensToRender = [...Screens]
+    let screensToRender = [...Screens]
     if (user.userType != 'Admin') {
-        const foundIndex = screensToRender.findIndex(
+        screensToRender = screensToRender.filter(
             ({ name }) => name === 'Admin' || name === 'Schedule'
         )
-        screensToRender.splice(foundIndex, 1)
     }
     return (
         <ul
