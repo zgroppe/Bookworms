@@ -390,24 +390,22 @@ export default function Account(props) {
                 >
                     Account Information
                 </TitleText>
-                <h1
+                {/* <h1
                     style={{
                         textAlign: 'left',
                     }}
                 >
                     {user.firstName}
-                </h1>
+                </h1> */}
                 <h3
                     style={{
                         textAlign: 'start',
                         fontSize: '1.3rem',
                     }}
                 >
-                    Here you can update your account information. Please provide
-                    your FirebaseID in the box below before submitting any
-                    changes.
+                    Here you can update your account information.
                 </h3>
-                {renderRow('email', 'Email')}
+                {/* {renderRow('email', 'Email')} */}
                 {renderRow('firstName', 'First Name')}
                 {renderRow('lastName', 'Last Name')}
                 <PrimaryButton
