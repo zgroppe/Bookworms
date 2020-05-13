@@ -11,6 +11,7 @@ import Screens from '../Screens'
 import '../Styles/Login.css'
 import fb from './../../../firebase'
 import { AuthContext } from './../Components/Auth'
+import UsernameInput from './../Components/UsernameInput'
 import {
     Card,
     PrimaryButton,
@@ -98,7 +99,7 @@ export default function Login(props) {
                 localStorage.setItem('currentUserID', _id)
                 localStorage.setItem('currentUserFirebaseID', firebaseID)
                 setUser(UserFromFirebaseID.getUserByFirebaseID)
-                props.history.push(Screens[0].path)
+                props.history.push('/Admin')
             } else {
                 // They have a firebase account but no database account
                 localStorage.clear()
@@ -236,30 +237,10 @@ export default function Login(props) {
                         Log-in with your username and password
                     </SubtitleText>
                     <Form onSubmit={handleLoginPressed}>
-                        <Form.Group>
-                            <Form.Label>Username</Form.Label>
-                            <InputGroup style={{ width: '60%' }}>
-                                <FormControl
-                                    placeholder='Username...'
-                                    aria-label='Username'
-                                    onChange={({ target: { value } }) =>
-                                        setUsername(value)
-                                    }
-                                    style={{ width: '50%' }}
-                                    autoComplete='username'
-                                    type='text'
-                                />
-                                <InputGroup.Append>
-                                    <InputGroup.Text>
-                                        @islander.tamucc.edu
-                                    </InputGroup.Text>
-                                </InputGroup.Append>
-                            </InputGroup>
-                            <Form.Text className='text-muted'>
-                                We'll never share your email with anyone else.
-                            </Form.Text>
-                        </Form.Group>
-
+                        <UsernameInput
+                            containerStyle={{ width: '60%' }}
+                            onChange={(text) => setUsername(text)}
+                        />
                         <Form.Group>
                             <Form.Label>Password</Form.Label>
                             <Form.Control

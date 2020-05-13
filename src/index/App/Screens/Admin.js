@@ -1,217 +1,250 @@
-import React, { useState } from 'react'
-import { useMutation, useQuery } from '@apollo/react-hooks'
-
-import { GetUserByID } from '../API/Queries/User'
-import {
-    Card,
-    Hyperlink,
-    PrimaryButton,
-    SubtitleText,
-    TextInput,
-    TitleText
-} from './../Styles/StyledComponents'
+import React, { useState, useEffect } from 'react'
+import { useMutation } from '@apollo/react-hooks'
+import { PrimaryButton } from './../Styles/StyledComponents'
 import { CreateUser, DeleteUser } from '../API/Mutations/User'
+// import { AuthContext } from './../Components/Auth'
+import Form from 'react-bootstrap/Form'
+import ListGroup from 'react-bootstrap/ListGroup'
+import Col from 'react-bootstrap/Col'
+import InputGroup from 'react-bootstrap/InputGroup'
+import FormControl from 'react-bootstrap/FormControl'
+import fb from './../../../firebase'
+import Alert from 'react-bootstrap/Alert'
+import UsernameInput from './../Components/UsernameInput'
 
 export default function Admin(props) {
-   //const[update] = useMutation(CreateUser, DeleteUser)
-    const userID = localStorage.getItem('currentUserID')
-   
-    const [update, { loading, data, error }] = useMutation(CreateUser, {
-        onCompleted(data) {
-            if (data) window.alert(`User with this email: ${email} has been created`)
-            else window.alert(`Error`)
+    // const { user } = useContext(AuthContext)
+    const [loading, setLoading] = useState('')
+    const [email, setEmail] = useState('')
+    const [success, setSuccess] = useState(false)
+    const [password, setPassword] = useState('')
+    const [firstName, setFirstName] = useState('')
+    const [lastName, setLastName] = useState('')
+    const [userType, setUserType] = useState('Employee')
+    const [deleteEmail, setDeleteEmail] = useState('')
+    // const [weeklyMax, setWeeklyMax] = useState(null)
+    // const [dailyMax, setDailyMax] = useState(null)
+    const [error, setError] = useState(false)
 
-            setFirebaseID('')
+    const [createUser, { loading: createLoading }] = useMutation(CreateUser, {
+        onError(e) {
+            setError({ title: 'Error Creating User!', message: e.message })
+        },
+        onCompleted({ createUser }) {
+            setSuccess(
+                `${createUser.firstName}'s account has been successfully created!`
+            )
+            setLoading(false)
             setEmail('')
             setFirstName('')
             setLastName('')
-        }
+            setPassword('')
+            setUserType('Employee')
+        },
     })
 
-    const [update2, { loading: loading2, data: deleteData, error: error2 }] = useMutation(DeleteUser, {
-        onCompleted(deleteData) {
-            if (deleteData) window.alert(`User with this ID: ${deleteID} has been deleted`)
-            else window.alert(`Error`)
-
-            setDeleteID('')
-        }
+    const [deleteUser, { loading: deleteLoading }] = useMutation(DeleteUser, {
+        onError(e) {
+            setError({ title: 'Error Deleting User!', message: e.message })
+        },
+        onCompleted({ deleteUser }) {
+            setLoading(false)
+            if (deleteUser) {
+                setSuccess('User successfully deleted!')
+                setDeleteEmail('')
+            } else {
+                setError({
+                    title: 'Error Deleting User!',
+                    message: 'Unable to find a user with that email.',
+                })
+            }
+        },
     })
 
-    const { loading: loading3, error: error3, data: data3, refetch: refetch3, networkStatus: networkStatus3 } = useQuery(
-        GetUserByID,
-        {
-            variables: { id: userID },
-            notifyOnNetworkStatusChange: true
-        }
-    )
+    // Set loading to true if anything is loading
+    useEffect(() => {
+        if (createLoading || deleteLoading) setLoading(true)
+    }, [createLoading, deleteLoading])
 
-    /*
-    const [update3, { loading: loading3, data: data3, error: error3 }] = useMutation(AdjustMaxes, {
-        onCompleted(data3) {
-            if (data3) window.alert(`Weekly Max: ${weeklyMax}, Daily Max: ${dailyMax}`)
-            else window.alert(`Error`)
-        }
-    })
-    */
-
-    const [firebaseID, setFirebaseID] = useState('')
-    const [email, setEmail] = useState('')
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
-    const [userType, setUserType] = useState('')
-    const [deleteID, setDeleteID] = useState('')
-    const [weeklyMax, setWeeklyMax] = useState(null)
-    const [dailyMax, setDailyMax] = useState(null)
-
-    if (loading3) return <p>Loading...</p>
-   if (error3) return <p>Error :( {JSON.stringify(error2)}</p>
-   if (networkStatus3 === 4) return <p>Refetching...</p>
-
-    const renderRow = (state, setState, placeholder) => {
-        return (
-            <TextInput
-                placeholder={placeholder}
-                type='text'
-                value={state}
-                borderColor={(state === '' || state === 0 || state === null) && 'red'}
-                onChange={e => setState(e.target.value)}
-            />
-
-        )
+    const handleDeleteUser = async (e) => {
+        e.preventDefault()
+        deleteUser({ variables: { email: formatEmail(deleteEmail) } })
     }
 
-    const renderSubmitButton = () => {
-        const validation = () => {
-            if (firebaseID !== '' && email !== '' && firstName !== '' && lastName !== '' && userType !== '') {
-                update({
+    const formatEmail = (state) => {
+        if (state.includes('@')) return state
+        else return `${state}@islander.tamucc.edu`
+    }
+
+    const handleCreateUser = async (e) => {
+        e.preventDefault()
+        if (firstName.length < 1) {
+            setError({
+                title: 'Cannot Create user.',
+                message: 'A first name is required.',
+            })
+        } else if (lastName.length < 1) {
+            setError({
+                title: 'Cannot Create user.',
+                message: 'A last name is required.',
+            })
+        } else {
+            try {
+                //    Create user in firebase for authentication
+                const {
+                    user: { uid: firebaseID, email: firebaseEmail },
+                } = await fb
+                    .auth()
+                    .createUserWithEmailAndPassword(
+                        formatEmail(email),
+                        password
+                    )
+                // Create user in the database to store information
+                createUser({
                     variables: {
-                        firebaseID: firebaseID,
+                        firebaseID,
                         first: firstName,
                         last: lastName,
-                        email: email,
-                        userType: userType
-                    }
+                        userType,
+                        email: firebaseEmail,
+                    },
                 })
-
+            } catch (e) {
+                setError({ title: 'Error Creating User!', message: e.message })
             }
-            //call api
         }
-        return (
-            <PrimaryButton onClick={() => validation()}>Create User</PrimaryButton>
-        )
     }
 
-    const renderDeleteButton = () => {
-        const validation = () => {
-            if (deleteID !== '' ) {
-                update2({
-                    variables: {
-                        id: deleteID
-                    }
-                })
-
-            }
-            //call api
+    const genericAlert = (type) => {
+        let onPress = () => setSuccess(false)
+        let title = 'Success!'
+        let message = success
+        let variant = 'success'
+        if (type === 'error') {
+            onPress = () => setError(false)
+            title = error.title
+            message = error.message
+            variant = 'danger'
         }
         return (
-            <PrimaryButton onClick={() => validation()}>Delete User</PrimaryButton>
-        )
-    }
+            <Alert
+                style={{ position: 'absolute', top: '3vh', right: '40vw' }}
+                variant={variant}
+                onClose={onPress}
+                dismissible
+            >
+                <Alert.Heading>{title}</Alert.Heading>
+                <p>{message}</p>
+                <hr />
 
-    const renderHoursButton = () => {
-        const validation = () => {
-            if (weeklyMax !== 0 && dailyMax !== 0) {
-                localStorage.setItem('currentWeeklyMax', weeklyMax)
-                localStorage.setItem('currentDailyMax', dailyMax)
-            }
-            console.log('TEST 123')
-            window.alert('New weekly and daily maxes have been set.')
-            //console.log(localStorage.getItem('currentWeeklyMax'))
-            setWeeklyMax(null)
-            setDailyMax(null)
-        }
-        return (
-            <PrimaryButton onClick={() => validation()}>Adjust Hour Maxes</PrimaryButton>
-        )
-    }
-
-    const adminCheck = () => {
-        if(data3.getUserByID.userType === 'Admin')
-		{
-            return(
-                <div>
-                    <h1>Admin</h1>
-
-                    <h2>Create</h2>
-                    {renderRow(firebaseID, setFirebaseID, 'firebase ID')}
-                    {renderRow(email, setEmail, 'email')}
-                    {renderRow(firstName, setFirstName, 'first name')}
-                    {renderRow(lastName, setLastName, 'last name')}
-                    {renderRow(userType, setUserType, 'user type')}
-                    {renderSubmitButton()}
-
-                    <h2>Delete</h2>
-
-                    {renderRow(deleteID, setDeleteID, 'ID')}
-                    {renderDeleteButton()}
-
-                    <h2>Hours</h2>
-
-                    {renderRow(weeklyMax, setWeeklyMax, 'weekly max')}
-                    {renderRow(dailyMax, setDailyMax, 'daily max')}
-                    {renderHoursButton()}    
+                <div className='d-flex justify-content-end'>
+                    <PrimaryButton onClick={onPress} variant='outline-success'>
+                        Okay
+                    </PrimaryButton>
                 </div>
-            )
-        }
-        else {
-            return(
-                <div>
-                    <h1>
-                        This is an admin only page!<br></br>If you are seeing this,<br></br>please leave this page immediately
-                    </h1>
-                </div>
-            )
-        }
+            </Alert>
+        )
     }
 
-    // const { loading, error, data, refetch, networkStatus } = useQuery(
-    //     GetUserByID,
-    //     {
-    //         variables: { id: '5e795c57a7e84353d4d1d47b' },
-    //         notifyOnNetworkStatusChange: true
-    //     }
-    // )
-    // if (loading) return <p>Loading...</p>
-    // if (error) return <p>Error :( {JSON.stringify(error)}</p>
-    // if (networkStatus === 4) return <p>Refetching...</p>
+    const renderErrorAlert = () => {
+        return genericAlert('error')
+    }
+
+    const renderSuccessAlert = () => {
+        return genericAlert('success')
+    }
+
     return (
-        <div>
-            {adminCheck()}
-            {/* <h1>Admin</h1>
-
+        <div style={{ width: '80%' }}>
+            <h1>Admin</h1>
+            {error && renderErrorAlert()}
+            {success && renderSuccessAlert()}
             <h2>Create</h2>
-            {renderRow(firebaseID, setFirebaseID, 'firebase ID')}
-            {renderRow(email, setEmail, 'email')}
-            {renderRow(firstName, setFirstName, 'first name')}
-            {renderRow(lastName, setLastName, 'last name')}
-            {renderRow(userType, setUserType, 'user type')}
-            {renderSubmitButton()}
-
+            <Form onSubmit={(e) => handleCreateUser(e)}>
+                <Form.Row>
+                    <UsernameInput
+                        as={Col}
+                        containerStyle={{ width: '100%' }}
+                        onChange={(text) => setEmail(text)}
+                    />
+                    <Form.Group as={Col} controlId='formGridPassword'>
+                        <Form.Label>Password</Form.Label>
+                        <Form.Control
+                            onChange={({ target: { value } }) =>
+                                setPassword(value)
+                            }
+                            type='password'
+                            placeholder='Password...'
+                        />
+                    </Form.Group>
+                </Form.Row>
+                <Form.Row>
+                    <Form.Group as={Col}>
+                        <Form.Label>First Name</Form.Label>
+                        <Form.Control
+                            onChange={({ target: { value } }) =>
+                                setFirstName(value)
+                            }
+                            type='text'
+                            placeholder='First Name...'
+                        />
+                    </Form.Group>
+                    <Form.Group as={Col}>
+                        <Form.Label>Last Name</Form.Label>
+                        <Form.Control
+                            onChange={({ target: { value } }) =>
+                                setLastName(value)
+                            }
+                            type='text'
+                            placeholder='Last Name...'
+                        />
+                    </Form.Group>
+                </Form.Row>
+                <ListGroup as='ul'>
+                    <ListGroup.Item
+                        as='li'
+                        onClick={() => setUserType('Employee')}
+                        active={userType === 'Employee'}
+                    >
+                        Employee
+                    </ListGroup.Item>
+                    <ListGroup.Item
+                        active={userType === 'Admin'}
+                        onClick={() => setUserType('Admin')}
+                        as='li'
+                    >
+                        Admin
+                    </ListGroup.Item>
+                </ListGroup>
+                <PrimaryButton disabled={loading || error} type='submit'>
+                    Create User
+                </PrimaryButton>
+            </Form>
             <h2>Delete</h2>
-
-            {renderRow(deleteID, setDeleteID, 'ID')}
-            {renderDeleteButton()}
-
-            <h2>Hours</h2>
-
-            {renderRow(weeklyMax, setWeeklyMax, weeklyMax.value)}
-            {renderRow(dailyMax, setDailyMax, dailyMax.value)}
-            {renderHoursButton()}     */}
-
-            {/* <h2>Example page for getting/refetching data</h2> */}
-            {/* <h1>Name: {data.getUserByID.firstName}</h1> */}
-            {/* <button onClick={() => refetch()}>Refetch.</button> */}
-            {/* <h3>This is some settings content</h3> */}
+            <Form onSubmit={(e) => handleDeleteUser(e)}>
+                <UsernameInput
+                    containerStyle={{ width: '30%' }}
+                    onChange={(text) => setDeleteEmail(text)}
+                />
+                <PrimaryButton disabled={loading || error} type='submit'>
+                    Delete User
+                </PrimaryButton>
+            </Form>
+            {/* <h2>Hours</h2>
+            <Form>
+                <Form.Group>
+                    <Form.Label>Weekly Max</Form.Label>
+                    <Form.Control type='text' placeholder='Weekly Max' />
+                </Form.Group>
+                <Form.Group>
+                    <Form.Label>Daily Max</Form.Label>
+                    <Form.Control type='text' placeholder='Daily Max' />
+                </Form.Group>
+                <PrimaryButton type='submit'>
+                Adjust Hour Maxes
+            </PrimaryButton>
+                {renderHoursButton()}
+            </Form> */}
         </div>
     )
 }
