@@ -22,6 +22,8 @@ import { useQuery, useMutation } from '@apollo/react-hooks'
 import { GetUserByID, GetAllUsersId } from './../API/Queries/User'
 import AutoPopulate from './../Functions/AutoPopulation'
 import { UpdateUser } from './../API/Mutations/User'
+import {CreateBlackout} from './../API/Mutations/Blackout'
+import {GetBlackouts} from './../API/Queries/Blackout'
 
 moment.locale('en')
 const localizer = momentLocalizer(moment)
@@ -34,6 +36,35 @@ export default function Schedule(props) {
     const [blackoutStart, setBlackoutStart] = useState('')
     const [blackoutEnd, setBlackoutEnd] = useState('')
     const [AutoPopulationSchedule, setAutoPopulationSchedule] = useState([])
+    const [blackoutDates, setBlackoutDates] = useState([])
+
+    const [addBlackout] = useMutation(CreateBlackout)
+    const userID = localStorage.getItem('currentUserID')
+    const [updateShifts] = useMutation(UpdateUsersShifts)
+
+    const { loading, error, data: userData, refetch, networkStatus } = useQuery(
+        GetUserByID,
+        {
+            variables: { id: userID },
+            notifyOnNetworkStatusChange: true,
+        }
+    )
+
+    const {
+        loading: loading2,
+        error: error2,
+        data: multipleUserData,
+        refetch: refetch2,
+        networkStatus: netStat2,
+    } = useQuery(GetAllUsersId)
+
+    const {
+        loading: loading3,
+        error: error3,
+        data: data3,
+        refetch: refetch3,
+        networkStatus: netStat3,
+    } = useQuery(GetBlackouts)
 
     //useEffect => what to do after the component is rendered
     useEffect(() => {
@@ -52,7 +83,25 @@ export default function Schedule(props) {
                 color: '#18fc03',
             },
         ])
-    }, [])
+
+        const onCompleted = data3 => {
+			let temp = []
+			//console.log('GOT HERE')
+			data3.getBlackouts.forEach(({start, end}) => {
+                let startDate = new Date(start)
+                let endDate = new Date(end)
+                //console.log(startDate, '\n', endDate)
+                temp.push({start: startDate, end: endDate})
+                //console.log(temp)
+            })
+            //console.log(temp)
+            setBlackoutDates(temp)
+			//console.log(blackoutDates)
+		}
+
+        if (!loading3 && !error3) onCompleted(data3)
+
+    }, [loading3, data3, error3])
 
     const handleSelect = ({ start, end }) => {
         const title = window.prompt('New Event name')
@@ -99,37 +148,42 @@ export default function Schedule(props) {
 
     //Handles the coloring of blackout days
     const handleBlackoutDate = (date) => {
-        let blackoutStartDate = new Date(blackoutStart)
-        let blackoutStartDate2 = new Date(blackoutEnd)
+        ///console.log(blackoutDates)
+        for(let i in blackoutDates)
+        {
+            //console.log(blackoutDates[i].start.toISOString(), '\n', blackoutDates[i].end.toISOString())
+            let blackoutStartDate = blackoutDates[i].start
+            let blackoutStartDate2 = blackoutDates[i].end
 
-        Date.prototype.addDays = function (days) {
-            var date = new Date(this.valueOf())
-            date.setDate(date.getDate() + days)
-            return date
-        }
-
-        function getDates(startDate, stopDate) {
-            var dateArray = new Array()
-            var currentDate = startDate
-            while (currentDate <= stopDate) {
-                dateArray.push(new Date(currentDate))
-                currentDate = currentDate.addDays(1)
+            Date.prototype.addDays = function (days) {
+                var date = new Date(this.valueOf())
+                date.setDate(date.getDate() + days)
+                return date
             }
-            return dateArray
-        }
 
-        let arr = getDates(blackoutStartDate, blackoutStartDate2)
+            function getDates(startDate, stopDate) {
+                var dateArray = new Array()
+                var currentDate = startDate
+                while (currentDate <= stopDate) {
+                    dateArray.push(new Date(currentDate))
+                    currentDate = currentDate.addDays(1)
+                }
+                return dateArray
+            }
 
-        for (let x in arr) {
-            if (
-                date.getDate() === arr[x].getDate() &&
-                date.getMonth() === arr[x].getMonth() &&
-                date.getFullYear() === arr[x].getFullYear()
-            ) {
-                return {
-                    style: {
-                        backgroundColor: '#000',
-                    },
+            let arr = getDates(blackoutStartDate, blackoutStartDate2)
+
+            for (let x in arr) {
+                if (
+                    date.getDate() === arr[x].getDate() &&
+                    date.getMonth() === arr[x].getMonth() &&
+                    date.getFullYear() === arr[x].getFullYear()
+                ) {
+                    return {
+                        style: {
+                            backgroundColor: '#000',
+                        },
+                    }
                 }
             }
         }
@@ -167,25 +221,6 @@ export default function Schedule(props) {
         )
     }
 
-    const userID = localStorage.getItem('currentUserID')
-    const [updateShifts] = useMutation(UpdateUsersShifts)
-
-    const { loading, error, data: userData, refetch, networkStatus } = useQuery(
-        GetUserByID,
-        {
-            variables: { id: userID },
-            notifyOnNetworkStatusChange: true,
-        }
-    )
-
-    const {
-        loading: loading2,
-        error: error2,
-        data: multipleUserData,
-        refetch: refetch2,
-        networkStatus: netStat2,
-    } = useQuery(GetAllUsersId)
-
     //const { loading, error, data:userIds, refetch, networkStatus } = useQuery(getAllUsersId)
 
     if (loading) return <p>Loading...</p>
@@ -194,26 +229,117 @@ export default function Schedule(props) {
 
     const sendAutoPopulatedShiftsToDB = () => {
         const formattedForDB = {}
-        AutoPopulationSchedule.forEach((shift, index) => {
+        AutoPopulationSchedule.forEach((shift) => {
             const { id, ...rest } = shift
-            const myPushObj = {
-                ...rest,
-                start: rest.start.toISOString(),
-                end: rest.end.toISOString(),
-
-                // Change these two later
-                //_id: id,
-                color: 'blue',
+            let nextWeek
+            const allShifts = []
+            let currentWeek = 0
+            const numberOfWeeks = 20
+            while (currentWeek < numberOfWeeks) {
+                nextWeek = { ...rest }
+                nextWeek.start = new Date(shift.start)
+                nextWeek.end = new Date(shift.end)
+                nextWeek.start.setDate(
+                    nextWeek.start.getDate() + currentWeek * 7
+                )
+                nextWeek.end.setDate(nextWeek.end.getDate() + currentWeek * 7)
+                nextWeek.start = nextWeek.start.toISOString()
+                nextWeek.end = nextWeek.end.toISOString()
+                nextWeek.color = 'blue'
+                allShifts.push(nextWeek)
+                currentWeek++
             }
-            if (id in formattedForDB) formattedForDB[id].shifts.push(myPushObj)
-            else {
+            if (id in formattedForDB) {
+                formattedForDB[id].shifts = formattedForDB[id].shifts.concat(
+                    allShifts
+                )
+            } else {
                 formattedForDB[id] = {}
                 formattedForDB[id]._id = id
-                formattedForDB[id].shifts = [myPushObj]
+                formattedForDB[id].shifts = [...allShifts]
             }
         })
+        console.log(formattedForDB[`5e85411d6872e7001ec57743`])
         const myVar = Object.values(formattedForDB)
+        //console.log(myVar)
         updateShifts({ variables: { users: myVar } })
+    }
+
+    // const sendAutoPopulatedShiftsToDB = () => {
+    //     const formattedForDB = {}
+    //     AutoPopulationSchedule.forEach((shift, index) => {
+    //         if(shift.id === "5e85411d6872e7001ec57743")
+    //         {
+    //             console.log('STRING SHIFT', shift)
+    //         }
+    //         let nextWeek
+    //         let weeks = []
+    //         let i = 1
+    //         while (i < 3)
+    //         {
+    //             nextWeek = {...shift}
+    //             // let sStart = shift.start
+    //             // let sEnd = shift.end
+    //             nextWeek.start = new Date(shift.start)
+    //             nextWeek.start.setDate(nextWeek.start.getDate()+i*7)
+    //             nextWeek.end = new Date(shift.end)
+    //             nextWeek.end.setDate(nextWeek.end.getDate()+i*7)
+    //             // nextWeek.start.setDate(sStart.getDate()+(7))
+    //             // nextWeek.end.setDate(sEnd.getDate()+(7))
+    //             // if(nextWeek.id === "5e85411d6872e7001ec57743")
+    //             // {
+    //             //     console.log('Next Week', nextWeek)
+    //             // }
+    //             nextWeek.start = nextWeek.start.toISOString()
+    //             nextWeek.end = nextWeek.end.toISOString()
+    //             // if(nextWeek.id === "5e85411d6872e7001ec57743")
+    //             // {
+    //             //     console.log('Next Week2', nextWeek)
+    //             // }
+    //             nextWeek.color = 'blue'
+    //             delete nextWeek.id
+    //             weeks.push(nextWeek)
+    //             //console.log(weeks)
+    //             i++
+    //         }
+    //         //console.log('This is the added shifts going to the database', weeks)
+    //         const { id, ...rest } = shift
+    //         const myPushObj = {
+    //             ...rest,
+    //             start: rest.start.toISOString(),
+    //             end: rest.end.toISOString(),
+
+    //             // Change these two later
+    //             //_id: id,
+    //             color: 'blue',
+    //         }
+    //         // let test = []
+    //         // test.push([myPushObj,...weeks])
+    //         // console.log(myPushObj)
+    //         // console.log('testtesttest', test)
+    //         if (id in formattedForDB){ 
+    //             // console.log('pushobj', myPushObj)
+    //             // console.log('weeks', weeks)
+    //             if(id === "5e85411d6872e7001ec57743") console.log('some string so we can see',[myPushObj,...weeks])
+    //             formattedForDB[id].shifts.concat([myPushObj,...weeks])
+    //         }
+    //         else {
+    //             if(id === "5e85411d6872e7001ec57743") console.log('got in the else', [myPushObj,...weeks])
+    //             formattedForDB[id] = {}
+    //             formattedForDB[id]._id = id
+    //             formattedForDB[id].shifts = [myPushObj,...weeks]
+    //         }
+    //     })
+    //     console.log(formattedForDB[`5e85411d6872e7001ec57743`])
+    //     const myVar = Object.values(formattedForDB)
+    //     //console.log(myVar)
+    //     updateShifts({ variables: { users: myVar } })
+    // }
+
+    const sendBlackOutToDB = () => {
+        console.log(blackoutStart, blackoutEnd)
+        console.log(blackoutStart.toISOString(), blackoutEnd.toISOString())
+        addBlackout({ variables: { start: blackoutStart.toISOString(), end: blackoutEnd.toISOString() } })
     }
 
     // AutoPopulationSchedule.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
@@ -255,6 +381,7 @@ export default function Schedule(props) {
     //     })
     //     setAutoPopulationSchedule(newArr)
     // }
+
     return (
         <Card
             style={{
@@ -284,6 +411,27 @@ export default function Schedule(props) {
                     )}
                 </Swatch>
                 {renderBlackout()}
+
+                <div>
+                    <PrimaryButton
+                        style={{
+                            //clear:'left',
+                            align: 'left',
+                        }}
+                        onClick={(e) => sendBlackOutToDB()}
+                    >
+                        Submit Blackouts To Database
+                    </PrimaryButton>
+
+                    <div
+                        style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}
+                    ></div>
+                </div>
+
 
                 <DraggableCalendar
                     selectable

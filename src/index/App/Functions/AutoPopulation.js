@@ -537,5 +537,5 @@ export default function AutoPopulation(props) {
 
         const { loading, error, data, refetch, networkStatus } = useQuery(GetAllUsers)
 
-        return <PrimaryButton onClick={() => props.todo(autoPopulate())}>auto</PrimaryButton>
+        return <PrimaryButton onClick={() => props.todo(autoPopulate())}>Auto Populate</PrimaryButton>
 }

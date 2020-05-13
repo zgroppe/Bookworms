@@ -4,6 +4,7 @@ end
 color
 value
 _id
+available
 `
 
 export const UserData = `

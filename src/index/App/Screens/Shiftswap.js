@@ -229,7 +229,5 @@ export default function Shiftswap(props) {
 			{renderApprovalBoard()}
 		</div>
 		</Card>
-
-
 	)
 }
