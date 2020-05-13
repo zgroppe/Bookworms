@@ -27,7 +27,7 @@
         "semantic-ui-react": "^0.88.2",
         "styled-components": "^5.0.1"
     },
-    "homepage": "http://zgroppe.github.io/Indays",
+    "homepage": "https://zgroppe.github.io/Bookworms",
     "scripts": {
         "start": "react-scripts start",
         "file": "npx destiny src/**/*.*",
