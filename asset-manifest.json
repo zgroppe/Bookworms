@@ -1,0 +1,27 @@
+{
+  "files": {
+    "main.css": "/Indays/static/css/main.02374e06.chunk.css",
+    "main.js": "/Indays/static/js/main.48c896e6.chunk.js",
+    "main.js.map": "/Indays/static/js/main.48c896e6.chunk.js.map",
+    "runtime-main.js": "/Indays/static/js/runtime-main.0876bcc2.js",
+    "runtime-main.js.map": "/Indays/static/js/runtime-main.0876bcc2.js.map",
+    "static/css/2.b54b1ec3.chunk.css": "/Indays/static/css/2.b54b1ec3.chunk.css",
+    "static/js/2.f350fa8c.chunk.js": "/Indays/static/js/2.f350fa8c.chunk.js",
+    "static/js/2.f350fa8c.chunk.js.map": "/Indays/static/js/2.f350fa8c.chunk.js.map",
+    "index.html": "/Indays/index.html",
+    "precache-manifest.b224cd987fd64d7d8fa5e65254ce412e.js": "/Indays/precache-manifest.b224cd987fd64d7d8fa5e65254ce412e.js",
+    "service-worker.js": "/Indays/service-worker.js",
+    "static/css/2.b54b1ec3.chunk.css.map": "/Indays/static/css/2.b54b1ec3.chunk.css.map",
+    "static/css/main.02374e06.chunk.css.map": "/Indays/static/css/main.02374e06.chunk.css.map",
+    "static/js/2.f350fa8c.chunk.js.LICENSE.txt": "/Indays/static/js/2.f350fa8c.chunk.js.LICENSE.txt",
+    "static/media/IndaysLogo.png": "/Indays/static/media/IndaysLogo.de1409c4.png",
+    "static/media/index.css": "/Indays/static/media/background3.476e815d.jpg"
+  },
+  "entrypoints": [
+    "static/js/runtime-main.0876bcc2.js",
+    "static/css/2.b54b1ec3.chunk.css",
+    "static/js/2.f350fa8c.chunk.js",
+    "static/css/main.02374e06.chunk.css",
+    "static/js/main.48c896e6.chunk.js"
+  ]
+}
