@@ -8,7 +8,7 @@ export default function Navbar() {
     const screensToRender = [...Screens]
     if (user.userType != 'Admin') {
         const foundIndex = screensToRender.findIndex(
-            ({ name }) => name == 'Admin'
+            ({ name }) => name === 'Admin' || name === 'Schedule'
         )
         screensToRender.splice(foundIndex, 1)
     }
