@@ -8,7 +8,7 @@ export default function Navbar() {
     let screensToRender = [...Screens]
     if (user.userType != 'Admin') {
         screensToRender = screensToRender.filter(
-            ({ name }) => name !== 'Admin' || name !== 'Schedule'
+            ({ name }) => name !== 'Admin' && name !== 'Schedule'
         )
     }
     return (
