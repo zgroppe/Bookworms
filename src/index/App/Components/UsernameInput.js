@@ -2,12 +2,12 @@ import React, { useState } from 'react'
 import Form from 'react-bootstrap/Form'
 import InputGroup from 'react-bootstrap/InputGroup'
 import FormControl from 'react-bootstrap/FormControl'
+import { Icon, Input } from 'semantic-ui-react'
 export default function UsernameInput(props) {
     const {
-        style = {},
-        containerStyle = {},
+        containerStyle = { flexDirection: 'column', display: 'flex' },
         onChange = (value) => console.log(value),
-        as = 'row',
+        value = '',
     } = props
 
     const [appendEmail, setAppendEmail] = useState('@islander.tamucc.edu')
@@ -25,28 +25,58 @@ export default function UsernameInput(props) {
     }
 
     return (
-        <Form.Group as={as}>
-            <Form.Label>Username</Form.Label>
-            <InputGroup style={containerStyle}>
-                <FormControl
-                    placeholder='Username...'
-                    aria-label='Username'
+        <Form.Group style={containerStyle}>
+            <Form.Label>Email</Form.Label>
+            <div style={{ display: 'contents' }}>
+                <Input
+                    icon='user outline'
+                    iconPosition='left'
                     onChange={({ target: { value } }) =>
                         handleTextChanged(value)
                     }
-                    style={style}
+                    placeholder='Email...'
+                    aria-label='Email'
                     autoComplete='username'
                     type='text'
+                    value={value}
                 />
                 {appendEmail.length > 0 && (
                     <InputGroup.Append>
                         <InputGroup.Text>{appendEmail}</InputGroup.Text>
                     </InputGroup.Append>
                 )}
-            </InputGroup>
+            </div>
             <Form.Text className='text-muted'>
                 We'll never share this email with anyone else.
             </Form.Text>
         </Form.Group>
+        // <Form.Group
+        //     // as={as}
+        //     style={{ flexDirectoin: 'column', display: 'flex' }}
+        // >
+        //     <Form.Label>Username</Form.Label>
+        //     <InputGroup style={containerStyle}>
+        //         <Input
+        //             icon='user outline'
+        //             iconPosition='left'
+        //             onChange={({ target: { value } }) =>
+        //                 handleTextChanged(value)
+        //             }
+        //             placeholder='Username...'
+        //             aria-label='Username'
+        //             style={style}
+        //             autoComplete='username'
+        //             type='text'
+        //         />
+        //         {appendEmail.length > 0 && (
+        //             <InputGroup.Append>
+        //                 <InputGroup.Text>{appendEmail}</InputGroup.Text>
+        //             </InputGroup.Append>
+        //         )}
+        //     </InputGroup>
+        //     <Form.Text className='text-muted'>
+        //         We'll never share this email with anyone else.
+        //     </Form.Text>
+        // </Form.Group>
     )
 }

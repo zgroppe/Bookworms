@@ -6,8 +6,7 @@ import { CreateUser, DeleteUser } from '../API/Mutations/User'
 import Form from 'react-bootstrap/Form'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Col from 'react-bootstrap/Col'
-import InputGroup from 'react-bootstrap/InputGroup'
-import FormControl from 'react-bootstrap/FormControl'
+import { Input, Button } from 'semantic-ui-react'
 import fb from './../../../firebase'
 import Alert from 'react-bootstrap/Alert'
 import UsernameInput from './../Components/UsernameInput'
@@ -20,7 +19,7 @@ export default function Admin(props) {
     const [password, setPassword] = useState('')
     const [firstName, setFirstName] = useState('')
     const [lastName, setLastName] = useState('')
-    const [userType, setUserType] = useState('Employee')
+    const [isEmployee, setIsEmployee] = useState(true)
     const [deleteEmail, setDeleteEmail] = useState('')
     // const [weeklyMax, setWeeklyMax] = useState(null)
     // const [dailyMax, setDailyMax] = useState(null)
@@ -31,15 +30,15 @@ export default function Admin(props) {
             setError({ title: 'Error Creating User!', message: e.message })
         },
         onCompleted({ createUser }) {
-            setSuccess(
-                `${createUser.firstName}'s account has been successfully created!`
-            )
-            setLoading(false)
             setEmail('')
             setFirstName('')
             setLastName('')
             setPassword('')
-            setUserType('Employee')
+            setSuccess(
+                `${createUser.firstName}'s account has been successfully created!`
+            )
+            setLoading(false)
+            setIsEmployee(true)
         },
     })
 
@@ -105,7 +104,7 @@ export default function Admin(props) {
                         firebaseID,
                         first: firstName,
                         last: lastName,
-                        userType,
+                        userType: isEmployee ? 'Employee' : 'Admin',
                         email: firebaseEmail,
                     },
                 })
@@ -154,77 +153,122 @@ export default function Admin(props) {
         return genericAlert('success')
     }
 
+    const renderInput = ({
+        title,
+        onChange,
+        type = 'text',
+        icon,
+        autoComplete,
+        value,
+    }) => {
+        return (
+            <Form.Group
+                style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
+            >
+                <Form.Label>{title}</Form.Label>
+                <Input
+                    icon={icon}
+                    iconPosition={'left'}
+                    onChange={({ target: { value } }) => onChange(value)}
+                    type={type}
+                    placeholder={`${title}...`}
+                    autoComplete={autoComplete}
+                    value={value}
+                />
+            </Form.Group>
+        )
+    }
+
     return (
         <div style={{ width: '80%' }}>
             <h1>Admin</h1>
             {error && renderErrorAlert()}
             {success && renderSuccessAlert()}
             <h2>Create</h2>
-            <Form onSubmit={(e) => handleCreateUser(e)}>
-                <Form.Row>
+            <Form
+                style={{ width: '80%' }}
+                onSubmit={(e) => handleCreateUser(e)}
+            >
+                <Form.Row style={{ width: '85%' }}>
                     <UsernameInput
-                        as={Col}
-                        containerStyle={{ width: '100%' }}
+                        containerStyle={{
+                            display: 'flex',
+                            width: '50%',
+                            flexDirection: 'column',
+                        }}
                         onChange={(text) => setEmail(text)}
+                        value={email}
                     />
-                    <Form.Group as={Col} controlId='formGridPassword'>
-                        <Form.Label>Password</Form.Label>
-                        <Form.Control
-                            onChange={({ target: { value } }) =>
-                                setPassword(value)
-                            }
-                            type='password'
-                            placeholder='Password...'
-                        />
-                    </Form.Group>
+                    {renderInput({
+                        title: 'Password',
+                        autoComplete: 'password',
+                        icon: 'lock',
+                        onChange: setPassword,
+                        value: password,
+                    })}
                 </Form.Row>
-                <Form.Row>
-                    <Form.Group as={Col}>
-                        <Form.Label>First Name</Form.Label>
-                        <Form.Control
-                            onChange={({ target: { value } }) =>
-                                setFirstName(value)
-                            }
-                            type='text'
-                            placeholder='First Name...'
-                        />
-                    </Form.Group>
-                    <Form.Group as={Col}>
-                        <Form.Label>Last Name</Form.Label>
-                        <Form.Control
-                            onChange={({ target: { value } }) =>
-                                setLastName(value)
-                            }
-                            type='text'
-                            placeholder='Last Name...'
-                        />
-                    </Form.Group>
+                <Form.Row
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        width: '85%',
+                    }}
+                >
+                    {renderInput({
+                        title: 'First Name',
+                        onChange: setFirstName,
+                        value: firstName,
+                    })}
+                    {renderInput({
+                        title: 'Last Name',
+                        onChange: setLastName,
+                        value: lastName,
+                    })}
                 </Form.Row>
-                <ListGroup as='ul'>
-                    <ListGroup.Item
-                        as='li'
-                        onClick={() => setUserType('Employee')}
-                        active={userType === 'Employee'}
-                    >
-                        Employee
-                    </ListGroup.Item>
-                    <ListGroup.Item
-                        active={userType === 'Admin'}
-                        onClick={() => setUserType('Admin')}
-                        as='li'
-                    >
-                        Admin
-                    </ListGroup.Item>
-                </ListGroup>
-                <PrimaryButton disabled={loading || error} type='submit'>
-                    Create User
-                </PrimaryButton>
+                <div
+                    style={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        width: '50%',
+                    }}
+                >
+                    <Form.Label>User Type</Form.Label>
+                    <Button.Group toggle={true}>
+                        <Button
+                            type='button'
+                            onClick={() => setIsEmployee(true)}
+                            positive={isEmployee}
+                        >
+                            Employee
+                        </Button>
+                        <Button.Or />
+                        <Button
+                            type='button'
+                            onClick={() => setIsEmployee(false)}
+                            positive={!isEmployee}
+                        >
+                            Admin
+                        </Button>
+                    </Button.Group>
+                    <PrimaryButton disabled={loading || error} type='submit'>
+                        Create User
+                    </PrimaryButton>
+                </div>
             </Form>
+            <hr height={2} fill={'black'} />
             <h2>Delete</h2>
-            <Form onSubmit={(e) => handleDeleteUser(e)}>
+            <Form
+                style={{ width: '80%' }}
+                onSubmit={(e) => handleDeleteUser(e)}
+            >
                 <UsernameInput
-                    containerStyle={{ width: '30%' }}
+                    containerStyle={{
+                        display: 'flex',
+                        width: '42%',
+                        flexDirection: 'column',
+                    }}
                     onChange={(text) => setDeleteEmail(text)}
+                    value={deleteEmail}
                 />
                 <PrimaryButton disabled={loading || error} type='submit'>
                     Delete User
