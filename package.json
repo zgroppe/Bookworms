@@ -27,9 +27,13 @@
         "semantic-ui-react": "^0.88.2",
         "styled-components": "^5.0.1"
     },
+    "homepage": "http://zgroppe.github.io/Indays",
     "scripts": {
         "start": "react-scripts start",
-        "file": "npx destiny src/**/*.*"
+        "file": "npx destiny src/**/*.*",
+        "predeploy": "npm run build",
+        "build": "react-scripts build",
+        "deploy": "gh-pages -d build"
     },
     "eslintConfig": {
         "extends": "react-app"
@@ -45,5 +49,8 @@
             "last 1 firefox version",
             "last 1 safari version"
         ]
+    },
+    "devDependencies": {
+        "gh-pages": "^2.2.0"
     }
 }
