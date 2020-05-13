@@ -99,7 +99,7 @@ export default function Login(props) {
                 localStorage.setItem('currentUserID', _id)
                 localStorage.setItem('currentUserFirebaseID', firebaseID)
                 setUser(UserFromFirebaseID.getUserByFirebaseID)
-                props.history.push('/Admin')
+                props.history.push('/overview')
             } else {
                 // They have a firebase account but no database account
                 localStorage.clear()
