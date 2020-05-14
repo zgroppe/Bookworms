@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
+import {AuthContext} from './../Components/Auth'
 import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import {
     Card,
@@ -30,6 +31,7 @@ const localizer = momentLocalizer(moment)
 const DraggableCalendar = withDragAndDrop(Calendar)
 
 export default function Schedule(props) {
+    //State variables
     const [myEventsList, setMyEventsList] = useState([])
     const [colorPicked, setColorPicked] = useState('red')
     const [displayColorPicker, setDisplayColorPicker] = useState(false)
@@ -38,18 +40,24 @@ export default function Schedule(props) {
     const [AutoPopulationSchedule, setAutoPopulationSchedule] = useState([])
     const [blackoutDates, setBlackoutDates] = useState([])
 
+    //Context var to allow for ease in access to current user info
+    const {user} = useContext(AuthContext)
+    //const userID = localStorage.getItem('currentUserID')
+    
+    //Database mutation declarations, for the create blackout and update user shifts mutations
     const [addBlackout] = useMutation(CreateBlackout)
-    const userID = localStorage.getItem('currentUserID')
     const [updateShifts] = useMutation(UpdateUsersShifts)
 
+    //Database query declaration for the get user by ID query
     const { loading, error, data: userData, refetch, networkStatus } = useQuery(
         GetUserByID,
         {
-            variables: { id: userID },
+            variables: { id: user._id },
             notifyOnNetworkStatusChange: true,
         }
     )
 
+    //Database query declaration for the get all users by ID query
     const {
         loading: loading2,
         error: error2,
@@ -58,6 +66,7 @@ export default function Schedule(props) {
         networkStatus: netStat2,
     } = useQuery(GetAllUsersId)
 
+    //Database query declaration for the get all blackouts query
     const {
         loading: loading3,
         error: error3,
@@ -66,24 +75,25 @@ export default function Schedule(props) {
         networkStatus: netStat3,
     } = useQuery(GetBlackouts)
 
-    //useEffect => what to do after the component is rendered
+    //useEffect => what to do after the components are rendered
     useEffect(() => {
-        //calling setMyEventsList to set hardcoded list
+        //Setup example setMyEventsList list
         setMyEventsList([
             {
-                title: 'Employee 1',
+                title: 'EXAMPLE Employee 1',
                 start: new Date(2020, 1, 23, 5),
                 end: new Date(2020, 1, 23, 18),
                 color: '#fc0373',
             },
             {
-                title: 'Employee 3',
+                title: 'EXAMPLE Employee 3',
                 start: new Date(2020, 1, 25, 10),
                 end: new Date(2020, 1, 25, 16),
                 color: '#18fc03',
             },
         ])
 
+        //On completed function, essentially checking for that of the correct loading of the blackout dates into the file
         const onCompleted = data3 => {
 			let temp = []
 			//console.log('GOT HERE')
@@ -99,10 +109,11 @@ export default function Schedule(props) {
 			//console.log(blackoutDates)
 		}
 
+        //Call for onComplete function given certain data
         if (!loading3 && !error3) onCompleted(data3)
-
     }, [loading3, data3, error3])
 
+    //Calendar function that handles that of the creation of new calendar events
     const handleSelect = ({ start, end }) => {
         const title = window.prompt('New Event name')
         if (title)
@@ -112,13 +123,16 @@ export default function Schedule(props) {
             ])
     }
 
+    //Handles color changes using our color changer (MAY DELETE)
     const handleColorChangeComplete = (color, event) =>
         setColorPicked(color, () => setDisplayColorPicker(!displayColorPicker))
 
+    //Establishes base event
     const Event = ({ event }) => {
         return <p style={{ color: 'yellow' }}>{event.title}</p>
     }
 
+    //Calendar function that handles the movement of calendar events
     const moveEvent = ({ event, start, end }) => {
         let { title, color } = event
         let tempArr = myEventsList.filter((item) => item !== event)
@@ -126,6 +140,7 @@ export default function Schedule(props) {
         setMyEventsList(tempArr)
     }
 
+    //Calendar function that handles the resizing of calendar events
     const resizeEvent = ({ event, start, end }) => {
         let index = myEventsList.indexOf(event)
         let { title, color } = event
@@ -134,6 +149,7 @@ export default function Schedule(props) {
         setMyEventsList(tempArr)
     }
 
+    //Calendar function that handles the deletion of calendar events
     const handleDelete = (event) => {
         const check = window.confirm(
             '\nDelete this event: Ok - YES, Cancel - NO'
@@ -148,19 +164,21 @@ export default function Schedule(props) {
 
     //Handles the coloring of blackout days
     const handleBlackoutDate = (date) => {
-        ///console.log(blackoutDates)
+        //Loop going through all potential blackout dates
         for(let i in blackoutDates)
         {
-            //console.log(blackoutDates[i].start.toISOString(), '\n', blackoutDates[i].end.toISOString())
+            //Gets our start and end of any particular blackout range
             let blackoutStartDate = blackoutDates[i].start
             let blackoutStartDate2 = blackoutDates[i].end
 
+            //Function adding day object time
             Date.prototype.addDays = function (days) {
                 var date = new Date(this.valueOf())
                 date.setDate(date.getDate() + days)
                 return date
             }
 
+            //Function finding all the days inbetween the beginning and end of the stated blackout range
             function getDates(startDate, stopDate) {
                 var dateArray = new Array()
                 var currentDate = startDate
@@ -171,8 +189,11 @@ export default function Schedule(props) {
                 return dateArray
             }
 
+            //Array containing all the blackout days in a given blackout range
             let arr = getDates(blackoutStartDate, blackoutStartDate2)
 
+            //Function going through all of the blackout days in a given range and making the their cells in the calendar
+            //blacked out
             for (let x in arr) {
                 if (
                     date.getDate() === arr[x].getDate() &&
@@ -189,15 +210,16 @@ export default function Schedule(props) {
         }
     }
 
+    //Handles the rendering of any given blackout
     const renderBlackout = () => {
+        //Function rendering our chosen date picker, and then using said dates for blackout day selection
         const renderDatePicker = (statename, functionName) => {
             return (
                 <DatePicker
                     selected={statename}
-                    onSelect={(date) => functionName(date)} //when day is clicked
+                    onSelect={(date) => functionName(date)}
                     minDate={statename === blackoutEnd && blackoutStart}
                     maxDate={statename === blackoutStart && blackoutEnd}
-                    //   onChange={this.handleChange} //only when value has changed
                 />
             )
         }
@@ -211,30 +233,34 @@ export default function Schedule(props) {
                 }}
             >
                 <div style={{ display: 'flex' }}>
-                    <h3>Start</h3>
+                    <h3>Blackout Start</h3>
                     {renderDatePicker(blackoutStart, setBlackoutStart)}
                 
-                <h3>End</h3>
+                    <h3>Blackout End</h3>
                     {renderDatePicker(blackoutEnd, setBlackoutEnd)}
                 </div>
             </div>
         )
     }
 
-    //const { loading, error, data:userIds, refetch, networkStatus } = useQuery(getAllUsersId)
-
+    //Database checking things
     if (loading) return <p>Loading...</p>
     if (error) return <p>Error :( {JSON.stringify(error)}</p>
     if (networkStatus === 4) return <p>Refetching...</p>
 
+    //Function handling the sending of shifts to the database
     const sendAutoPopulatedShiftsToDB = () => {
         const formattedForDB = {}
+
+        //Loop going through all auto populated shifts
         AutoPopulationSchedule.forEach((shift) => {
             const { id, ...rest } = shift
             let nextWeek
             const allShifts = []
             let currentWeek = 0
             const numberOfWeeks = 20
+
+            //This loop goes through, and adds additional shifts based off of our 20 week work period
             while (currentWeek < numberOfWeeks) {
                 nextWeek = { ...rest }
                 nextWeek.start = new Date(shift.start)
@@ -249,6 +275,8 @@ export default function Schedule(props) {
                 allShifts.push(nextWeek)
                 currentWeek++
             }
+
+            //This if else statement goes in and formats auto populated and added shifts for sending to the database
             if (id in formattedForDB) {
                 formattedForDB[id].shifts = formattedForDB[id].shifts.concat(
                     allShifts
@@ -259,9 +287,11 @@ export default function Schedule(props) {
                 formattedForDB[id].shifts = [...allShifts]
             }
         })
-        console.log(formattedForDB[`5e85411d6872e7001ec57743`])
+
+        //This takes in all shifts formatted for the database
         const myVar = Object.values(formattedForDB)
-        //console.log(myVar)
+
+        //This sends all shifts to the database in one go
         updateShifts({ variables: { users: myVar } })
     }
 
@@ -336,9 +366,12 @@ export default function Schedule(props) {
     //     updateShifts({ variables: { users: myVar } })
     // }
 
+    //Function handling the sending of selected blackout date range to the database
     const sendBlackOutToDB = () => {
-        console.log(blackoutStart, blackoutEnd)
-        console.log(blackoutStart.toISOString(), blackoutEnd.toISOString())
+        //console.log(blackoutStart, blackoutEnd)
+        //console.log(blackoutStart.toISOString(), blackoutEnd.toISOString())
+
+        //Sends current blackout range to the database
         addBlackout({ variables: { start: blackoutStart.toISOString(), end: blackoutEnd.toISOString() } })
     }
 
@@ -395,11 +428,8 @@ export default function Schedule(props) {
                     fontSize: '48px',
                     //clear:'left'
                 }}>Schedule</TitleText>
-                <h3 style={{ color: colorPicked }}>
-                    This is some schedule content
-                </h3>
-                <h3>First Name: {userData.getUserByID.firstName}</h3>
-                <Swatch
+                <h3>Blackout Calendar</h3>
+                {/* <Swatch
                     onClick={() => setDisplayColorPicker(!displayColorPicker)}
                 >
                     <Color color={colorPicked.hex} />
@@ -409,7 +439,7 @@ export default function Schedule(props) {
                             onChange={handleColorChangeComplete}
                         />
                     )}
-                </Swatch>
+                </Swatch> */}
                 {renderBlackout()}
 
                 <div>
@@ -432,16 +462,15 @@ export default function Schedule(props) {
                     ></div>
                 </div>
 
-
                 <DraggableCalendar
                     selectable
                     localizer={localizer}
                     events={myEventsList}
                     views={['month', 'week']}
                     defaultView={Views.WEEK}
-                    defaultDate={new Date(2020, 1, 25)}
-                    onSelectEvent={handleDelete}
-                    onSelectSlot={handleSelect}
+                    //defaultDate={new Date(2020, 1, 25)}
+                    //onSelectEvent={handleDelete}
+                    //onSelectSlot={handleSelect}
                     style={{ height: '80vh', width: '1450px' }}
                     dayPropGetter={handleBlackoutDate}
                     eventPropGetter={(event) => ({
@@ -473,6 +502,7 @@ export default function Schedule(props) {
                 />
 
                 {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
+                <h3>Auto Population Calendar</h3>
                 <AutoPopulate
                     todo={(fromChild) => setAutoPopulationSchedule(fromChild)}
                 />
