@@ -1,6 +1,7 @@
 import { gql } from 'apollo-boost'
 import { UserData } from '../UserDataConstant'
 
+//API hook for the database mutation UpdateUsersShifts
 export const UpdateUsersShifts = gql`
     mutation UpdateUsersShifts($users: [UpdateUserShift!]!) {
         updateUsersShifts(users: $users) {
@@ -9,6 +10,7 @@ export const UpdateUsersShifts = gql`
     }
 `
 
+//API hook for the database mutation AddTradeBoardShifts
 export const AddTradeBoardShift = gql`
     mutation addTradeBoardShift(
         $shiftID: String!,
@@ -21,6 +23,7 @@ export const AddTradeBoardShift = gql`
     }
 `
 
+//API hook for the database mutation RemoveTradeBoardShift
 export const RemoveTradeBoardShift = gql`
     mutation removeTradeBoardShift(
         $shiftID: String!,
@@ -33,6 +36,7 @@ export const RemoveTradeBoardShift = gql`
     }
 `
 
+//API hook for the database mutation AddPendingShift
 export const AddPendingShift = gql`
     mutation addPendingShift(
         $toUserID: String!,
@@ -47,6 +51,7 @@ export const AddPendingShift = gql`
     }
 `
 
+//API hook for the database mutation AcceptPendingShift
 export const AcceptPendingShift = gql`
     mutation acceptPendingShift(
         $shiftID: String!
@@ -57,6 +62,7 @@ export const AcceptPendingShift = gql`
     }
 `
 
+//API hook for the database mutation DeclinePendingShift
 export const DeclinePendingShift = gql`
     mutation declinePendingShift(
         $shiftID: String!
