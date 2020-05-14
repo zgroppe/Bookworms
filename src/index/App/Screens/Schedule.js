@@ -1,31 +1,23 @@
-import React, { useState, useEffect, useContext } from 'react'
-import {AuthContext} from './../Components/Auth'
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
-import {
-    Card,
-    Hyperlink,
-    PrimaryButton,
-    SubtitleText,
-    TextInput,
-    TitleText,
-} from './../Styles/StyledComponents'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
+import { useMutation, useQuery } from '@apollo/react-hooks'
 import moment from 'moment'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import '../Styles/Schedule.css'
-import { Swatch, Color } from '../Styles/StyledComponents'
-import { HuePicker } from 'react-color'
+import React, { useContext, useEffect, useState } from 'react'
+import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
 import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
+import 'react-big-calendar/lib/css/react-big-calendar.css'
+import DatePicker from 'react-datepicker'
+import 'react-datepicker/dist/react-datepicker.css'
 import { UpdateUsersShifts } from '../API/Mutations/Shifts'
-import { useQuery, useMutation } from '@apollo/react-hooks'
-import { GetUserByID, GetAllUsersId } from './../API/Queries/User'
+import '../Styles/Schedule.css'
+import { CreateBlackout } from './../API/Mutations/Blackout'
+import { GetBlackouts } from './../API/Queries/Blackout'
+import { GetAllUsersId, GetUserByID } from './../API/Queries/User'
+import { AuthContext } from './../Components/Auth'
 import AutoPopulate from './../Functions/AutoPopulation'
-import { UpdateUser } from './../API/Mutations/User'
-import {CreateBlackout} from './../API/Mutations/Blackout'
-import {GetBlackouts} from './../API/Queries/Blackout'
+import { Card, PrimaryButton, TitleText } from './../Styles/StyledComponents'
+import Form from 'react-bootstrap/Form'
 
+//Global stuff
 moment.locale('en')
 const localizer = momentLocalizer(moment)
 const DraggableCalendar = withDragAndDrop(Calendar)
@@ -39,10 +31,11 @@ export default function Schedule(props) {
     const [blackoutEnd, setBlackoutEnd] = useState('')
     const [AutoPopulationSchedule, setAutoPopulationSchedule] = useState([])
     const [blackoutDates, setBlackoutDates] = useState([])
+    const [weeklyMax, setWeeklyMax] = useState(null)
+    const [dailyMax, setDailyMax] = useState(null)
 
     //Context var to allow for ease in access to current user info
     const {user} = useContext(AuthContext)
-    //const userID = localStorage.getItem('currentUserID')
     
     //Database mutation declarations, for the create blackout and update user shifts mutations
     const [addBlackout] = useMutation(CreateBlackout)
@@ -258,7 +251,7 @@ export default function Schedule(props) {
             let nextWeek
             const allShifts = []
             let currentWeek = 0
-            const numberOfWeeks = 20
+            const numberOfWeeks = 50
 
             //This loop goes through, and adds additional shifts based off of our 20 week work period
             while (currentWeek < numberOfWeeks) {
@@ -295,125 +288,27 @@ export default function Schedule(props) {
         updateShifts({ variables: { users: myVar } })
     }
 
-    // const sendAutoPopulatedShiftsToDB = () => {
-    //     const formattedForDB = {}
-    //     AutoPopulationSchedule.forEach((shift, index) => {
-    //         if(shift.id === "5e85411d6872e7001ec57743")
-    //         {
-    //             console.log('STRING SHIFT', shift)
-    //         }
-    //         let nextWeek
-    //         let weeks = []
-    //         let i = 1
-    //         while (i < 3)
-    //         {
-    //             nextWeek = {...shift}
-    //             // let sStart = shift.start
-    //             // let sEnd = shift.end
-    //             nextWeek.start = new Date(shift.start)
-    //             nextWeek.start.setDate(nextWeek.start.getDate()+i*7)
-    //             nextWeek.end = new Date(shift.end)
-    //             nextWeek.end.setDate(nextWeek.end.getDate()+i*7)
-    //             // nextWeek.start.setDate(sStart.getDate()+(7))
-    //             // nextWeek.end.setDate(sEnd.getDate()+(7))
-    //             // if(nextWeek.id === "5e85411d6872e7001ec57743")
-    //             // {
-    //             //     console.log('Next Week', nextWeek)
-    //             // }
-    //             nextWeek.start = nextWeek.start.toISOString()
-    //             nextWeek.end = nextWeek.end.toISOString()
-    //             // if(nextWeek.id === "5e85411d6872e7001ec57743")
-    //             // {
-    //             //     console.log('Next Week2', nextWeek)
-    //             // }
-    //             nextWeek.color = 'blue'
-    //             delete nextWeek.id
-    //             weeks.push(nextWeek)
-    //             //console.log(weeks)
-    //             i++
-    //         }
-    //         //console.log('This is the added shifts going to the database', weeks)
-    //         const { id, ...rest } = shift
-    //         const myPushObj = {
-    //             ...rest,
-    //             start: rest.start.toISOString(),
-    //             end: rest.end.toISOString(),
-
-    //             // Change these two later
-    //             //_id: id,
-    //             color: 'blue',
-    //         }
-    //         // let test = []
-    //         // test.push([myPushObj,...weeks])
-    //         // console.log(myPushObj)
-    //         // console.log('testtesttest', test)
-    //         if (id in formattedForDB){ 
-    //             // console.log('pushobj', myPushObj)
-    //             // console.log('weeks', weeks)
-    //             if(id === "5e85411d6872e7001ec57743") console.log('some string so we can see',[myPushObj,...weeks])
-    //             formattedForDB[id].shifts.concat([myPushObj,...weeks])
-    //         }
-    //         else {
-    //             if(id === "5e85411d6872e7001ec57743") console.log('got in the else', [myPushObj,...weeks])
-    //             formattedForDB[id] = {}
-    //             formattedForDB[id]._id = id
-    //             formattedForDB[id].shifts = [myPushObj,...weeks]
-    //         }
-    //     })
-    //     console.log(formattedForDB[`5e85411d6872e7001ec57743`])
-    //     const myVar = Object.values(formattedForDB)
-    //     //console.log(myVar)
-    //     updateShifts({ variables: { users: myVar } })
-    // }
-
     //Function handling the sending of selected blackout date range to the database
     const sendBlackOutToDB = () => {
-        //console.log(blackoutStart, blackoutEnd)
-        //console.log(blackoutStart.toISOString(), blackoutEnd.toISOString())
-
         //Sends current blackout range to the database
         addBlackout({ variables: { start: blackoutStart.toISOString(), end: blackoutEnd.toISOString() } })
     }
 
-    // AutoPopulationSchedule.sort(function (a, b) { return new Date(a.start) - new Date(b.start); })
-    // console.log('Sorted AutoPop', AutoPopulationSchedule)
-
-    //FOR EMPLOYEE
-    // const handleDropShift = event => {
-    //     const check = window.confirm(
-    //         '\nDrop this shift: Ok - YES, Cancel - NO'
-    //     )
-    //     if (check) {
-    //         let badDropAttempted = false
-    //         if (
-    //             event.start.getDate() >= blackoutStart.getDate() &&
-    //             event.start.getDate() <= blackoutEnd.getDate() &&
-    //             event.start.getMonth() == blackoutStart.getMonth() &&
-    //                 event.start.getMonth() == blackoutEnd.getMonth() &&
-    //             event.start.getFullYear() == blackoutStart.getFullYear() &&
-    //                 event.start.getFullYear() == blackoutEnd.getFullYear()
-    //         ) {
-    //             badDropAttempted = true
-    //         }
-
-    //         if (!badDropAttempted) {
-    //             let deleteSpot = myPreferencesList.indexOf(event)
-    //             let tempArray = [...myPreferencesList]
-    //             tempArray.splice(deleteSpot, 1)
-    //             setMyPreferencesList(tempArray)
-    //         }
-    //         //Other shift drop stuff
-    //     }
-    // }
-
-    // const reformatAutoPop = (arr) => {
-    //     let newArr = []
-    //     arr.forEach(({ assigned, shiftTime }) => {
-    //         let newObj = { title: assigned.emp, start: new Date(2020, 2, 29, shiftTime, 0, 0), end: new Date(2020, 2, 29, shiftTime + 1, 0, 0) }
-    //         newArr.push(newObj)
-    //     })
-    //     setAutoPopulationSchedule(newArr)
-    // }
+    //Handles the rendering and actions of the adjust weekly and daily max hours local storage vars
+    const renderHoursButton = () => {
+        //Function ensuring the safe adjustment of our targeted variables
+        const validation = () => {
+            if (weeklyMax !== 0 && dailyMax !== 0) {
+                localStorage.setItem('currentWeeklyMax', weeklyMax)
+                localStorage.setItem('currentDailyMax', dailyMax)
+            }
+            setWeeklyMax(null)
+            setDailyMax(null)
+        }
+        return (
+            <PrimaryButton onClick={() => validation()}>Adjust Hour Maxes</PrimaryButton>
+        )
+    }
 
     return (
         <Card
@@ -426,7 +321,6 @@ export default function Schedule(props) {
                     textAlign: 'left',
                     position: 'flex',
                     fontSize: '48px',
-                    //clear:'left'
                 }}>Schedule</TitleText>
                 <h3>Blackout Calendar</h3>
                 {/* <Swatch
@@ -445,7 +339,6 @@ export default function Schedule(props) {
                 <div>
                     <PrimaryButton
                         style={{
-                            //clear:'left',
                             align: 'left',
                         }}
                         onClick={(e) => sendBlackOutToDB()}
@@ -468,9 +361,6 @@ export default function Schedule(props) {
                     events={myEventsList}
                     views={['month', 'week']}
                     defaultView={Views.WEEK}
-                    //defaultDate={new Date(2020, 1, 25)}
-                    //onSelectEvent={handleDelete}
-                    //onSelectSlot={handleSelect}
                     style={{ height: '80vh', width: '1450px' }}
                     dayPropGetter={handleBlackoutDate}
                     eventPropGetter={(event) => ({
@@ -482,17 +372,10 @@ export default function Schedule(props) {
                     })}
                     slotPropGetter={() => ({
                         style: {
-                            // backgroundColor: 'red',
-                            // borderColor: 'red'
                             border: 'none',
-                            // display: 'flex',
                             alignItems: 'center',
                         },
                     })}
-                    // titleAccessor={function(e) {
-                    // 	console.log(e);
-                    // 	return e.title;
-                    // }}
                     components={{
                         event: Event,
                     }}
@@ -501,8 +384,24 @@ export default function Schedule(props) {
                     onEventResize={resizeEvent}
                 />
 
-                {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
                 <h3>Auto Population Calendar</h3>
+
+                <h2>Hours</h2>
+                <Form>
+                    <Form.Group>
+                        <Form.Label>Weekly Max</Form.Label>
+                        <Form.Control type='text' placeholder='Weekly Max' />
+                    </Form.Group>
+                    <Form.Group>
+                        <Form.Label>Daily Max</Form.Label>
+                        <Form.Control type='text' placeholder='Daily Max' />
+                    </Form.Group>
+                    <PrimaryButton type='submit'>
+                    Adjust Hour Maxes
+                </PrimaryButton>
+                    {renderHoursButton()}
+                </Form>
+
                 <AutoPopulate
                     todo={(fromChild) => setAutoPopulationSchedule(fromChild)}
                 />
@@ -510,7 +409,6 @@ export default function Schedule(props) {
                 <div>
                     <PrimaryButton
                         style={{
-                            //clear:'left',
                             align: 'left',
                         }}
                         onClick={(e) => sendAutoPopulatedShiftsToDB()}
@@ -533,7 +431,6 @@ export default function Schedule(props) {
                     events={AutoPopulationSchedule}
                     views={['month', 'week']}
                     defaultView={Views.WEEK}
-                    defaultDate={new Date(2020, 2, 29)}
                     onSelectEvent={handleDelete}
                     onSelectSlot={handleSelect}
                     style={{ height: '80vh', width: '1450px' }}
@@ -547,17 +444,10 @@ export default function Schedule(props) {
                     })}
                     slotPropGetter={() => ({
                         style: {
-                            // backgroundColor: 'red',
-                            // borderColor: 'red'
                             border: 'none',
-                            // display: 'flex',
                             alignItems: 'center',
                         },
                     })}
-                    // titleAccessor={function(e) {
-                    // 	console.log(e);
-                    // 	return e.title;
-                    // }}
                     components={{
                         event: Event,
                     }}
