@@ -1,8 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react'
 import { useMutation, useLazyQuery } from '@apollo/react-hooks'
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
-import moment from 'moment'
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
 import {
     RemoveTradeBoardShift,
     AddPendingShift,
@@ -16,9 +13,7 @@ import { SuccessAlert, ErrorAlert } from './../Components/Alerts'
 import LoadingSpinner from './../Components/LoadingSpinner'
 import Alert from 'react-bootstrap/Alert'
 import Button from 'react-bootstrap/Button'
-moment.locale('en')
-const localizer = momentLocalizer(moment)
-const DraggableCalendar = withDragAndDrop(Calendar)
+import MyCalendar from './../Components/Calendar'
 
 export default function Shiftswap() {
     const [tradeBoardShifts, setTradeBoardShifts] = useState([])
@@ -35,12 +30,16 @@ export default function Shiftswap() {
         GetTradeBoardShifts,
         {
             onCompleted({ getTradeBoardShifts }) {
+                console.log({ getTradeBoardShifts })
+
                 const formattedShifts = getTradeBoardShifts.map((shift) => {
                     const { start, end } = shift
                     let startDate = new Date(start)
                     let endDate = new Date(end)
                     return { ...shift, start: startDate, end: endDate }
                 })
+                console.log({ formattedShifts })
+
                 setTradeBoardShifts(formattedShifts)
             },
             onError({ message }) {
@@ -193,31 +192,10 @@ export default function Shiftswap() {
         let events = []
         if (user.userType === 'Admin') events = pendingApprovalShifts
         else if (user.userType === 'Employee') events = tradeBoardShifts
-
-        const Event = ({ event }) => {
-            return <p style={{ color: 'yellow' }}>{event.title}</p>
-        }
         return (
-            <DraggableCalendar
-                selectable
-                localizer={localizer}
+            <MyCalendar
                 events={events}
-                views={['month', 'week']}
-                defaultView={Views.WEEK}
-                defaultDate={new Date(2020, 1, 25)}
                 onSelectEvent={(event) => setSelectedEvent(event)}
-                style={{ align: 'center', height: '80vh', width: '1450px' }}
-                eventPropGetter={(event) => ({
-                    style: {
-                        backgroundColor: event.color,
-                        alignSelf: 'center',
-                        alignContent: 'center',
-                    },
-                })}
-                slotPropGetter={() => ({
-                    style: { border: 'none', alignItems: 'center' },
-                })}
-                components={{ event: Event }}
             />
         )
     }

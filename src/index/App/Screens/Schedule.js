@@ -1,10 +1,6 @@
 import { useMutation, useQuery } from '@apollo/react-hooks'
-import moment from 'moment'
 import React, { useContext, useEffect, useState } from 'react'
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
+
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 import { UpdateUsersShifts } from '../API/Mutations/Shifts'
@@ -16,11 +12,7 @@ import { AuthContext } from './../Components/Auth'
 import AutoPopulate from './../Functions/AutoPopulation'
 import { Card, PrimaryButton, TitleText } from './../Styles/StyledComponents'
 import Form from 'react-bootstrap/Form'
-
-//Global stuff
-moment.locale('en')
-const localizer = momentLocalizer(moment)
-const DraggableCalendar = withDragAndDrop(Calendar)
+import MyCalendar from './../Components/Calendar'
 
 export default function Schedule(props) {
     //State variables
@@ -35,8 +27,8 @@ export default function Schedule(props) {
     const [dailyMax, setDailyMax] = useState(null)
 
     //Context var to allow for ease in access to current user info
-    const {user} = useContext(AuthContext)
-    
+    const { user } = useContext(AuthContext)
+
     //Database mutation declarations, for the create blackout and update user shifts mutations
     const [addBlackout] = useMutation(CreateBlackout)
     const [updateShifts] = useMutation(UpdateUsersShifts)
@@ -87,20 +79,20 @@ export default function Schedule(props) {
         ])
 
         //On completed function, essentially checking for that of the correct loading of the blackout dates into the file
-        const onCompleted = data3 => {
-			let temp = []
-			//console.log('GOT HERE')
-			data3.getBlackouts.forEach(({start, end}) => {
+        const onCompleted = (data3) => {
+            let temp = []
+            //console.log('GOT HERE')
+            data3.getBlackouts.forEach(({ start, end }) => {
                 let startDate = new Date(start)
                 let endDate = new Date(end)
                 //console.log(startDate, '\n', endDate)
-                temp.push({start: startDate, end: endDate})
+                temp.push({ start: startDate, end: endDate })
                 //console.log(temp)
             })
             //console.log(temp)
             setBlackoutDates(temp)
-			//console.log(blackoutDates)
-		}
+            //console.log(blackoutDates)
+        }
 
         //Call for onComplete function given certain data
         if (!loading3 && !error3) onCompleted(data3)
@@ -158,8 +150,7 @@ export default function Schedule(props) {
     //Handles the coloring of blackout days
     const handleBlackoutDate = (date) => {
         //Loop going through all potential blackout dates
-        for(let i in blackoutDates)
-        {
+        for (let i in blackoutDates) {
             //Gets our start and end of any particular blackout range
             let blackoutStartDate = blackoutDates[i].start
             let blackoutStartDate2 = blackoutDates[i].end
@@ -228,7 +219,7 @@ export default function Schedule(props) {
                 <div style={{ display: 'flex' }}>
                     <h3>Blackout Start</h3>
                     {renderDatePicker(blackoutStart, setBlackoutStart)}
-                
+
                     <h3>Blackout End</h3>
                     {renderDatePicker(blackoutEnd, setBlackoutEnd)}
                 </div>
@@ -291,7 +282,12 @@ export default function Schedule(props) {
     //Function handling the sending of selected blackout date range to the database
     const sendBlackOutToDB = () => {
         //Sends current blackout range to the database
-        addBlackout({ variables: { start: blackoutStart.toISOString(), end: blackoutEnd.toISOString() } })
+        addBlackout({
+            variables: {
+                start: blackoutStart.toISOString(),
+                end: blackoutEnd.toISOString(),
+            },
+        })
     }
 
     //Handles the rendering and actions of the adjust weekly and daily max hours local storage vars
@@ -306,7 +302,9 @@ export default function Schedule(props) {
             setDailyMax(null)
         }
         return (
-            <PrimaryButton onClick={() => validation()}>Adjust Hour Maxes</PrimaryButton>
+            <PrimaryButton onClick={() => validation()}>
+                Adjust Hour Maxes
+            </PrimaryButton>
         )
     }
 
@@ -317,11 +315,15 @@ export default function Schedule(props) {
             }}
         >
             <div>
-            <TitleText style={{
-                    textAlign: 'left',
-                    position: 'flex',
-                    fontSize: '48px',
-                }}>Schedule</TitleText>
+                <TitleText
+                    style={{
+                        textAlign: 'left',
+                        position: 'flex',
+                        fontSize: '48px',
+                    }}
+                >
+                    Schedule
+                </TitleText>
                 <h3>Blackout Calendar</h3>
                 {/* <Swatch
                     onClick={() => setDisplayColorPicker(!displayColorPicker)}
@@ -355,13 +357,8 @@ export default function Schedule(props) {
                     ></div>
                 </div>
 
-                <DraggableCalendar
-                    selectable
-                    localizer={localizer}
+                <MyCalendar
                     events={myEventsList}
-                    views={['month', 'week']}
-                    defaultView={Views.WEEK}
-                    style={{ height: '80vh', width: '1450px' }}
                     dayPropGetter={handleBlackoutDate}
                     eventPropGetter={(event) => ({
                         style: {
@@ -370,16 +367,6 @@ export default function Schedule(props) {
                             alignContent: 'center',
                         },
                     })}
-                    slotPropGetter={() => ({
-                        style: {
-                            border: 'none',
-                            alignItems: 'center',
-                        },
-                    })}
-                    components={{
-                        event: Event,
-                    }}
-                    draggableAccessor={(event) => true}
                     onEventDrop={moveEvent}
                     onEventResize={resizeEvent}
                 />
@@ -397,8 +384,8 @@ export default function Schedule(props) {
                         <Form.Control type='text' placeholder='Daily Max' />
                     </Form.Group>
                     <PrimaryButton type='submit'>
-                    Adjust Hour Maxes
-                </PrimaryButton>
+                        Adjust Hour Maxes
+                    </PrimaryButton>
                     {renderHoursButton()}
                 </Form>
 
@@ -425,32 +412,11 @@ export default function Schedule(props) {
                     ></div>
                 </div>
 
-                <DraggableCalendar
-                    selectable
-                    localizer={localizer}
+                <MyCalendar
                     events={AutoPopulationSchedule}
-                    views={['month', 'week']}
-                    defaultView={Views.WEEK}
                     onSelectEvent={handleDelete}
                     onSelectSlot={handleSelect}
-                    style={{ height: '80vh', width: '1450px' }}
                     dayPropGetter={handleBlackoutDate}
-                    eventPropGetter={(event) => ({
-                        style: {
-                            backgroundColor: event.color,
-                            alignSelf: 'center',
-                            alignContent: 'center',
-                        },
-                    })}
-                    slotPropGetter={() => ({
-                        style: {
-                            border: 'none',
-                            alignItems: 'center',
-                        },
-                    })}
-                    components={{
-                        event: Event,
-                    }}
                     draggableAccessor={(event) => true}
                     onEventDrop={moveEvent}
                     onEventResize={resizeEvent}

@@ -1,18 +1,15 @@
 // Importation of modules, APIs, etc.
-import { useMutation, useQuery } from '@apollo/react-hooks'
-import moment from 'moment'
+import { useMutation } from '@apollo/react-hooks'
 import React, { useEffect, useState, useContext } from 'react'
-import { Calendar, momentLocalizer, Views } from 'react-big-calendar'
-import withDragAndDrop from 'react-big-calendar/lib/addons/dragAndDrop'
-import 'react-big-calendar/lib/addons/dragAndDrop/styles.css'
-import 'react-big-calendar/lib/css/react-big-calendar.css'
-import 'react-datepicker/dist/react-datepicker.css'
+import { Views } from 'react-big-calendar'
 import Dropdown from 'react-dropdown'
 import 'react-dropdown/style.css'
 import { UpdateUser } from '../API/Mutations/User'
 import '../Styles/Login.css'
 import '../Styles/Schedule.css'
 import { AuthContext } from './../Components/Auth'
+
+import MyCalendar from './../Components/Calendar'
 // import styling for the page
 import {
     Card,
@@ -21,8 +18,7 @@ import {
     TextInput,
     TitleText,
 } from './../Styles/StyledComponents'
-moment.locale('en')
-const localizer = momentLocalizer(moment)
+
 // styling options
 const options = [
     { value: -100, label: 'In-Class', color: 'darkred' },
@@ -32,7 +28,6 @@ const options = [
 ]
 
 // calander which will display the days for the employee
-const DraggableCalendar = withDragAndDrop(Calendar)
 const DAYS = [
     {
         value: 0,
@@ -77,7 +72,7 @@ export default function Account(props) {
     // Declaration for the mutation to update user attributes
     const [update, { data, loading }] = useMutation(UpdateUser)
 
-    //Declaration for the preference list, as well as saving/pushing the preferences to an array 
+    //Declaration for the preference list, as well as saving/pushing the preferences to an array
     const reFormatPreferenceList = (prefArray) => {
         let temp = []
         prefArray.forEach(({ title, start, end, color, value }) => {
@@ -159,8 +154,8 @@ export default function Account(props) {
             setMyPreferencesList(tempArr)
         }
 
-            // window which will give the user the choice to proceed or decline the delete action
-            const handleDeletePreference = (event) => {
+        // window which will give the user the choice to proceed or decline the delete action
+        const handleDeletePreference = (event) => {
             const check = window.confirm(
                 '\nDelete this event: Ok - YES, Cancel - NO'
             )
@@ -188,7 +183,6 @@ export default function Account(props) {
                     endingDate = `March ${29 + copyTo.value}`
                 }
 
-                
                 if (
                     copyFrom !== 'Select' ||
                     copyTo !== 'Select' ||
@@ -220,9 +214,8 @@ export default function Account(props) {
 
             return (
                 <div>
-                    
                     <TitleText
-                    //styling for the preferences tag
+                        //styling for the preferences tag
                         style={{
                             fontSize: '3rem',
                             textAlign: 'left',
@@ -231,7 +224,7 @@ export default function Account(props) {
                         Preferences
                     </TitleText>
                     <PrimaryButton
-                    // button to log the state of the preferences
+                        // button to log the state of the preferences
                         style={{
                             align: 'left',
                         }}
@@ -240,7 +233,7 @@ export default function Account(props) {
                         Log State
                     </PrimaryButton>
                     <PrimaryButton
-                    // button to handle copying the preferences
+                        // button to handle copying the preferences
                         style={{
                             align: 'left',
                         }}
@@ -255,7 +248,7 @@ export default function Account(props) {
                         }}
                     >
                         <Dropdown
-                        // dropdown list to choose an option for the preferences for the beginning of the shift
+                            // dropdown list to choose an option for the preferences for the beginning of the shift
                             options={options}
                             onChange={(x) => setDropdownValue(x)}
                             value={dropdownValue}
@@ -264,7 +257,7 @@ export default function Account(props) {
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <SubtitleText>From</SubtitleText>
                             <Dropdown
-                        // dropdown list to choose an option for the preferences for the end of the shift
+                                // dropdown list to choose an option for the preferences for the end of the shift
                                 options={DAYS}
                                 onChange={(x) => setCopyFrom(x)}
                                 value={copyFrom}
@@ -304,7 +297,7 @@ export default function Account(props) {
             <div>
                 {renderCopyPreference()}
                 <PrimaryButton
-                // button to call the function to submit all of the preferences to the database
+                    // button to call the function to submit all of the preferences to the database
                     style={{
                         //clear:'left',
                         align: 'left',
@@ -334,37 +327,15 @@ export default function Account(props) {
                     }}
                 ></div>
 
-                <DraggableCalendar 
-                //Preferences calendar
-                    selectable
-                    localizer={localizer}
+                <MyCalendar
+                    //Preferences calendar
+                    defaultDate={new Date(2020, 2, 29)}
                     toolbar={false}
                     formats={formats}
                     events={myPreferencesList}
                     view={Views.WEEK}
-                    defaultDate={new Date(2020, 2, 29)}
                     onSelectEvent={handleDeletePreference}
                     onSelectSlot={handleSelectPreference}
-                    style={{ align: 'center', width: '100%' }}
-                    eventPropGetter={(event) => ({
-                        style: {
-                            backgroundColor: event.color,
-                            alignSelf: 'center',
-                            alignContent: 'center',
-                        },
-                    })}
-                    slotPropGetter={() => ({
-                        //left pane, time
-                        style: {
-                            border: 'none',
-                            alignItems: 'center',
-                        },
-                    })}
-                    dayPropGetter={() => ({
-                        style: {
-                            alignItems: 'flex-start',
-                        },
-                    })}
                     draggableAccessor={(event) => true}
                     onEventDrop={movePreference}
                     onEventResize={resizePreference}
@@ -419,7 +390,7 @@ export default function Account(props) {
                 >
                     Account Information
                 </TitleText>
-               
+
                 <h3
                     style={{
                         textAlign: 'start',
@@ -432,7 +403,7 @@ export default function Account(props) {
                 {renderRow('firstName', 'First Name')}
                 {renderRow('lastName', 'Last Name')}
                 <PrimaryButton
-                // button to save the changes made to the employees account and pusht hem to the database
+                    // button to save the changes made to the employees account and pusht hem to the database
                     style={{
                         display: 'block',
                     }}
