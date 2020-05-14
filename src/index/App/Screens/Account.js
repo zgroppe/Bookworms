@@ -1,3 +1,4 @@
+// Importation of modules, APIs, etc.
 import { useMutation, useQuery } from '@apollo/react-hooks'
 import moment from 'moment'
 import React, { useEffect, useState, useContext } from 'react'
@@ -12,6 +13,7 @@ import { UpdateUser } from '../API/Mutations/User'
 import '../Styles/Login.css'
 import '../Styles/Schedule.css'
 import { AuthContext } from './../Components/Auth'
+// import styling for the page
 import {
     Card,
     PrimaryButton,
@@ -21,6 +23,7 @@ import {
 } from './../Styles/StyledComponents'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
+// styling options
 const options = [
     { value: -100, label: 'In-Class', color: 'darkred' },
     { value: -1, label: 'Unpreferred', color: 'red' },
@@ -28,6 +31,7 @@ const options = [
     { value: 1, label: 'Preferred', color: 'green' },
 ]
 
+// calander which will display the days for the employee
 const DraggableCalendar = withDragAndDrop(Calendar)
 const DAYS = [
     {
@@ -61,6 +65,7 @@ const DAYS = [
 ]
 let totalPreferredTime
 
+// Declaration of all of the usestates
 export default function Account(props) {
     const { user, setUser } = useContext(AuthContext)
     const [userInfo, setUserInfo] = useState(user)
@@ -69,8 +74,10 @@ export default function Account(props) {
     const [copyFrom, setCopyFrom] = useState('Select')
     const [copyTo, setCopyTo] = useState('Select')
 
+    // Declaration for the mutation to update user attributes
     const [update, { data, loading }] = useMutation(UpdateUser)
 
+    //Declaration for the preference list, as well as saving/pushing the preferences to an array 
     const reFormatPreferenceList = (prefArray) => {
         let temp = []
         prefArray.forEach(({ title, start, end, color, value }) => {
@@ -95,14 +102,17 @@ export default function Account(props) {
         }
     }, [data, loading, setUser])
 
+    // renders the schedule based on the day format
     const renderPreferenceSchedule = () => {
         let formats = {
             dayFormat: (date, culture, localizer) =>
                 localizer.format(date, 'dddd', culture),
         }
+        // variable to hold the selected preference
         const handleSelectPreference = ({ start, end }) => {
             let color = 'green'
 
+            // if statement to change the color of the preference based on the value of the preference
             if (dropdownValue.value == -1) color = 'red'
             else if (dropdownValue.value == 0) color = 'grey'
             else if (dropdownValue.value == -100) color = 'darkred'
@@ -119,13 +129,15 @@ export default function Account(props) {
             ])
         }
 
-        //Includes copying events to different locations
+        //variable to Include copying events to different locations
         const movePreference = ({ event, start, end }) => {
             let { title, color, value } = event
 
+            // window which will give the user the choice to proceed or decline the copy action
             const check = window.confirm(
                 '\nCopy this event to new day?: Ok - YES, Cancel - NO'
             )
+            // if statement to check for the preference and then push to the database
             if (check) {
                 setMyPreferencesList([
                     ...myPreferencesList,
@@ -138,6 +150,7 @@ export default function Account(props) {
             }
         }
 
+        // Styling and resizing for the preference
         const resizePreference = ({ event, start, end }) => {
             let index = myPreferencesList.indexOf(event)
             let { title, color, value } = event
@@ -146,10 +159,12 @@ export default function Account(props) {
             setMyPreferencesList(tempArr)
         }
 
-        const handleDeletePreference = (event) => {
+            // window which will give the user the choice to proceed or decline the delete action
+            const handleDeletePreference = (event) => {
             const check = window.confirm(
                 '\nDelete this event: Ok - YES, Cancel - NO'
             )
+            // if statement to check for the preference and then delete the selected preference
             if (check) {
                 let deleteSpot = myPreferencesList.indexOf(event)
                 let tempArray = [...myPreferencesList]
@@ -158,6 +173,7 @@ export default function Account(props) {
             }
         }
 
+        // functions to handle the copied preference
         const renderCopyPreference = () => {
             const handlePreferenceCopy = () => {
                 let temp = [...myPreferencesList]
@@ -172,11 +188,13 @@ export default function Account(props) {
                     endingDate = `March ${29 + copyTo.value}`
                 }
 
+                
                 if (
                     copyFrom !== 'Select' ||
                     copyTo !== 'Select' ||
                     copyTo.value !== copyFrom.value
                 ) {
+                    // loop to take in each preference on the board and push them to the database
                     myPreferencesList.forEach(
                         ({ start, title, end, color, value }) => {
                             if (start.getDay() === copyFrom.value) {
@@ -199,9 +217,12 @@ export default function Account(props) {
                 }
                 setMyPreferencesList(temp)
             }
+
             return (
                 <div>
+                    
                     <TitleText
+                    //styling for the preferences tag
                         style={{
                             fontSize: '3rem',
                             textAlign: 'left',
@@ -210,6 +231,7 @@ export default function Account(props) {
                         Preferences
                     </TitleText>
                     <PrimaryButton
+                    // button to log the state of the preferences
                         style={{
                             align: 'left',
                         }}
@@ -218,6 +240,7 @@ export default function Account(props) {
                         Log State
                     </PrimaryButton>
                     <PrimaryButton
+                    // button to handle copying the preferences
                         style={{
                             align: 'left',
                         }}
@@ -232,6 +255,7 @@ export default function Account(props) {
                         }}
                     >
                         <Dropdown
+                        // dropdown list to choose an option for the preferences for the beginning of the shift
                             options={options}
                             onChange={(x) => setDropdownValue(x)}
                             value={dropdownValue}
@@ -240,6 +264,7 @@ export default function Account(props) {
                         <div style={{ display: 'flex', alignItems: 'center' }}>
                             <SubtitleText>From</SubtitleText>
                             <Dropdown
+                        // dropdown list to choose an option for the preferences for the end of the shift
                                 options={DAYS}
                                 onChange={(x) => setCopyFrom(x)}
                                 value={copyFrom}
@@ -259,6 +284,7 @@ export default function Account(props) {
                 </div>
             )
         }
+        // function to get the total number of hours the employee has so they hit their weekly max on preferences
         const getTotalPreferredHours = () => {
             totalPreferredTime = 0
             myPreferencesList.forEach(({ value, start, end }) => {
@@ -278,6 +304,7 @@ export default function Account(props) {
             <div>
                 {renderCopyPreference()}
                 <PrimaryButton
+                // button to call the function to submit all of the preferences to the database
                     style={{
                         //clear:'left',
                         align: 'left',
@@ -307,7 +334,8 @@ export default function Account(props) {
                     }}
                 ></div>
 
-                <DraggableCalendar //Preferences calendar
+                <DraggableCalendar 
+                //Preferences calendar
                     selectable
                     localizer={localizer}
                     toolbar={false}
@@ -360,9 +388,10 @@ export default function Account(props) {
             />
         )
     }
+    // function to update the various attributes of the employee in the database
     const validation = ({ email, firstName, lastName }) => {
         if (email === '' || firstName === '' || lastName === '')
-            console.log('asad')
+            console.log('Bad Update')
         else {
             update({
                 variables: {
@@ -390,13 +419,7 @@ export default function Account(props) {
                 >
                     Account Information
                 </TitleText>
-                {/* <h1
-                    style={{
-                        textAlign: 'left',
-                    }}
-                >
-                    {user.firstName}
-                </h1> */}
+               
                 <h3
                     style={{
                         textAlign: 'start',
@@ -405,10 +428,11 @@ export default function Account(props) {
                 >
                     Here you can update your account information.
                 </h3>
-                {/* {renderRow('email', 'Email')} */}
+                {/* Renders rows for the First and last name to be changed*/}
                 {renderRow('firstName', 'First Name')}
                 {renderRow('lastName', 'Last Name')}
                 <PrimaryButton
+                // button to save the changes made to the employees account and pusht hem to the database
                     style={{
                         display: 'block',
                     }}

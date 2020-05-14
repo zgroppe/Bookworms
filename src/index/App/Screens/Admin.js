@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/react-hooks'
 import { PrimaryButton } from './../Styles/StyledComponents'
 import { CreateUser, DeleteUser } from '../API/Mutations/User'
-// import { AuthContext } from './../Components/Auth'
 import Form from 'react-bootstrap/Form'
 import ListGroup from 'react-bootstrap/ListGroup'
 import Col from 'react-bootstrap/Col'
@@ -10,9 +9,8 @@ import { Input, Button } from 'semantic-ui-react'
 import fb from './../../../firebase'
 import Alert from 'react-bootstrap/Alert'
 import UsernameInput from './../Components/UsernameInput'
-
+// declaration for all use states 
 export default function Admin(props) {
-    // const { user } = useContext(AuthContext)
     const [loading, setLoading] = useState('')
     const [email, setEmail] = useState('')
     const [success, setSuccess] = useState(false)
@@ -21,10 +19,9 @@ export default function Admin(props) {
     const [lastName, setLastName] = useState('')
     const [isEmployee, setIsEmployee] = useState(true)
     const [deleteEmail, setDeleteEmail] = useState('')
-    // const [weeklyMax, setWeeklyMax] = useState(null)
-    // const [dailyMax, setDailyMax] = useState(null)
     const [error, setError] = useState(false)
 
+    // declaration of the mutation to create a user
     const [createUser, { loading: createLoading }] = useMutation(CreateUser, {
         onError(e) {
             setError({ title: 'Error Creating User!', message: e.message })
@@ -42,6 +39,7 @@ export default function Admin(props) {
         },
     })
 
+    // declaration of the mutation to delete a user
     const [deleteUser, { loading: deleteLoading }] = useMutation(DeleteUser, {
         onError(e) {
             setError({ title: 'Error Deleting User!', message: e.message })
@@ -65,16 +63,19 @@ export default function Admin(props) {
         if (createLoading || deleteLoading) setLoading(true)
     }, [createLoading, deleteLoading])
 
+    // deletes the user based on the email
     const handleDeleteUser = async (e) => {
         e.preventDefault()
         deleteUser({ variables: { email: formatEmail(deleteEmail) } })
     }
 
+    // formtas the email to whatever email the users should be using in the work site such as a company email
     const formatEmail = (state) => {
         if (state.includes('@')) return state
         else return `${state}@islander.tamucc.edu`
     }
 
+    // handler to check for invalid fields such as leaving the first or last name blank when trying to create a user
     const handleCreateUser = async (e) => {
         e.preventDefault()
         if (firstName.length < 1) {
@@ -114,6 +115,7 @@ export default function Admin(props) {
         }
     }
 
+    // Alert to let the admin know whether or not the action worked or failed
     const genericAlert = (type) => {
         let onPress = () => setSuccess(false)
         let title = 'Success!'
@@ -145,6 +147,7 @@ export default function Admin(props) {
         )
     }
 
+    // graphical alerts for success or error
     const renderErrorAlert = () => {
         return genericAlert('error')
     }
@@ -200,6 +203,7 @@ export default function Admin(props) {
                         value={email}
                     />
                     {renderInput({
+                        // input row for password
                         title: 'Password',
                         autoComplete: 'password',
                         icon: 'lock',
@@ -215,11 +219,13 @@ export default function Admin(props) {
                     }}
                 >
                     {renderInput({
+                        // input row for first name
                         title: 'First Name',
                         onChange: setFirstName,
                         value: firstName,
                     })}
                     {renderInput({
+                        // input row for last name
                         title: 'Last Name',
                         onChange: setLastName,
                         value: lastName,
@@ -235,6 +241,7 @@ export default function Admin(props) {
                     <Form.Label>User Type</Form.Label>
                     <Button.Group toggle={true}>
                         <Button
+                        // button to set the user to an employee
                             type='button'
                             onClick={() => setIsEmployee(true)}
                             positive={isEmployee}
@@ -243,6 +250,7 @@ export default function Admin(props) {
                         </Button>
                         <Button.Or />
                         <Button
+                        // button to set the new user to an admin
                             type='button'
                             onClick={() => setIsEmployee(false)}
                             positive={!isEmployee}
@@ -262,6 +270,7 @@ export default function Admin(props) {
                 onSubmit={(e) => handleDeleteUser(e)}
             >
                 <UsernameInput
+                // user input to delet the user
                     containerStyle={{
                         display: 'flex',
                         width: '42%',
@@ -274,21 +283,6 @@ export default function Admin(props) {
                     Delete User
                 </PrimaryButton>
             </Form>
-            {/* <h2>Hours</h2>
-            <Form>
-                <Form.Group>
-                    <Form.Label>Weekly Max</Form.Label>
-                    <Form.Control type='text' placeholder='Weekly Max' />
-                </Form.Group>
-                <Form.Group>
-                    <Form.Label>Daily Max</Form.Label>
-                    <Form.Control type='text' placeholder='Daily Max' />
-                </Form.Group>
-                <PrimaryButton type='submit'>
-                Adjust Hour Maxes
-            </PrimaryButton>
-                {renderHoursButton()}
-            </Form> */}
         </div>
     )
 }

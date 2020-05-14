@@ -1,6 +1,7 @@
 import { gql } from 'apollo-boost'
 import { UserData } from '../UserDataConstant'
 
+//API hook for the database query GetTradeBoardShifts
 export const GetTradeBoardShifts = gql`
     query {
         getTradeBoardShifts {
@@ -15,6 +16,7 @@ export const GetTradeBoardShifts = gql`
     }
 `
 
+//API hook for the database query GetPendingShifts
 export const GetPendingShifts = gql`
     query {
         getPendingShifts {

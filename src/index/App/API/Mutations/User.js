@@ -1,6 +1,7 @@
 import { gql } from 'apollo-boost'
 import { UserData } from '../UserDataConstant'
 
+//API hook for the database mutation UpdateUser
 export const UpdateUser = gql`
     mutation updateUser(
         $id: String!
@@ -22,6 +23,7 @@ export const UpdateUser = gql`
     }
 `
 
+//API hook for the database mutation CreateUser
 export const CreateUser = gql`
     mutation createUser(
         $firebaseID: String!
@@ -42,18 +44,21 @@ export const CreateUser = gql`
     }
 `
 
+//API hook for the database mutation DeleteUser
 export const DeleteUser = gql`
     mutation deleteUser($email: String!) {
         deleteUser(email: $email)
     }
 `
 
+//API hook for the database mutation ClockIn
 export const ClockIn = gql`
     mutation clockIn($location: String!, $time: String!, $email: String!) {
         clockIn(location: $location, time: $time, email: $email)
     }
 `
 
+//API hook for the database mutation ClockOut
 export const ClockOut = gql`
     mutation clockOut($location: String!, $time: String!, $email: String!) {
         clockOut(location: $location, time: $time, email: $email)
