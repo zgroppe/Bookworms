@@ -22,6 +22,9 @@ const logo = require('../Images/IndaysLogo.png')
 moment.locale('en')
 // This will be changed to david's login component when it is finished
 export default function Login(props) {
+
+    //states or variables consist of
+    //username, password, loading, error and success
     const [userName, setUsername] = useState('')
     const [password, setPassword] = useState('')
     const [loading, setLoading] = useState(false)
@@ -78,6 +81,13 @@ export default function Login(props) {
 
     const { user, setUser } = useContext(AuthContext)
 
+
+    /*
+    Function Name: getLocation
+    Parameter: inOrOut - a string whether clock in 'in' or clock out 'out'
+
+    The main functionality of this function is to check the clock in/clock out location
+    */
     const getLocation = (inOrOut) => {
         function CheckBrowser({ coords: { latitude, longitude } }) {
             const variables = {
@@ -96,6 +106,8 @@ export default function Login(props) {
             })
         }
 
+        //if navigator does not exist or is supported by the browser that  set error message
+        //else - if the location is accessible then get the location
         if (!navigator.geolocation)
             setError({
                 title: `Unable to Clock ${inOrOut}!`,
@@ -121,13 +133,30 @@ export default function Login(props) {
         else setLoading(false)
     }, [clockInLoading, clockOutLoading, getUserLoading])
 
+
+    /*
+   Function Name: formatUsername
+   Parameter: -
+
+   The main functionality of this function is to check the entered email to log in includes a character '@' 
+   if it includes @ and then use it normally
+   if not then add '@islander.tamucc.edu'
+   */
     const formatUsername = () => {
         if (userName.includes('@')) return userName
         else return `${userName}@islander.tamucc.edu`
     }
 
+
+    /*
+    Function Name: handleLoginPressed
+    Parameter: e - native windows event
+
+    The main functionality of this function is to set some context that is given from the database after the user login
+    it handles login error as well, by showing a custom alert
+    */
     const handleLoginPressed = async (e) => {
-        // Prevent screen refresh
+        // Prevent screen refresh or re-render 
         e.preventDefault()
 
         // Say it is loading
@@ -152,6 +181,13 @@ export default function Login(props) {
         }
     }
 
+
+    /*
+   Function Name: renderErrorAlert
+   Parameter: -
+
+   render function, it renders error alert 
+   */
     const renderErrorAlert = () => {
         return (
             <Alert
@@ -176,6 +212,13 @@ export default function Login(props) {
         )
     }
 
+
+    /*
+   Function Name: renderSuccessAlert
+   Parameter: -
+
+   render function, it renders sunccess alert 
+   */
     const renderSuccessAlert = () => {
         return (
             <Alert
@@ -199,7 +242,16 @@ export default function Login(props) {
         )
     }
 
+
+    /*
+    Function Name: handleResetPressed
+    Parameter: -
+
+    it is an asynchronous function that handle users to reset their password,
+    when the button is clicked, it checks the username whether it exist in the database then allow it to reset their password
+    */
     const handleResetPressed = async () => {
+        //if username string length is not enough the set error message
         if (userName.length < 2) {
             setError({
                 title: 'Whoops!',
@@ -217,6 +269,20 @@ export default function Login(props) {
         }
     }
 
+    /*
+   Function Name: makeCard
+   Parameter: -
+
+   render function, it renders the main card that consist all the of the main functionality in this screen such as
+   header
+   subheader
+   email text input
+   password text input
+   forgot password button
+   login button
+   clock in button
+   clock out button
+   */
     const makeCard = () => {
         return (
             <Card>
@@ -286,6 +352,7 @@ export default function Login(props) {
         )
     }
 
+    //the whole screen consist background, main card, and alerts that are initially invisible
     return (
         <div
             id='background'
