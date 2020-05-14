@@ -377,7 +377,7 @@ export default function Account(props) {
     return (
         <Card
             style={{
-                width: '78vw',
+                width: '95%',
             }}
         >
             <div>

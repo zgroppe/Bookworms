@@ -311,7 +311,7 @@ export default function Schedule(props) {
     return (
         <Card
             style={{
-                width: '1500px',
+                width: '95%',
             }}
         >
             <div>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { useMutation } from '@apollo/react-hooks'
-import { PrimaryButton } from './../Styles/StyledComponents'
+import { Card, PrimaryButton, TitleText, SubtitleText } from './../Styles/StyledComponents'
 import { CreateUser, DeleteUser } from '../API/Mutations/User'
 import Form from 'react-bootstrap/Form'
 import ListGroup from 'react-bootstrap/ListGroup'
@@ -183,8 +183,16 @@ export default function Admin(props) {
     }
 
     return (
+        <Card
+            style={{
+                width: '95%',
+            }}
+        >
         <div style={{ width: '80%' }}>
-            <h1>Admin</h1>
+            <TitleText style={{fontSize: '3.2rem'}}>Admin</TitleText>
+            <SubtitleText>Here you may create and delete new Employees or Admin users.</SubtitleText>
+            <br />
+            <br />
             {error && renderErrorAlert()}
             {success && renderSuccessAlert()}
             <h2>Create</h2>
@@ -221,12 +229,14 @@ export default function Admin(props) {
                     {renderInput({
                         // input row for first name
                         title: 'First Name',
+                        icon:'pencil alternate',
                         onChange: setFirstName,
                         value: firstName,
                     })}
                     {renderInput({
                         // input row for last name
                         title: 'Last Name',
+                        icon:'pencil alternate',
                         onChange: setLastName,
                         value: lastName,
                     })}
@@ -284,5 +294,6 @@ export default function Admin(props) {
                 </PrimaryButton>
             </Form>
         </div>
+        </Card>
     )
 }
