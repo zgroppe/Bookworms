@@ -285,7 +285,10 @@ export default function Login(props) {
    */
     const makeCard = () => {
         return (
-            <Card>
+            <Card  style={{
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            }}
+            >
                 <div
                     style={{
                         textAlign: 'left',

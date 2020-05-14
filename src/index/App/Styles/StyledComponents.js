@@ -61,7 +61,16 @@ export const PrimaryButton = styled.button`
     border: 0px;
     text-align: center;
 `
-
+export const SecondButton = styled.button`
+    background: linear-gradient(132.5deg, #000000 0%, #353535 59.95%);
+    border-radius: 100px;
+    width: 12vw;
+    height: 6vh;
+    color: white;
+    font-size: 16px;
+    
+    text-align: center;
+`
 export const Hyperlink = styled.a`
     font-family: Poppins;
     font-style: normal;

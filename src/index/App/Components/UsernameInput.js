@@ -47,7 +47,7 @@ export default function UsernameInput(props) {
                 )}
             </div>
             <Form.Text className='text-muted'>
-                We'll never share this email with anyone else.
+                We will never share this email with anyone else.
             </Form.Text>
         </Form.Group>
         // <Form.Group

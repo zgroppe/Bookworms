@@ -1,8 +1,10 @@
-import React, { useContext } from 'react'
+import React, { useContext, Component } from 'react'
 import { NavLink } from 'react-router-dom'
 import Screens from '../Screens'
-import { Navlink as Button } from './../Styles/StyledComponents'
+//import { Navlink as Button } from './../Styles/StyledComponents'
 import { AuthContext } from './Auth'
+import { Button, Menu } from 'semantic-ui-react'
+import { SecondButton} from './../Styles/StyledComponents'
 export default function Navbar() {
     const { user } = useContext(AuthContext)
     let screensToRender = [...Screens]
@@ -19,22 +21,23 @@ export default function Navbar() {
                 fontstyle: 'normal',
                 fontweight: 'normal',
                 height: '100vh',
-                width: 'auto',
                 listStyle: 'none',
             }}
         >
             {/* This will make all screens as a navbar item */}
             {screensToRender.map((screen) => {
-                return (
-                    <li style={{ marginBottom: '3vh' }}>
-                        <NavLink
+                return (     
+                    <li>
+                        <Button.Group widths='4'
                             className='tags'
                             exact={true}
+                            as={NavLink}
                             to={`${screen.path}`}
                         >
-                            <Button>{screen.name}</Button>
-                        </NavLink>
+                            <SecondButton>{screen.name}</SecondButton>
+                        </Button.Group> 
                     </li>
+                   
                 )
             })}
         </ul>

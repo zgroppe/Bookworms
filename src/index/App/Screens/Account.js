@@ -390,16 +390,16 @@ export default function Account(props) {
                 >
                     Account Information
                 </TitleText>
-
-                <h3
+                {/* <h1
                     style={{
-                        textAlign: 'start',
-                        fontSize: '1.3rem',
+                        textAlign: 'left',
                     }}
                 >
-                    Here you can update your account information.
-                </h3>
-                {/* Renders rows for the First and last name to be changed*/}
+                    {user.firstName}
+                </h1> */}
+                <SubtitleText>Here you can update your account information.</SubtitleText>
+                <br />
+                {/* {renderRow('email', 'Email')} */}
                 {renderRow('firstName', 'First Name')}
                 {renderRow('lastName', 'Last Name')}
                 <PrimaryButton

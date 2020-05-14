@@ -1,10 +1,24 @@
 import React from 'react'
+import {
+    Card,
+    CardTitle,
+    Hyperlink,
+    PrimaryButton,
+    SubtitleText,
+    TextInput,
+    TitleText,
+} from './../Styles/StyledComponents'
 
 export default function Statistics(props) {
 	return (
-		<div>
-			<h1>Statistics</h1>
-			<h3>This is some statistics content</h3>
+		<div style={{
+                    textAlign: 'center',
+                    position: 'flex',
+                }}>
+			<TitleText style={{ 
+                    fontSize: '48px',
+                }}>Statistics</TitleText>
+			<SubtitleText>Statistics content is under construction.</SubtitleText>
 		</div>
 	)
 }

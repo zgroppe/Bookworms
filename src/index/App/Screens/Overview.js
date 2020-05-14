@@ -4,7 +4,7 @@ import { AddTradeBoardShift } from '../API/Mutations/Shifts'
 import { GetAllUsers } from '../API/Queries/User'
 import { AuthContext } from '../Components/Auth'
 import { GetBlackouts } from './../API/Queries/Blackout'
-import { Card, TitleText } from './../Styles/StyledComponents'
+import { Card, TitleText,SubtitleText } from './../Styles/StyledComponents'
 import { ErrorAlert } from './../Components/Alerts'
 import LoadingSpinner from './../Components/LoadingSpinner'
 import MyCalendar from './../Components/Calendar'
@@ -203,15 +203,14 @@ export default function Overview(props) {
             }}
         >
             <div>
-                <TitleText
-                    style={{
-                        textAlign: 'left',
-                        position: 'flex',
-                        fontSize: '48px',
-                    }}
-                >
-                    Overview
-                </TitleText>
+            <TitleText style={{
+                    textAlign: 'left',
+                    position: 'flex',
+                    fontSize: '3.2rem',
+                }}>Overview</TitleText>
+            <SubtitleText>Here you may view your weekly work schedule. </SubtitleText>
+            <br />
+            <br />
                 {error && (
                     <ErrorAlert error={error} onClose={() => setError(false)} />
                 )}

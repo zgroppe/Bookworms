@@ -6,7 +6,7 @@ import {
     AcceptPendingShift,
     DeclinePendingShift,
 } from '../API/Mutations/Shifts'
-import { Card, TitleText, PrimaryButton } from './../Styles/StyledComponents'
+import { Card, TitleText, PrimaryButton,SubtitleText } from './../Styles/StyledComponents'
 import { GetTradeBoardShifts, GetPendingShifts } from '../API/Queries/Shifts'
 import { AuthContext } from './../Components/Auth'
 import { SuccessAlert, ErrorAlert } from './../Components/Alerts'
@@ -305,9 +305,10 @@ export default function Shiftswap() {
                         position: 'flex',
                         fontSize: '3.2rem',
                     }}
-                >
-                    Shiftswap
-                </TitleText>
+                >Shiftswap</TitleText>
+				<SubtitleText>Make requests to exchange shifts with other employees. </SubtitleText>
+				<br />
+				<br />
                 {success && (
                     <SuccessAlert
                         message={success}

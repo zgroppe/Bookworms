@@ -10,7 +10,7 @@ import { GetBlackouts } from './../API/Queries/Blackout'
 import { GetAllUsersId, GetUserByID } from './../API/Queries/User'
 import { AuthContext } from './../Components/Auth'
 import AutoPopulate from './../Functions/AutoPopulation'
-import { Card, PrimaryButton, TitleText } from './../Styles/StyledComponents'
+import { Card, PrimaryButton, TitleText, SubtitleText } from './../Styles/StyledComponents'
 import Form from 'react-bootstrap/Form'
 import MyCalendar from './../Components/Calendar'
 
@@ -211,17 +211,17 @@ export default function Schedule(props) {
             <div
                 style={{
                     display: 'flex',
-                    alignItems: 'center',
+                    alignItems: 'left',
                     flexDirection: 'column',
                     justifyContent: 'center',
                 }}
             >
-                <div style={{ display: 'flex' }}>
-                    <h3>Blackout Start</h3>
-                    {renderDatePicker(blackoutStart, setBlackoutStart)}
-
-                    <h3>Blackout End</h3>
-                    {renderDatePicker(blackoutEnd, setBlackoutEnd)}
+                <div style={{ display: 'flex',justifyContent: 'center' }}>
+                    <h4>Blackout Start <br /> {renderDatePicker(blackoutStart, setBlackoutStart)}</h4>
+                    
+                    
+                    <h4>Blackout End <br /> {renderDatePicker(blackoutEnd, setBlackoutEnd)}</h4>
+                    
                 </div>
             </div>
         )
@@ -315,16 +315,19 @@ export default function Schedule(props) {
             }}
         >
             <div>
-                <TitleText
-                    style={{
-                        textAlign: 'left',
-                        position: 'flex',
-                        fontSize: '48px',
-                    }}
-                >
-                    Schedule
-                </TitleText>
+            <TitleText style={{
+                    textAlign: 'left',
+                    position: 'flex',
+                    fontSize: '48px',
+                    //clear:'left'
+                }}>Schedule</TitleText>
+                <SubtitleText> View both the Blackout Calendar and Create Auto-Populated Calendars. </SubtitleText>
+                <br />
+                <br />
                 <h3>Blackout Calendar</h3>
+                <SubtitleText> Here you may set new Blackout dates to the Calendar.</SubtitleText>
+                <br />
+                <br />
                 {/* <Swatch
                     onClick={() => setDisplayColorPicker(!displayColorPicker)}
                 >
@@ -338,7 +341,11 @@ export default function Schedule(props) {
                 </Swatch> */}
                 {renderBlackout()}
 
-                <div>
+                <div style={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            alignItems: 'center',
+                        }}>
                     <PrimaryButton
                         style={{
                             align: 'left',
@@ -347,14 +354,6 @@ export default function Schedule(props) {
                     >
                         Submit Blackouts To Database
                     </PrimaryButton>
-
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                        }}
-                    ></div>
                 </div>
 
                 <MyCalendar
@@ -371,8 +370,13 @@ export default function Schedule(props) {
                     onEventResize={resizeEvent}
                 />
 
+                {/* <AutoPopulate todo={(fromChild) => reformatAutoPop(fromChild)} /> */}
+                <br />
+                <br />
                 <h3>Auto Population Calendar</h3>
-
+                <SubtitleText>Generate new work Calendars with the Auto Population feature.</SubtitleText>
+                <br />
+                <br />
                 <h2>Hours</h2>
                 <Form>
                     <Form.Group>
@@ -393,7 +397,7 @@ export default function Schedule(props) {
                     todo={(fromChild) => setAutoPopulationSchedule(fromChild)}
                 />
 
-                <div>
+                
                     <PrimaryButton
                         style={{
                             align: 'left',
@@ -402,14 +406,6 @@ export default function Schedule(props) {
                     >
                         Submit Shifts To Database
                     </PrimaryButton>
-
-                    <div
-                        style={{
-                            display: 'flex',
-                            flexDirection: 'column',
-                            alignItems: 'center',
-                        }}
-                    ></div>
                 </div>
 
                 <MyCalendar
@@ -421,7 +417,6 @@ export default function Schedule(props) {
                     onEventDrop={moveEvent}
                     onEventResize={resizeEvent}
                 />
-            </div>
         </Card>
     )
 }
