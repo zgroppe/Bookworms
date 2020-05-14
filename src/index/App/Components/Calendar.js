@@ -11,8 +11,9 @@ import 'react-big-calendar/lib/css/react-big-calendar.css'
 import 'react-datepicker/dist/react-datepicker.css'
 moment.locale('en')
 const localizer = momentLocalizer(moment)
-
 const DraggableCalendar = withDragAndDrop(BigCalendar)
+
+//Function handling the creation of calendars used on different pages
 function Calendar(props) {
     const {
         events = [],

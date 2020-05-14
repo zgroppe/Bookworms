@@ -387,9 +387,6 @@ export default function Schedule(props) {
                         <Form.Label>Daily Max</Form.Label>
                         <Form.Control type='text' placeholder='Daily Max' />
                     </Form.Group>
-                    <PrimaryButton type='submit'>
-                        Adjust Hour Maxes
-                    </PrimaryButton>
                     {renderHoursButton()}
                 </Form>
 
