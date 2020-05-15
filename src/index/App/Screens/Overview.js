@@ -26,7 +26,7 @@ export default function Overview(props) {
 
     useEffect(() => {
         //When the screen loads
-        if (!myShifts) {
+        if (myShifts.length === 0) {
             const formattedShifts = user.shifts.map(
                 ({ start, end, ...rest }) => {
                     //Changing string to date object to be rendered in the calendar

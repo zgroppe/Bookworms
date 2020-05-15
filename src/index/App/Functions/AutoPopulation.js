@@ -6,9 +6,8 @@ import { SCHEDULE } from './AutoPopConstant'
 
 //Check for what value the weekly max value is going to be using local storage
 const checkWeekly = () => {
-        if(localStorage.getItem('currentWeeklyMax'))
+        if(localStorage.getItem('currentWeeklyMax') && localStorage.getItem('currentWeeklyMax') > 0)
         {
-                console.log(localStorage.getItem('currentWeeklyMax'))
                 return localStorage.getItem('currentWeeklyMax')
         }
         else
@@ -20,7 +19,7 @@ const checkWeekly = () => {
 
 //Check for what value the daily max value is going to be using local storage
 const checkDaily = () => {
-        if(localStorage.getItem('currentDailyMax'))
+        if(localStorage.getItem('currentDailyMax') && localStorage.getItem('currentDailyMax') > 0)
         {
                 console.log(localStorage.getItem('currentDailyMax'))
                 return localStorage.getItem('currentDailyMax')

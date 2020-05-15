@@ -23,8 +23,8 @@ export default function Schedule(props) {
     const [blackoutEnd, setBlackoutEnd] = useState('')
     const [AutoPopulationSchedule, setAutoPopulationSchedule] = useState([])
     const [blackoutDates, setBlackoutDates] = useState([])
-    const [weeklyMax, setWeeklyMax] = useState(null)
-    const [dailyMax, setDailyMax] = useState(null)
+    const [weeklyMax, setWeeklyMax] = useState(localStorage.getItem('currentWeeklyMax') || 0)
+    const [dailyMax, setDailyMax] = useState(localStorage.getItem('currentDailyMax') || 0)
 
     //Context var to allow for ease in access to current user info
     const { user } = useContext(AuthContext)
@@ -294,12 +294,8 @@ export default function Schedule(props) {
     const renderHoursButton = () => {
         //Function ensuring the safe adjustment of our targeted variables
         const validation = () => {
-            if (weeklyMax !== 0 && dailyMax !== 0) {
-                localStorage.setItem('currentWeeklyMax', weeklyMax)
-                localStorage.setItem('currentDailyMax', dailyMax)
-            }
-            setWeeklyMax(null)
-            setDailyMax(null)
+            localStorage.setItem('currentWeeklyMax', weeklyMax)
+            localStorage.setItem('currentDailyMax', dailyMax)
         }
         return (
             <PrimaryButton onClick={() => validation()}>
@@ -381,11 +377,15 @@ export default function Schedule(props) {
                 <Form>
                     <Form.Group>
                         <Form.Label>Weekly Max</Form.Label>
-                        <Form.Control type='text' placeholder='Weekly Max' />
+                        <Form.Control type='text' placeholder='Weekly Max' defaultValue = {weeklyMax} onChange={({ target: { value } }) =>
+                                setWeeklyMax(value)
+                            }  />
                     </Form.Group>
                     <Form.Group>
                         <Form.Label>Daily Max</Form.Label>
-                        <Form.Control type='text' placeholder='Daily Max' />
+                        <Form.Control type='text' placeholder='Daily Max' defaultValue = {dailyMax} onChange={({ target: { value } }) =>
+                                setDailyMax(value)
+                            } />
                     </Form.Group>
                     {renderHoursButton()}
                 </Form>
