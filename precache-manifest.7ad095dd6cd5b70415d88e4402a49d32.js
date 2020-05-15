@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "6b400e462ace27fe43249b95528bc3b8",
+    "revision": "0b2cd2f59897fabdd311b376dbb083c2",
     "url": "/Bookworms/index.html"
   },
   {
@@ -8,7 +8,7 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Bookworms/static/css/2.45e7f6fc.chunk.css"
   },
   {
-    "revision": "0d5e0ea7ef948b83fa4e",
+    "revision": "3b22c7f128ff203df9a1",
     "url": "/Bookworms/static/css/main.69039661.chunk.css"
   },
   {
@@ -20,8 +20,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/Bookworms/static/js/2.43ecc9b8.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "0d5e0ea7ef948b83fa4e",
-    "url": "/Bookworms/static/js/main.98975edc.chunk.js"
+    "revision": "3b22c7f128ff203df9a1",
+    "url": "/Bookworms/static/js/main.321d2f03.chunk.js"
   },
   {
     "revision": "0ed6239f5823de84b7f9",
