@@ -1,27 +1,27 @@
 {
   "files": {
     "main.css": "/Bookworms/static/css/main.69039661.chunk.css",
-    "main.js": "/Bookworms/static/js/main.18c70ebf.chunk.js",
-    "main.js.map": "/Bookworms/static/js/main.18c70ebf.chunk.js.map",
+    "main.js": "/Bookworms/static/js/main.98975edc.chunk.js",
+    "main.js.map": "/Bookworms/static/js/main.98975edc.chunk.js.map",
     "runtime-main.js": "/Bookworms/static/js/runtime-main.f1dcf02a.js",
     "runtime-main.js.map": "/Bookworms/static/js/runtime-main.f1dcf02a.js.map",
-    "static/css/2.b54b1ec3.chunk.css": "/Bookworms/static/css/2.b54b1ec3.chunk.css",
-    "static/js/2.8257a6e3.chunk.js": "/Bookworms/static/js/2.8257a6e3.chunk.js",
-    "static/js/2.8257a6e3.chunk.js.map": "/Bookworms/static/js/2.8257a6e3.chunk.js.map",
+    "static/css/2.45e7f6fc.chunk.css": "/Bookworms/static/css/2.45e7f6fc.chunk.css",
+    "static/js/2.43ecc9b8.chunk.js": "/Bookworms/static/js/2.43ecc9b8.chunk.js",
+    "static/js/2.43ecc9b8.chunk.js.map": "/Bookworms/static/js/2.43ecc9b8.chunk.js.map",
     "index.html": "/Bookworms/index.html",
-    "precache-manifest.870e9339f0b3b6945fda891bae0cdda3.js": "/Bookworms/precache-manifest.870e9339f0b3b6945fda891bae0cdda3.js",
+    "precache-manifest.139be353098427a172cc564eff2fe6c8.js": "/Bookworms/precache-manifest.139be353098427a172cc564eff2fe6c8.js",
     "service-worker.js": "/Bookworms/service-worker.js",
-    "static/css/2.b54b1ec3.chunk.css.map": "/Bookworms/static/css/2.b54b1ec3.chunk.css.map",
+    "static/css/2.45e7f6fc.chunk.css.map": "/Bookworms/static/css/2.45e7f6fc.chunk.css.map",
     "static/css/main.69039661.chunk.css.map": "/Bookworms/static/css/main.69039661.chunk.css.map",
-    "static/js/2.8257a6e3.chunk.js.LICENSE.txt": "/Bookworms/static/js/2.8257a6e3.chunk.js.LICENSE.txt",
+    "static/js/2.43ecc9b8.chunk.js.LICENSE.txt": "/Bookworms/static/js/2.43ecc9b8.chunk.js.LICENSE.txt",
     "static/media/IndaysLogo.png": "/Bookworms/static/media/IndaysLogo.de1409c4.png",
     "static/media/index.css": "/Bookworms/static/media/background3.476e815d.jpg"
   },
   "entrypoints": [
     "static/js/runtime-main.f1dcf02a.js",
-    "static/css/2.b54b1ec3.chunk.css",
-    "static/js/2.8257a6e3.chunk.js",
+    "static/css/2.45e7f6fc.chunk.css",
+    "static/js/2.43ecc9b8.chunk.js",
     "static/css/main.69039661.chunk.css",
-    "static/js/main.18c70ebf.chunk.js"
+    "static/js/main.98975edc.chunk.js"
   ]
 }
