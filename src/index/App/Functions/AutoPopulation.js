@@ -12,7 +12,6 @@ const checkWeekly = () => {
         }
         else
         {
-                console.log('DIDNT USE LOCAL')
                 return 20
         }
 }
@@ -21,12 +20,10 @@ const checkWeekly = () => {
 const checkDaily = () => {
         if(localStorage.getItem('currentDailyMax') && localStorage.getItem('currentDailyMax') > 0)
         {
-                console.log(localStorage.getItem('currentDailyMax'))
                 return localStorage.getItem('currentDailyMax')
         }
         else
         {
-                console.log('DIDNT USE LOCAL')
                 return 7
         }
 }
