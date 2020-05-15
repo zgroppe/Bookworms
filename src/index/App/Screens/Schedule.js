@@ -314,8 +314,7 @@ export default function Schedule(props) {
             <TitleText style={{
                     textAlign: 'left',
                     position: 'flex',
-                    fontSize: '48px',
-                    //clear:'left'
+                    fontSize: '3.2rem'
                 }}>Schedule</TitleText>
                 <SubtitleText> View both the Blackout Calendar and Create Auto-Populated Calendars. </SubtitleText>
                 <br />
@@ -376,8 +375,8 @@ export default function Schedule(props) {
                 <h2>Hours</h2>
                 <Form>
                     <Form.Group>
-                        <Form.Label>Weekly Max</Form.Label>
-                        <Form.Control type='text' placeholder='Weekly Max' defaultValue = {weeklyMax} onChange={({ target: { value } }) =>
+                        <Form.Label sm={2}>Weekly Max</Form.Label>
+                        <Form.Control  type='text' placeholder='Weekly Max' defaultValue = {weeklyMax} onChange={({ target: { value } }) =>
                                 setWeeklyMax(value)
                             }  />
                     </Form.Group>
@@ -393,8 +392,6 @@ export default function Schedule(props) {
                 <AutoPopulate
                     todo={(fromChild) => setAutoPopulationSchedule(fromChild)}
                 />
-
-                
                     <PrimaryButton
                         style={{
                             align: 'left',

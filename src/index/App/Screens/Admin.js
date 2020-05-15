@@ -183,13 +183,12 @@ export default function Admin(props) {
     }
 
     return (
-        <Card
-            style={{
-                width: '95%',
-            }}
-        >
+        <Card style={{width: '95%'}}>
+
         <div style={{ width: '80%' }}>
-            <TitleText style={{fontSize: '3.2rem'}}>Admin</TitleText>
+
+            <TitleText style={{fontSize: '3.2rem'}}> Admin</TitleText>
+            
             <SubtitleText>Here you may create and delete new Employees or Admin users.</SubtitleText>
             <br />
             <br />
